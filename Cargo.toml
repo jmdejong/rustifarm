@@ -1,0 +1,15 @@
+[package]
+name = "asciifarm"
+version = "0.1.0"
+authors = ["troido <troido@protonmail.com>"]
+edition = "2018"
+
+[dependencies]
+mio-uds = "0.6"
+mio = "0.6"
+slab = "0.4.2"
+nix = "0.13"
+libc = "0.2"
+users = "0.8"
+json = "0.11.13"
+
