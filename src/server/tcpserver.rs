@@ -5,7 +5,8 @@ use std::net::SocketAddr;
 use mio::net::{TcpListener, TcpStream};
 use slab::Slab;
 
-use self::super::streamconnection::StreamConnection;
+use super::streamconnection::StreamConnection;
+use super::Server;
 
 
 pub struct TcpServer {
@@ -24,7 +25,7 @@ impl TcpServer {
 	}
 }
 
-impl super::Server for TcpServer {
+impl Server for TcpServer {
 
 	fn accept_pending_connections(&mut self) -> Vec<usize> {
 		let mut new_connections = Vec::new();

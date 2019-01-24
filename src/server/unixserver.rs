@@ -9,7 +9,8 @@ use nix::sys::socket::getsockopt;
 use nix::sys::socket::sockopt;
 use users;
 
-use self::super::streamconnection::StreamConnection;
+use super::streamconnection::StreamConnection;
+use super::Server;
 
 
 pub struct UnixServer {
@@ -30,7 +31,7 @@ impl UnixServer {
 	
 }
 
-impl super::Server for UnixServer {
+impl Server for UnixServer {
 
 	fn accept_pending_connections(&mut self) -> Vec<usize> {
 		let mut new_connections = Vec::new();

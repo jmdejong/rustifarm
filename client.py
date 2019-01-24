@@ -49,6 +49,7 @@ if len(sys.argv) >= 2:
 	name = sys.argv[1]
 else:
 	name = "~" + getpass.getuser()
+print(name)
 
 send(sock, bytes(json.dumps(["name", name]), "utf-8"))
 
