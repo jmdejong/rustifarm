@@ -9,81 +9,98 @@ use json::JsonValue;
 use super::server::Server;
 
 
-pub enum Message {
+enum Message {
 	Name(String),
 	Chat(String),
-	Input,
+	Input(JsonValue),
 	Invalid(String)
 }
 
-pub struct GameServer<T: Server> {
-	players: HashMap<usize, String>,
-	connections: HashMap<String, usize>,
-	server: T
+pub enum Action {
+	Join(String),
+	Leave(String),
+	Input(String, JsonValue)
 }
 
-impl<T: Server> GameServer<T> {
-	pub fn new(server: T) -> GameServer<T> {
+pub struct GameServer {
+	players: HashMap<(usize, usize), String>,
+	connections: HashMap<String, (usize, usize)>,
+	servers: Vec<Box<Server>>
+}
+
+impl GameServer {
+	pub fn new(servers: Vec<Box<Server>>) -> GameServer {
 		GameServer {
 			players: HashMap::new(),
 			connections: HashMap::new(),
-			server
+			servers
 		}
 	}
 	
-	pub fn update(&mut self) {
-		self.accept_connections();
-		self.receive_messages();
-	}
-	
-	fn accept_connections(&mut self) {
-		let _joined = self.server.accept_pending_connections();
-	}
-	
-	fn receive_messages(&mut self) {
+	pub fn update(&mut self) -> Vec<Action>{
+		for server in self.servers.iter_mut(){
+			let _ = server.accept_pending_connections();
+		}
 		
-		let (messages, left) = self.server.recv_pending_messages();
-		for (id, message) in messages {
-			self.handle_message(id, parse_message(&message));
+		let mut actions: Vec<Action> = Vec::new();
+		let mut input = Vec::new();
+		for (serverid, server) in self.servers.iter_mut().enumerate(){
+			let (messages, left) = server.recv_pending_messages();
+			input.push((serverid, messages, left));
 		}
-		for id in left {
-			self.remove_connection(id);
+		for (serverid, messages, left) in input {
+			for (id, message) in messages {
+				let r = self.handle_message((serverid, id), parse_message(&message));
+				if let Some(action) = r {
+					actions.push(action);
+				}
+			}
+			for id in left {
+				if let Some(name) = self.players.remove(&(serverid, id)){
+					self.connections.remove(&name);
+					self.broadcast_message(&format!("{} disconnected", name));
+					actions.push(Action::Leave(name.clone()));
+				}
+			}
 		}
+		actions
 	}
 	
-	fn send_error(&mut self, id: usize, errname: &str, err_text: &str) -> Result<(), io::Error>{
-		self.server.send(id, &json::stringify(json::array!["error", errname, err_text]))
+	fn send_error(&mut self, (serverid, connectionid): (usize, usize), errname: &str, err_text: &str) -> Result<(), io::Error>{
+		self.servers[serverid].send(connectionid, &json::stringify(json::array!["error", errname, err_text]))
 	}
 	
 	pub fn broadcast_message(&mut self, text: &str){
 		println!("{}", text);
 		let jsontext = json::stringify(json::array!["message", text]);
-		for (id, _name) in &self.players {
-			let _ = self.server.send(*id, &jsontext);
+		for ((serverid, id), _name) in &self.players {
+			let _ = self.servers[*serverid].send(*id, &jsontext);
 		}
 	}
 	
-	pub fn handle_message(&mut self, id: usize, msg: Message) {
+	fn handle_message(&mut self, (serverid, connectionid): (usize, usize), msg: Message) -> Option<Action> {
+		let id = (serverid, connectionid);
 		match msg {
 			Message::Name(name) => {
 				let (firstchar, username) = name.split_at(1);
 				if firstchar == "~"{
-					if Some(username.to_string()) != self.server.get_name(id) {
+					if Some(username.to_string()) != self.servers[serverid].get_name(connectionid) {
 						let _ = self.send_error(id, "invalidname", &format!("A tilde name must match your username"));
-						return;
+						return None;
 					}
 				}
 				if self.players.contains_key(&id) {
 					let _ = self.send_error(id, "invalidaction", &format!("You can not change your name"));
-					return;
+					return None;
 				}
 				if self.connections.contains_key(&name) {
 					let _ = self.send_error(id, "nametaken", &format!("Another connections to this player exists already"));
-					return;
+					return None;
 				}
 				self.broadcast_message(&format!("{} connected", name));
 				self.players.insert(id, name.clone());
-				self.connections.insert(name, id);
+				self.connections.insert(name.clone(), id);
+				Some(Action::Join(name))
 			}
 			Message::Chat(text) => {
 				if let Some(name) = self.players.get(&id) {
@@ -91,20 +108,16 @@ impl<T: Server> GameServer<T> {
 				} else {
 					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
 				}
+				None
 			}
-			Message::Input => { () }
+			Message::Input(_) => { None }
 			Message::Invalid(text) => {
 				let _ = self.send_error(id, "invalidmessage", &format!("Invalid: {}", text));
+				None
 			}
 		}
 	}
 	
-	pub fn remove_connection(&mut self, id: usize) {
-		if let Some(name) = self.players.remove(&id){
-			self.connections.remove(&name);
-			self.broadcast_message(&format!("{} disconnected", name));
-		}
-	}
 }
 
 
@@ -133,7 +146,7 @@ fn parse_message(msg: &str) -> Message {
 						
 					}
 					"input" => {
-						Message::Input
+						Message::Input(arr[1].clone())
 					}
 					_ => {
 						Message::Invalid(format!("unknown messsage type {:?}", msgtype).to_string())
