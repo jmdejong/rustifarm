@@ -1,13 +1,12 @@
 
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
-struct Pos (i32, i32);
+pub struct Pos(pub i32, pub i32);
 
 
-struct Room {
-	objects :HashMap<Pos, HashSet<GameObject>>,
+pub struct Room {
+	objects :HashMap<Pos, Vec<GameObject>>,
 	pub area :(Pos, Pos),
 	players :HashMap<String, GameObject>
 }
@@ -31,6 +30,11 @@ impl Room {
 		}
 	}
 	
+	pub fn add_obj(&mut self, pos :Pos, obj :GameObject) {
+		let place = self.objects.entry(pos).or_insert(Vec::new());
+		place.push(obj);
+	}
+	
 // 		let mut sprites :Vec<String> = Vec::new();
 // 		for maybe_obj in self.objects.get((x, y))
 // 			sprites.push
@@ -43,7 +47,7 @@ impl Room {
 		let width = xmax - xmin;
 		let height = ymax - ymin;
 		let size = width * height;
-		let mut values :Vec<usize>= Vec::with_capacity(size as usize);
+		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 		let mut mapping = Vec::with_capacity(size as usize);
 		for y in ymin..ymax {
 			for x in xmin..xmax {
@@ -56,17 +60,18 @@ impl Room {
 }
 
 
-struct GameObject {
-	pos :Pos,
+#[derive(Clone)]
+pub struct GameObject {
+// 	pos :Pos,
 // 	name :&str,
 	sprite :String
 }
 
 impl GameObject {
 	
-	pub fn new(sprite :&str, pos :Pos) -> GameObject {
+	pub fn new(sprite :&str) -> GameObject {
 		GameObject {
-			pos: pos,
+// 			pos: pos,
 			sprite: sprite.to_string()
 		}
 	}
