@@ -1,7 +1,5 @@
 
 use std::collections::HashMap;
-// use std::collections::HashSet;
-// use std::ops::Deref;
 
 use specs::{
 	VecStorage,
@@ -17,7 +15,8 @@ use specs::{
 	Write
 };
 
-struct EntityId(usize);
+
+// Components
 
 #[derive(Component, Debug, Hash, PartialEq, Eq, Clone, Copy)]
 #[storage(VecStorage)]
@@ -37,6 +36,17 @@ struct Visible {
 struct Size (i32, i32);
 
 
+// Resources
+
+#[derive(Default)]
+struct TopView {
+	width: i32,
+	height: i32,
+	cells: HashMap<Position, Vec<String>>
+}
+
+// Systems
+
 struct Draw;
 
 impl <'a> System<'a> for Draw {
@@ -53,13 +63,8 @@ impl <'a> System<'a> for Draw {
 	}
 }
 
-#[derive(Default)]
-struct TopView {
-	width: i32,
-	height: i32,
-	cells: HashMap<Position, Vec<String>>
-}
 
+// Higher level stuff
 
 pub struct Room<'a, 'b> {
 	world: World,
@@ -92,13 +97,11 @@ impl <'a, 'b>Room<'a, 'b> {
 		let tv = &*self.world.fetch::<TopView>();
 		let width = tv.width;
 		let height = tv.height;
-// 		let TopView{width: width, height: height, cells: cells} = ;
 		let size = width * height;
 		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 		let mut mapping: Vec<Vec<String>> = Vec::with_capacity(size as usize);
 		for y in 0..height {
 			for x in 0..width {
-// 				values.push(mapping.len());
 				let sprites = match tv.cells.get(&Position{x: x, y: y}) {
 					Some(sprites) => {sprites.to_vec()}
 					None => {vec![]}
@@ -143,57 +146,3 @@ fn gen_world(world: &mut World){
 	}
 }
 
-// pub fn make_room<'a, 'b>(size: (i32, i32)) -> (World, Dispatcher<'a, 'b>){
-// 	let (width, height) = size;
-// 	let mut world = World::new();
-// 	world.register::<Position>();
-// 	world.register::<Visible>();
-// 	world.insert(Size(width, height));
-// 	world.insert(TopView{width: width, height: height, cells: HashMap::new()});
-// 	
-// 	
-// 	
-// 	let mut dispatcher = DispatcherBuilder::new()
-// 		.with(Draw, "draw", &[])
-// 		.build();
-// 	
-// 	
-// 	gen_world(&mut world);
-// 	
-// 	(world, dispatcher)
-// }
-
-// pub fn view_room(world :&World) -> (Vec<usize>, Vec<Vec<String>>) {
-// 		let TopView{width: width, height: height, cells: cells} = *world.fetch::<TopView>();
-// 		let size = width * height;
-// 		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
-// 		let mut mapping = Vec::with_capacity(size as usize);
-// 		for y in 0..height {
-// 			for x in 0..width {
-// 				values.push(mapping.len());
-// 				mapping.push(match cells.get(Position{x: x, y: y}) {
-// 					Some(sprites) => {sprites}
-// 					None => {vec![]}
-// 				});
-// 			}
-// 		}
-// 		return (values, mapping)
-// 	
-// }
-
-// struct Room {
-// 	entities: Entities,
-// 	width: u32,
-// 	height: u32,
-// 	ground: HashMap<(u32, u32), GroundTile>
-// }
-// 
-// struct Entities {
-// 	components: HashMap<EntityId, Box<Component>>,
-// 	systems: HashMap<EntityId, Box<System>>
-// }
-// 
-// 
-// struct GroundTile {
-// 	entities: HashSet<EntityId>
-// }
