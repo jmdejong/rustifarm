@@ -7,13 +7,15 @@ use std::path::Path;
 pub mod server;
 pub mod gameserver;
 pub mod room;
+pub mod util;
+// pub mod controls;
 
-use self::gameserver::GameServer;
+use self::gameserver::{GameServer, Action};
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
 
-use json;
+use serde_json;
 
 
 fn main() {
@@ -33,30 +35,39 @@ fn main() {
 	let mut room = room::Room::new((32, 32));
 	
 	loop {
-		let _actions = gameserver.update();
+		let actions = gameserver.update();
+		for action in actions {
+			match action {
+				Action::Join(name) => {room.add_player(&name);}
+				Action::Leave(name) => {room.remove_player(&name);}
+				_ => {}
+			}
+		}
 		room.update();
 		let (field, mapping) = room.view();
 		let updatemsg = create_update_message(room.get_size(), field, mapping);
-		let _ = gameserver.broadcast_json(updatemsg);
+		gameserver.broadcast(updatemsg.as_str());
 		sleep(Duration::from_millis(100));
 	}
 }
 
 
-fn create_update_message((width, height): (i32, i32), field: Vec<usize>, mapping: Vec<Vec<String>>) -> json::JsonValue {
-	let mut updatemsg: json::JsonValue = json::array![
+fn create_update_message((width, height): (i32, i32), field: Vec<usize>, mapping: Vec<Vec<String>>) -> String {
+	let updatemsg= serde_json::json!([
 		"world",
-		json::array![
-			json::array![
+		[
+			[
 				"field",
-				json::object!{
-					"width" => width,
-					"height" => height,
+				{
+					"width": width,
+					"height": height,
+					"field": field,
+					"mapping": mapping
 				}
 			]
 		]
-	];
-	updatemsg[1][0][1]["field"] = json::from(field);
-	updatemsg[1][0][1]["mapping"] = json::from(mapping);
-	updatemsg
+	]);
+// 	updatemsg[1][0][1]["field"] = json::from(field);
+// 	updatemsg[1][0][1]["mapping"] = json::from(mapping);
+	updatemsg.to_string()
 }

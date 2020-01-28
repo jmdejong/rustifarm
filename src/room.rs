@@ -13,7 +13,8 @@ use specs::{
 	DispatcherBuilder,
 	Dispatcher,
 	Write,
-	EntityBuilder
+	EntityBuilder,
+	Entity
 };
 
 
@@ -26,11 +27,17 @@ struct Position {
 	y: i32
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 #[storage(VecStorage)]
 struct Visible {
     sprite: String,
     height: f32
+}
+
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+struct InputController {
+	key: String
 }
 
 
@@ -43,7 +50,7 @@ struct Size (i32, i32);
 struct TopView {
 	width: i32,
 	height: i32,
-	cells: HashMap<Position, Vec<String>>
+	cells: HashMap<Position, Vec<Visible>>
 }
 
 // Systems
@@ -58,7 +65,8 @@ impl <'a> System<'a> for Draw {
 		view.cells.clear();
 		for (pos, vis) in (&pos, &vis).join(){
 			if pos.x >= 0 && pos.y >= 0 && pos.x < view.width && pos.y < view.height {
-				view.cells.entry(*pos).or_insert(Vec::new()).push(vis.sprite.clone());
+				view.cells.entry(*pos).or_insert(Vec::new()).push(vis.clone());
+				view.cells.get_mut(pos).unwrap().sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
 			}
 		}
 	}
@@ -69,7 +77,9 @@ impl <'a> System<'a> for Draw {
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>
+	dispatcher: Dispatcher<'a, 'b>,
+	spawn: (i32, i32),
+	players: HashMap<String, Entity>
 }
 
 impl <'a, 'b>Room<'a, 'b> {
@@ -79,6 +89,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut world = World::new();
 		world.register::<Position>();
 		world.register::<Visible>();
+		world.register::<InputController>();
 		world.insert(Size(width, height));
 		world.insert(TopView{width: width, height: height, cells: HashMap::new()});
 		
@@ -88,7 +99,9 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		let mut room = Room {
 			world,
-			dispatcher
+			dispatcher,
+			spawn: (width / 2, height / 2),
+			players: HashMap::new()
 		};
 		gen_room(&mut room);
 		room
@@ -103,8 +116,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut mapping: Vec<Vec<String>> = Vec::with_capacity(size as usize);
 		for y in 0..height {
 			for x in 0..width {
-				let sprites = match tv.cells.get(&Position{x: x, y: y}) {
-					Some(sprites) => {sprites.to_vec()}
+				let sprites: Vec<String> = match tv.cells.get(&Position{x: x, y: y}) {
+					Some(sprites) => {sprites.iter().map(|v| v.sprite.clone()).collect()}
 					None => {vec![]}
 				};
 				values.push(
@@ -133,8 +146,19 @@ impl <'a, 'b>Room<'a, 'b> {
 		(width, height)
 	}
 	
-	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) {
-		template.build(self.world.create_entity()).with(Position{x, y}).build();
+	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
+		template.build(self.world.create_entity()).with(Position{x, y}).build()
+	}
+	
+	pub fn add_player(&mut self, name: &str) {
+		let ent = self.add_obj(&Player::new(name), self.spawn);
+		self.players.insert(name.to_string(), ent);
+	}
+	
+	pub fn remove_player(&mut self, name: &str){
+		// todo: proper error handling
+		let ent = self.players.remove(name).expect("unknown player name");
+		self.world.delete_entity(ent).expect("player in world does not have entity");
 	}
 }
 
@@ -157,15 +181,17 @@ fn gen_room(room: &mut Room){
 }
 
 
-
 pub trait Assemblage {
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>;
 }
 
+
+
+// Entity types
+
 struct Wall;
 
 impl Assemblage for Wall {
-	
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
 		builder.with(Visible{sprite: "wall".to_string(), height: 2.0})
 	}
@@ -184,8 +210,24 @@ impl Grass {
 }
 
 impl Assemblage for Grass {
-	
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
 		builder.with(Visible{sprite: self.sprite.to_string(), height: 0.1})
+	}
+}
+
+
+struct Player {
+	name: String
+}
+
+impl Player {	
+	fn new(name: &str) -> Player {
+		Player { name: name.to_string()}
+	}
+}
+
+impl Assemblage for Player {
+	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
+		builder.with(Visible{sprite: "player".to_string(), height: 1.0}).with(InputController{key: self.name.to_string()})
 	}
 }

@@ -3,8 +3,9 @@
 use std::collections::HashMap;
 use std::io;
 
-use json;
-use json::JsonValue;
+
+
+use serde_json::{Value, json};
 
 use super::server::Server;
 
@@ -13,7 +14,7 @@ use super::server::Server;
 enum Message {
 	Name(String),
 	Chat(String),
-	Input(JsonValue),
+	Input(Value),
 	Invalid(String)
 }
 
@@ -21,7 +22,7 @@ enum Message {
 pub enum Action {
 	Join(String),
 	Leave(String),
-	Input(String, JsonValue)
+	Input(String, Value)
 }
 
 pub struct GameServer {
@@ -69,26 +70,28 @@ impl GameServer {
 	}
 	
 	fn send_error(&mut self, (serverid, connectionid): (usize, usize), errname: &str, err_text: &str) -> Result<(), io::Error>{
-		self.servers[serverid].send(connectionid, &json::stringify(json::array!["error", errname, err_text]))
+		self.servers[serverid].send(connectionid, &json!(["error", errname, err_text]).to_string().as_str())
 	}
 	
 	pub fn broadcast_message(&mut self, text: &str){
 		println!("m {}", text);
-		self.broadcast_json(json::array!["message", text, ""]);
+		self.broadcast_json(json!(["message", text, ""]));
 	}
 	
-	pub fn broadcast_json(&mut self, value: JsonValue){
-		let jsontext = json::stringify(value);
+	pub fn broadcast_json(&mut self, value: Value){
+		self.broadcast(value.to_string().as_str());
+	}
+	
+	pub fn broadcast(&mut self, txt: &str){
 		for ((serverid, id), _name) in &self.players {
-			let _ = self.servers[*serverid].send(*id, &jsontext);
+			let _ = self.servers[*serverid].send(*id, txt);
 		}
 	}
 	
-	pub fn send(&mut self, playername: &str, value: JsonValue) -> Result<(), io::Error> {
-		let jsontext = json::stringify(value);
+	pub fn send(&mut self, playername: &str, value: Value) -> Result<(), io::Error> {
 		match self.connections.get(playername) {
 			Some((serverid, id)) => {
-				self.servers[*serverid].send(*id, &jsontext)
+				self.servers[*serverid].send(*id, value.to_string().as_str())
 			}
 			None => Err(io::Error::new(io::ErrorKind::Other, "unknown player name"))
 		}
@@ -156,8 +159,8 @@ impl GameServer {
 
 
 fn parse_message(msg: &str) -> Message {
-	if let Ok(data) = json::parse(msg) {
-		if let JsonValue::Array(arr) = data {
+	if let Ok(data) = serde_json::from_str(msg) {
+		if let Value::Array(arr) = data {
 			if arr.len() < 2 {
 				return Message::Invalid("array not long enough".to_string());
 			}
@@ -185,7 +188,7 @@ fn parse_message(msg: &str) -> Message {
 						Message::Invalid(format!("unknown messsage type {:?}", msgtype).to_string())
 					}
 				}
-			} else { Message::Invalid(format!("first array value not string: {:?}", arr[0].dump()).to_string()) }
+			} else { Message::Invalid(format!("first array value not string: {:?}", arr[0].to_string()).to_string()) }
 		} else { Message::Invalid("not json array".to_string()) }
 	} else { Message::Invalid("not json message".to_string()) }
 }
