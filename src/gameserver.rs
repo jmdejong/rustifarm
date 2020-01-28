@@ -7,6 +7,7 @@ use std::io;
 
 use serde_json::{Value, json};
 
+use super::controls::Control;
 use super::server::Server;
 
 
@@ -22,7 +23,7 @@ enum Message {
 pub enum Action {
 	Join(String),
 	Leave(String),
-	Input(String, Value)
+	Input(String, Control)
 }
 
 pub struct GameServer {
@@ -141,7 +142,7 @@ impl GameServer {
 			Message::Input(inp) => {
 				if let Some(nameref) = self.players.get(&id) {
 					let name = nameref.clone();
-					Some(Action::Input(name, inp))
+					Some(Action::Input(name, Control::from_json(inp).unwrap()))
 				} else {
 					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
 					None

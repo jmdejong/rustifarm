@@ -10,12 +10,15 @@ use specs::{
 	Builder,
 	Join,
 	ReadStorage,
+	WriteStorage,
 	DispatcherBuilder,
 	Dispatcher,
 	Write,
 	EntityBuilder,
 	Entity
 };
+
+use super::controls::Control;
 
 
 // Components
@@ -36,9 +39,7 @@ struct Visible {
 
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
-struct InputController {
-	key: String
-}
+struct Controller(Option<Control>);
 
 
 // Resources
@@ -72,6 +73,34 @@ impl <'a> System<'a> for Draw {
 	}
 }
 
+// struct Control;
+// impl <'a> System <'a> for Control {
+// 	type SystemData = WriteStorage<'a, Controller>;
+// 	fn run (&mut self, mut controller: Self::SystemData) {
+// 		for controller in &mut controller.join()
+// 	}
+// }
+
+struct Move;
+impl <'a> System<'a> for Move {
+	type SystemData = (WriteStorage<'a, Controller>, WriteStorage<'a, Position>);
+	fn run(&mut self, (mut controller, mut pos): Self::SystemData) {
+		for (controller, pos) in (&mut controller, &mut pos).join(){
+			if let Some(control) = &controller.0 {
+				match control {
+					Control::Move(direction) => {
+						let (dx, dy) = direction.to_position();
+						pos.x += dx;
+						pos.y += dy;
+					}
+					_ => {}
+				}
+				controller.0 = None
+			}
+		}
+	}
+}
+
 
 // Higher level stuff
 
@@ -89,12 +118,13 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut world = World::new();
 		world.register::<Position>();
 		world.register::<Visible>();
-		world.register::<InputController>();
+		world.register::<Controller>();
 		world.insert(Size(width, height));
 		world.insert(TopView{width: width, height: height, cells: HashMap::new()});
 		
 		let dispatcher = DispatcherBuilder::new()
 			.with(Draw, "draw", &[])
+			.with(Move, "move", &["draw"])
 			.build();
 		
 		let mut room = Room {
@@ -113,7 +143,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		let height = tv.height;
 		let size = width * height;
 		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
-		let mut mapping: Vec<Vec<String>> = Vec::with_capacity(size as usize);
+		let mut mapping: Vec<Vec<String>> = Vec::new();
 		for y in 0..height {
 			for x in 0..width {
 				let sprites: Vec<String> = match tv.cells.get(&Position{x: x, y: y}) {
@@ -159,6 +189,16 @@ impl <'a, 'b>Room<'a, 'b> {
 		// todo: proper error handling
 		let ent = self.players.remove(name).expect("unknown player name");
 		self.world.delete_entity(ent).expect("player in world does not have entity");
+	}
+	
+// 	pub fn clear_controls(&mut self){
+// 		(*self.world.fetch_mut::<Controls>()).0.clear();
+// 	}
+	
+	pub fn control(&mut self, name: String, control: Control){
+		if let Some(ent) = self.players.get(&name){
+			self.world.write_component::<Controller>().get_mut(*ent).unwrap().0 = Some(control);//.insert(*ent, Controller(control));
+		}
 	}
 }
 
@@ -228,6 +268,6 @@ impl Player {
 
 impl Assemblage for Player {
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-		builder.with(Visible{sprite: "player".to_string(), height: 1.0}).with(InputController{key: self.name.to_string()})
+			builder.with(Visible{sprite: "player".to_string(), height: 1.0}).with(Controller(None))
 	}
 }

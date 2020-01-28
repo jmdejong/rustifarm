@@ -8,7 +8,7 @@ pub mod server;
 pub mod gameserver;
 pub mod room;
 pub mod util;
-// pub mod controls;
+pub mod controls;
 
 use self::gameserver::{GameServer, Action};
 use self::server::unixserver::UnixServer;
@@ -40,7 +40,7 @@ fn main() {
 			match action {
 				Action::Join(name) => {room.add_player(&name);}
 				Action::Leave(name) => {room.remove_player(&name);}
-				_ => {}
+				Action::Input(name, control) => {room.control(name, control);}
 			}
 		}
 		room.update();
@@ -67,7 +67,5 @@ fn create_update_message((width, height): (i32, i32), field: Vec<usize>, mapping
 			]
 		]
 	]);
-// 	updatemsg[1][0][1]["field"] = json::from(field);
-// 	updatemsg[1][0][1]["mapping"] = json::from(mapping);
 	updatemsg.to_string()
 }
