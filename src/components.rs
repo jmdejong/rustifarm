@@ -23,4 +23,4 @@ pub struct Visible {
 
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
-pub struct Controller(pub Option<Control>);
+pub struct Controller(pub Control);

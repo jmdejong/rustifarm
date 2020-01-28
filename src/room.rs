@@ -13,7 +13,7 @@ use super::controls::Control;
 use super::components::{Position, Visible, Controller};
 use super::assemblages::Assemblage;
 use super::resources::{Size, TopView};
-use super::systems::{Draw, Move};
+use super::systems::{Draw, Move, ClearControllers};
 
 
 
@@ -36,8 +36,9 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(TopView{width: width, height: height, cells: HashMap::new()});
 		
 		let dispatcher = DispatcherBuilder::new()
-			.with(Draw, "draw", &[])
-			.with(Move, "move", &["draw"])
+			.with(Move, "move", &[])
+			.with(Draw, "draw", &["move"])
+			.with(ClearControllers, "clearcontrollers", &["move"])
 			.build();
 		
 		Room {
@@ -108,7 +109,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn control(&mut self, name: String, control: Control){
 		if let Some(ent) = self.players.get(&name){
-			self.world.write_component::<Controller>().get_mut(*ent).unwrap().0 = Some(control);//.insert(*ent, Controller(control));
+			let _ = self.world.write_component::<Controller>().insert(*ent, Controller(control));
 		}
 	}
 }

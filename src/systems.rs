@@ -3,6 +3,7 @@ use specs::{
 	ReadStorage,
 	WriteStorage,
 	Write,
+	Entities,
 	System,
 	Join
 };
@@ -47,17 +48,30 @@ impl <'a> System<'a> for Move {
 	type SystemData = (WriteStorage<'a, Controller>, WriteStorage<'a, Position>);
 	fn run(&mut self, (mut controller, mut pos): Self::SystemData) {
 		for (controller, pos) in (&mut controller, &mut pos).join(){
-			if let Some(control) = &controller.0 {
-				match control {
-					Control::Move(direction) => {
-						let (dx, dy) = direction.to_position();
-						pos.x += dx;
-						pos.y += dy;
-					}
-					_ => {}
+			match &controller.0 {
+				Control::Move(direction) => {
+					let (dx, dy) = direction.to_position();
+					pos.x += dx;
+					pos.y += dy;
 				}
-				controller.0 = None
+				_ => {}
 			}
 		}
 	}
 }
+
+
+pub struct ClearControllers;
+impl <'a> System<'a> for ClearControllers {
+	type SystemData = (Entities<'a>, WriteStorage<'a, Controller>);
+	fn run(&mut self, (entities, mut controllers): Self::SystemData) {
+		let mut ents = Vec::new();
+		for (ent, _controller) in (&*entities, &controllers).join() {
+			ents.push(ent);
+		}
+		for ent in ents {
+			controllers.remove(ent);
+		}
+	}
+}
+

@@ -6,7 +6,7 @@ use specs::{
 	EntityBuilder
 };
 
-use super::components::{Visible, Controller};
+use super::components::{Visible};
 
 
 
@@ -56,6 +56,6 @@ impl Player {
 
 impl Assemblage for Player {
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-			builder.with(Visible{sprite: "player".to_string(), height: 1.0}).with(Controller(None))
+		builder.with(Visible{sprite: "player".to_string(), height: 1.0})
 	}
 }
