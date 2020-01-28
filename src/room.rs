@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-
+use rand::Rng;
 use specs::{
 	VecStorage,
 	Component,
@@ -12,7 +12,8 @@ use specs::{
 	ReadStorage,
 	DispatcherBuilder,
 	Dispatcher,
-	Write
+	Write,
+	EntityBuilder
 };
 
 
@@ -32,11 +33,11 @@ struct Visible {
     height: f32
 }
 
-#[derive(Default)]
-struct Size (i32, i32);
-
 
 // Resources
+
+#[derive(Default)]
+struct Size (i32, i32);
 
 #[derive(Default)]
 struct TopView {
@@ -85,12 +86,12 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(Draw, "draw", &[])
 			.build();
 		
-		gen_world(&mut world);
-		
-		Room {
+		let mut room = Room {
 			world,
 			dispatcher
-		}
+		};
+		gen_room(&mut room);
+		room
 	}
 	
 	pub fn view(&self) -> (Vec<usize>, Vec<Vec<String>>) {
@@ -131,18 +132,60 @@ impl <'a, 'b>Room<'a, 'b> {
 		let Size(width, height) = *self.world.fetch::<Size>();
 		(width, height)
 	}
+	
+	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) {
+		template.build(self.world.create_entity()).with(Position{x, y}).build();
+	}
 }
 
-fn gen_world(world: &mut World){
+fn gen_room(room: &mut Room){
 	
-	let Size(width, height) = *world.fetch::<Size>();
+	let (width, height) = room.get_size();
 	for x in 0..width {
-		world.create_entity().with(Position{x: x, y: 0}).with(Visible{sprite: "wall".to_string(), height: 1.0}).build();
-		world.create_entity().with(Position{x: x, y: height - 1}).with(Visible{sprite: "wall".to_string(), height: 1.0}).build();
+		room.add_obj(&Wall, (x, 0));
+		room.add_obj(&Wall, (x, height - 1));
 	}
 	for y in 1..height-1 {
-		world.create_entity().with(Position{x: 0, y: y}).with(Visible{sprite: "wall".to_string(), height: 1.0}).build();
-		world.create_entity().with(Position{x: width - 1, y: y}).with(Visible{sprite: "wall".to_string(), height: 1.0}).build();
+		room.add_obj(&Wall, (0, y));
+		room.add_obj(&Wall, (width - 1, y));
+	}
+	for x in 1..width-1 {
+		for y in 1..height-1 {
+			room.add_obj(&Grass::new(), (x, y));
+		}
 	}
 }
 
+
+
+pub trait Assemblage {
+	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>;
+}
+
+struct Wall;
+
+impl Assemblage for Wall {
+	
+	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
+		builder.with(Visible{sprite: "wall".to_string(), height: 2.0})
+	}
+}
+
+struct Grass {
+	sprite: String
+}
+
+impl Grass {
+	fn new() -> Grass {
+		Grass {
+			sprite: ["grass1", "grass2", "grass3", "grass1", "grass2", "grass3", "ground"][rand::thread_rng().gen_range(0,7)].to_string()
+		}
+	}
+}
+
+impl Assemblage for Grass {
+	
+	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
+		builder.with(Visible{sprite: self.sprite.to_string(), height: 0.1})
+	}
+}

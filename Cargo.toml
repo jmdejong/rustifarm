@@ -13,3 +13,4 @@ libc = "0.2"
 users = "0.8"
 json = "0.12.1"
 specs = { version = "0.15.1", features = ["specs-derive"] }
+rand = "0.7.3"
