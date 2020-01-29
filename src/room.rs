@@ -10,10 +10,15 @@ use specs::{
 };
 
 use super::controls::Control;
-use super::components::{Position, Visible, Controller};
+use super::components::{Position, Controller};
 use super::assemblages::Assemblage;
 use super::resources::{Size, TopView};
-use super::systems::{Draw, Move, ClearControllers};
+use super::systems::{
+	Draw,
+	Move,
+	ClearControllers,
+	MakeFloor
+};
 
 
 
@@ -29,17 +34,16 @@ impl <'a, 'b>Room<'a, 'b> {
 	pub fn new(size: (i32, i32)) -> Room<'a, 'b> {
 		let (width, height) = size;
 		let mut world = World::new();
-		world.register::<Position>();
-		world.register::<Visible>();
-		world.register::<Controller>();
-		world.insert(Size(width, height));
-		world.insert(TopView{width: width, height: height, cells: HashMap::new()});
+		world.insert(Size{width, height});
 		
-		let dispatcher = DispatcherBuilder::new()
-			.with(Move, "move", &[])
+		let mut dispatcher = DispatcherBuilder::new()
+			.with(MakeFloor, "makefloor", &[])
+			.with(Move, "move", &["makefloor"])
 			.with(Draw, "draw", &["move"])
 			.with(ClearControllers, "clearcontrollers", &["move"])
 			.build();
+		
+		dispatcher.setup(&mut world);
 		
 		Room {
 			world,
@@ -51,8 +55,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn view(&self) -> (Vec<usize>, Vec<Vec<String>>) {
 		let tv = &*self.world.fetch::<TopView>();
-		let width = tv.width;
-		let height = tv.height;
+		let (width, height) = self.get_size();
 		let size = width * height;
 		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 		let mut mapping: Vec<Vec<String>> = Vec::new();
@@ -84,7 +87,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn get_size(&self) -> (i32, i32) {
-		let Size(width, height) = *self.world.fetch::<Size>();
+		let Size{width, height} = *self.world.fetch::<Size>();
 		(width, height)
 	}
 	
@@ -102,10 +105,6 @@ impl <'a, 'b>Room<'a, 'b> {
 		let ent = self.players.remove(name).expect("unknown player name");
 		self.world.delete_entity(ent).expect("player in world does not have entity");
 	}
-	
-// 	pub fn clear_controls(&mut self){
-// 		(*self.world.fetch_mut::<Controls>()).0.clear();
-// 	}
 	
 	pub fn control(&mut self, name: String, control: Control){
 		if let Some(ent) = self.players.get(&name){

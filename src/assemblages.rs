@@ -6,7 +6,7 @@ use specs::{
 	EntityBuilder
 };
 
-use super::components::{Visible};
+use super::components::{Visible, Blocking};
 
 
 
@@ -21,7 +21,7 @@ pub struct Wall;
 
 impl Assemblage for Wall {
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-		builder.with(Visible{sprite: "wall".to_string(), height: 2.0})
+		builder.with(Visible{sprite: "wall".to_string(), height: 2.0}).with(Blocking)
 	}
 }
 

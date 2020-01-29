@@ -1,14 +1,22 @@
 
 use std::collections::HashMap;
+use specs::Entity;
 
 use super::components::{Position, Visible};
 
 #[derive(Default)]
-pub struct Size (pub i32, pub i32);
+pub struct Size {
+	pub width: i32,
+	pub height: i32
+}
 
 #[derive(Default)]
 pub struct TopView {
-	pub width: i32,
-	pub height: i32,
 	pub cells: HashMap<Position, Vec<Visible>>
+}
+
+
+#[derive(Default)]
+pub struct Floor {
+	pub cells: HashMap<Position, Vec<Entity>>
 }
