@@ -6,9 +6,29 @@ use specs::{
 	EntityBuilder
 };
 
-use super::components::{Visible, Blocking};
+use super::components::{Visible, Blocking, Played};
 
-
+macro_rules! assemblage {
+	($name:ident { $($arg:ident : $argt:ident ),* } ; $( $comp:expr ),* ) => {
+		#[derive(Debug, Clone)]
+		pub struct $name {$(
+			pub $arg : $argt
+		)* }
+		impl Assemblage for $name {
+			fn build<'a>(&self, mut builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
+				$(
+					let $arg = &self.$arg;
+				)*
+				$(
+					builder = builder.with($comp);
+				)*
+				builder
+			}
+		}
+		unsafe impl Send for $name {}
+		unsafe impl Sync for $name {}
+	}
+}
 
 
 pub trait Assemblage {
@@ -17,17 +37,9 @@ pub trait Assemblage {
 
 
 
-pub struct Wall;
+assemblage!(Wall {}; Visible{sprite: "wall".to_string(), height: 2.0}, Blocking);
 
-impl Assemblage for Wall {
-	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-		builder.with(Visible{sprite: "wall".to_string(), height: 2.0}).with(Blocking)
-	}
-}
-
-pub struct Grass {
-	sprite: String
-}
+assemblage!(Grass { sprite : String}; Visible{sprite: sprite.to_string(), height: 0.1});
 
 impl Grass {
 	pub fn new() -> Grass {
@@ -37,25 +49,11 @@ impl Grass {
 	}
 }
 
-impl Assemblage for Grass {
-	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-		builder.with(Visible{sprite: self.sprite.to_string(), height: 0.1})
-	}
-}
 
-
-pub struct Player {
-	name: String
-}
+assemblage!(Player {name: String}; Visible{sprite: "player".to_string(), height: 1.0}, Played{name: name.to_string()});
 
 impl Player {	
 	pub fn new(name: &str) -> Player {
 		Player { name: name.to_string()}
-	}
-}
-
-impl Assemblage for Player {
-	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>{
-		builder.with(Visible{sprite: "player".to_string(), height: 1.0})
 	}
 }

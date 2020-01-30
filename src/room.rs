@@ -1,5 +1,5 @@
 
-use std::collections::HashMap;
+
 use specs::{
 	World,
 	WorldExt,
@@ -9,24 +9,28 @@ use specs::{
 	Entity
 };
 
-use super::controls::Control;
-use super::components::{Position, Controller};
+use super::controls::Action;
+use super::components::Position;
 use super::assemblages::Assemblage;
-use super::resources::{Size, TopView};
+use super::resources::{
+	Size,
+	TopView,
+	Input,
+	NewEntities
+};
 use super::systems::{
 	Draw,
 	Move,
 	ClearControllers,
-	MakeFloor
+	MakeFloor,
+	ControlInput
 };
 
 
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>,
-	spawn: (i32, i32),
-	players: HashMap<String, Entity>
+	dispatcher: Dispatcher<'a, 'b>
 }
 
 impl <'a, 'b>Room<'a, 'b> {
@@ -35,10 +39,12 @@ impl <'a, 'b>Room<'a, 'b> {
 		let (width, height) = size;
 		let mut world = World::new();
 		world.insert(Size{width, height});
+		world.insert(Input{actions: Vec::new()});
 		
 		let mut dispatcher = DispatcherBuilder::new()
+			.with(ControlInput, "controlinput", &[])
 			.with(MakeFloor, "makefloor", &[])
-			.with(Move, "move", &["makefloor"])
+			.with(Move, "move", &["makefloor", "controlinput"])
 			.with(Draw, "draw", &["move"])
 			.with(ClearControllers, "clearcontrollers", &["move"])
 			.build();
@@ -47,9 +53,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher,
-			spawn: (width / 2, height / 2),
-			players: HashMap::new()
+			dispatcher
 		}
 	}
 	
@@ -83,6 +87,11 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn update(&mut self) {
 		self.dispatcher.dispatch(&mut self.world);
+		let assemblages = self.world.remove::<NewEntities>().unwrap_or(NewEntities{assemblages: Vec::new()}).assemblages;
+		self.world.insert(NewEntities{assemblages: Vec::new()});
+		for (pos, assemblage) in assemblages{
+			assemblage.build(self.world.create_entity()).with(pos).build();
+		}
 		self.world.maintain();
 	}
 	
@@ -91,25 +100,12 @@ impl <'a, 'b>Room<'a, 'b> {
 		(width, height)
 	}
 	
+	pub fn set_input(&mut self, actions: Vec<Action>){
+		self.world.fetch_mut::<Input>().actions = actions;
+	}
+	
 	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
 		template.build(self.world.create_entity()).with(Position{x, y}).build()
-	}
-	
-	pub fn add_player(&mut self, name: &str, template: &dyn Assemblage) {
-		let ent = self.add_obj(template, self.spawn);
-		self.players.insert(name.to_string(), ent);
-	}
-	
-	pub fn remove_player(&mut self, name: &str){
-		// todo: proper error handling
-		let ent = self.players.remove(name).expect("unknown player name");
-		self.world.delete_entity(ent).expect("player in world does not have entity");
-	}
-	
-	pub fn control(&mut self, name: String, control: Control){
-		if let Some(ent) = self.players.get(&name){
-			let _ = self.world.write_component::<Controller>().insert(*ent, Controller(control));
-		}
 	}
 }
 

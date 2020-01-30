@@ -14,7 +14,7 @@ pub mod components;
 pub mod resources;
 pub mod systems;
 
-use self::gameserver::{GameServer, Action};
+use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
@@ -37,19 +37,14 @@ fn main() {
 	let mut gameserver = GameServer::new(servers);
 	
 	
-	let mut room = room::Room::new((32, 32));
+	let mut room = room::Room::new((50, 50));
 	
 	gen_room(&mut room);
 	
 	loop {
 		let actions = gameserver.update();
-		for action in actions {
-			match action {
-				Action::Join(name) => {room.add_player(&name, &Player::new(&name));}
-				Action::Leave(name) => {room.remove_player(&name);}
-				Action::Input(name, control) => {room.control(name, control);}
-			}
-		}
+		
+		room.set_input(actions);
 		room.update();
 		let (field, mapping) = room.view();
 		let updatemsg = create_update_message(room.get_size(), field, mapping);
@@ -61,13 +56,14 @@ fn main() {
 fn gen_room(room: &mut room::Room){
 	
 	let (width, height) = room.get_size();
+	let wall = Wall{};
 	for x in 0..width {
-		room.add_obj(&Wall, (x, 0));
-		room.add_obj(&Wall, (x, height - 1));
+		room.add_obj(&wall, (x, 0));
+		room.add_obj(&wall, (x, height - 1));
 	}
 	for y in 1..height-1 {
-		room.add_obj(&Wall, (0, y));
-		room.add_obj(&Wall, (width - 1, y));
+		room.add_obj(&wall, (0, y));
+		room.add_obj(&wall, (width - 1, y));
 	}
 	for x in 1..width-1 {
 		for y in 1..height-1 {

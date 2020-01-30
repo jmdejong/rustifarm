@@ -3,7 +3,7 @@
 use serde_json::Value;
 use super::components::Position;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Direction {
 	North,
 	South,
@@ -39,7 +39,7 @@ impl Direction {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Control {
 	Move(Direction),
 	Take(u64)
@@ -63,3 +63,11 @@ impl Control {
 		} else {None}
 	}
 }
+
+#[derive(Debug, Clone)]
+pub enum Action {
+	Join(String),
+	Leave(String),
+	Input(String, Control)
+}
+

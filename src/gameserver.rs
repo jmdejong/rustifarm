@@ -3,11 +3,9 @@
 use std::collections::HashMap;
 use std::io;
 
-
-
 use serde_json::{Value, json};
 
-use super::controls::Control;
+use super::controls::{Control, Action};
 use super::server::Server;
 
 
@@ -19,12 +17,6 @@ enum Message {
 	Invalid(String)
 }
 
-#[derive(Debug)]
-pub enum Action {
-	Join(String),
-	Leave(String),
-	Input(String, Control)
-}
 
 pub struct GameServer {
 	players: HashMap<(usize, usize), String>,

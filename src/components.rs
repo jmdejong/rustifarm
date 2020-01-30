@@ -2,7 +2,7 @@
 use std::ops;
 
 use specs::{
-	VecStorage,
+	DenseVecStorage,
 	Component
 };
 
@@ -11,7 +11,6 @@ use super::util::clamp;
 
 
 #[derive(Component, Debug, Hash, PartialEq, Eq, Clone, Copy)]
-#[storage(VecStorage)]
 pub struct Position {
 	pub x: i32,
 	pub y: i32
@@ -43,16 +42,18 @@ impl Position {
 }
 
 #[derive(Component, Debug, Clone)]
-#[storage(VecStorage)]
 pub struct Visible {
     pub sprite: String,
     pub height: f32
 }
 
 #[derive(Component, Debug)]
-#[storage(VecStorage)]
 pub struct Controller(pub Control);
 
 #[derive(Component, Debug)]
-#[storage(VecStorage)]
 pub struct Blocking;
+
+#[derive(Component, Debug)]
+pub struct Played {
+	pub name: String
+}
