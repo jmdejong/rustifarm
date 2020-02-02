@@ -31,5 +31,5 @@ pub struct Floor {
 
 #[derive(Default)]
 pub struct NewEntities {
-	pub assemblages: Vec<(Position, Box<dyn Assemblage + Send + Sync>)>
+	pub assemblages: Vec<(Position, Box<dyn Assemblage>)>
 }

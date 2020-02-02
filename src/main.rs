@@ -13,12 +13,13 @@ pub mod assemblages;
 pub mod components;
 pub mod resources;
 pub mod systems;
+pub mod worldmessages;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
-use self::assemblages::{Player, Wall, Grass};
+use self::assemblages::{Wall, Grass};
 
 use serde_json;
 

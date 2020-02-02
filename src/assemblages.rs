@@ -31,7 +31,7 @@ macro_rules! assemblage {
 }
 
 
-pub trait Assemblage {
+pub trait Assemblage: Send + Sync {
 	fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a>;
 }
 
