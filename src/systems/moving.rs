@@ -7,8 +7,9 @@ use specs::{
 	Join
 };
 
+use super::super::pos::Pos;
+
 use super::super::components::{
-	Pos,
 	Controller,
 	Blocking
 };

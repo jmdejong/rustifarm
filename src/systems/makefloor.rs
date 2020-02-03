@@ -8,9 +8,7 @@ use specs::{
 	Join
 };
 
-use super::super::components::{
-	Pos
-};
+use super::super::pos::Pos;
 
 use super::super::resources::{
 	Floor

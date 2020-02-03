@@ -11,7 +11,7 @@ use specs::{
 };
 
 use super::controls::Action;
-use super::components::Pos;
+use super::pos::Pos;
 use super::assemblages::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{

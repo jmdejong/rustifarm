@@ -9,12 +9,12 @@ use specs::{
 	Join
 };
 
+use super::super::pos::Pos;
+
 use super::super::components::{
-	Pos,
 	Visible,
 	Played
 };
-
 
 use super::super::resources::{
 	Size,
@@ -44,15 +44,20 @@ impl <'a> System<'a> for View {
 		let height = size.height;
 		let (values, mapping) = draw_room(cells, (width, height));
 		
-		let message = WorldMessage{updates: vec![WorldUpdate::Field(FieldMessage{
+		let field = WorldUpdate::Field(FieldMessage{
 			width,
 			height,
 			field: values,
 			mapping
-		})]};
+		});
 		output.output.clear();
-		for player in (&players).join() {
-			output.output.insert(player.name.clone(), message.clone());
+		for (player, pos) in (&players, &positions).join() {
+			
+			let message = WorldMessage{updates: vec![
+				field.clone(),
+				WorldUpdate::Pos(*pos)
+			]};
+			output.output.insert(player.name.clone(), message);
 		}
 	}
 }

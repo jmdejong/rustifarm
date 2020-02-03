@@ -14,6 +14,7 @@ pub mod components;
 pub mod resources;
 pub mod systems;
 pub mod worldmessages;
+pub mod pos;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -21,6 +22,7 @@ use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::assemblages::{Wall, Grass};
 use self::util::ToJson;
+use self::room::Room;
 
 
 
@@ -38,9 +40,8 @@ fn main() {
 	let mut gameserver = GameServer::new(servers);
 	
 	
-	let mut room = room::Room::new((50, 50));
+	let mut room = gen_room(50, 40);
 	
-	gen_room(&mut room);
 	
 	loop {
 		let actions = gameserver.update();
@@ -55,9 +56,8 @@ fn main() {
 	}
 }
 
-fn gen_room(room: &mut room::Room){
-	
-	let (width, height) = room.get_size();
+fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
+	let mut room = Room::new((width, height));
 	let wall = Wall{};
 	for x in 0..width {
 		room.add_obj(&wall, (x, 0));
@@ -72,5 +72,6 @@ fn gen_room(room: &mut room::Room){
 			room.add_obj(&Grass::new(), (x, y));
 		}
 	}
+	room
 }
 

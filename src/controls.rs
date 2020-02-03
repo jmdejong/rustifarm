@@ -1,7 +1,7 @@
 
 
 use serde_json::Value;
-use super::components::Pos;
+use super::pos::Pos;
 
 #[derive(Debug, Clone)]
 pub enum Direction {

@@ -11,10 +11,11 @@ use specs::{
 	Join
 };
 
+use super::super::pos::Pos;
+
 use super::super::components::{
 	Controller,
-	Played,
-	Pos
+	Played
 };
 
 use super::super::controls::{

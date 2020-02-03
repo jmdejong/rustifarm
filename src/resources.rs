@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use specs::Entity;
 
-use super::components::Pos;
+use super::pos::Pos;
 use super::controls::Action;
 use super::assemblages::Assemblage;
 use super::worldmessages::WorldMessage;
