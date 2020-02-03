@@ -72,7 +72,7 @@ impl Server for TcpServer {
 
 	fn broadcast(&mut self, text: &str) {
 		for (_id, conn) in self.connections.iter_mut() {
-			conn.send(text).expect("BroadCast Failed");
+			let _ = conn.send(text);
 		}
 	}
 	

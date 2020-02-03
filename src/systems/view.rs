@@ -72,7 +72,7 @@ impl <'a> System<'a> for View {
 		let has_changed: bool = changed.len() > 0;
 		let mut changes: Vec<(Pos, Vec<String>)> = Vec::new();
 		for pos in changed {
-			changes.push((pos, cells.get(&pos).unwrap().iter().map(|v| v.sprite.clone()).collect()));
+			changes.push((pos, cells.get(&pos).unwrap_or(&Vec::new()).iter().map(|v| v.sprite.clone()).collect()));
 		}
 		let changed_msg = WorldUpdate::Change(changes);
 		
