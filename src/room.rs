@@ -1,4 +1,5 @@
 
+use std::collections::HashMap;
 
 use specs::{
 	World,
@@ -12,9 +13,10 @@ use specs::{
 use super::controls::Action;
 use super::components::Position;
 use super::assemblages::Assemblage;
+use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
-	TopView,
+	Output,
 	Input,
 	NewEntities
 };
@@ -23,7 +25,8 @@ use super::systems::{
 	Move,
 	ClearControllers,
 	MakeFloor,
-	ControlInput
+	ControlInput,
+	View
 };
 
 
@@ -40,6 +43,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut world = World::new();
 		world.insert(Size{width, height});
 		world.insert(Input{actions: Vec::new()});
+		world.insert(Output{output: HashMap::new()});
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(ControlInput, "controlinput", &[])
@@ -47,6 +51,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(Move, "move", &["makefloor", "controlinput"])
 			.with(Draw, "draw", &["move"])
 			.with(ClearControllers, "clearcontrollers", &["move"])
+			.with(View, "view", &["draw"])
 			.build();
 		
 		dispatcher.setup(&mut world);
@@ -57,32 +62,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		}
 	}
 	
-	pub fn view(&self) -> (Vec<usize>, Vec<Vec<String>>) {
-		let tv = &*self.world.fetch::<TopView>();
-		let (width, height) = self.get_size();
-		let size = width * height;
-		let mut values :Vec<usize> = Vec::with_capacity(size as usize);
-		let mut mapping: Vec<Vec<String>> = Vec::new();
-		for y in 0..height {
-			for x in 0..width {
-				let sprites: Vec<String> = match tv.cells.get(&Position{x: x, y: y}) {
-					Some(sprites) => {sprites.iter().map(|v| v.sprite.clone()).collect()}
-					None => {vec![]}
-				};
-				values.push(
-					match mapping.iter().position(|x| x == &sprites) {
-						Some(index) => {
-							index
-						}
-						None => {
-							mapping.push(sprites);
-							mapping.len() - 1
-						}
-					}
-				)
-			}
-		}
-		(values, mapping)
+	pub fn view(&self) -> HashMap<String, WorldMessage> {
+		self.world.fetch::<Output>().output.clone()
 	}
 	
 	pub fn update(&mut self) {

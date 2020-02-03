@@ -4,6 +4,7 @@ use super::util::ToJson;
 // use serde::Serialize;
 
 // #[derive(Serialize)]
+#[derive(Clone)]
 pub struct WorldMessage {
 	pub updates: Vec<WorldUpdate>
 	
@@ -16,6 +17,7 @@ impl ToJson for WorldMessage {
 	}
 }
 
+#[derive(Clone)]
 pub enum WorldUpdate {
 	Field(FieldMessage)
 }
@@ -28,11 +30,12 @@ impl ToJson for WorldUpdate {
 	}
 }
 
+#[derive(Clone)]
 pub struct FieldMessage {
-	width: i32,
-	height: i32,
-	field: Vec<usize>,
-	mapping: Vec<Vec<String>>
+	pub width: i32,
+	pub height: i32,
+	pub field: Vec<usize>,
+	pub mapping: Vec<Vec<String>>
 }
 
 

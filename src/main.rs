@@ -20,8 +20,8 @@ use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::assemblages::{Wall, Grass};
+use self::util::ToJson;
 
-use serde_json;
 
 
 fn main() {
@@ -47,9 +47,10 @@ fn main() {
 		
 		room.set_input(actions);
 		room.update();
-		let (field, mapping) = room.view();
-		let updatemsg = create_update_message(room.get_size(), field, mapping);
-		gameserver.broadcast(updatemsg.as_str());
+		let messages = room.view();
+		for (player, message) in messages {
+			let _ = gameserver.send(&player, message.to_json());
+		}
 		sleep(Duration::from_millis(100));
 	}
 }
@@ -73,21 +74,3 @@ fn gen_room(room: &mut room::Room){
 	}
 }
 
-
-fn create_update_message((width, height): (i32, i32), field: Vec<usize>, mapping: Vec<Vec<String>>) -> String {
-	let updatemsg= serde_json::json!([
-		"world",
-		[
-			[
-				"field",
-				{
-					"width": width,
-					"height": height,
-					"field": field,
-					"mapping": mapping
-				}
-			]
-		]
-	]);
-	updatemsg.to_string()
-}

@@ -5,11 +5,17 @@ use specs::Entity;
 use super::components::{Position, Visible};
 use super::controls::Action;
 use super::assemblages::Assemblage;
+use super::worldmessages::WorldMessage;
 
 
 #[derive(Default)]
 pub struct Input {
 	pub actions: Vec<Action>
+}
+
+#[derive(Default)]
+pub struct Output {
+	pub output: HashMap<String, WorldMessage>
 }
 
 #[derive(Default)]
