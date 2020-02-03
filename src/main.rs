@@ -4,17 +4,17 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
 
-pub mod server;
-pub mod gameserver;
-pub mod room;
-pub mod util;
-pub mod controls;
-pub mod assemblages;
-pub mod components;
-pub mod resources;
-pub mod systems;
-pub mod worldmessages;
-pub mod pos;
+mod server;
+mod gameserver;
+mod room;
+mod util;
+mod controls;
+mod assemblages;
+mod components;
+mod resources;
+mod systems;
+mod worldmessages;
+mod pos;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -41,7 +41,6 @@ fn main() {
 	
 	
 	let mut room = gen_room(50, 40);
-	
 	
 	loop {
 		let actions = gameserver.update();

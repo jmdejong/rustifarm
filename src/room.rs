@@ -75,11 +75,6 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.maintain();
 	}
 	
-	pub fn get_size(&self) -> (i32, i32) {
-		let Size{width, height} = *self.world.fetch::<Size>();
-		(width, height)
-	}
-	
 	pub fn set_input(&mut self, actions: Vec<Action>){
 		self.world.fetch_mut::<Input>().actions = actions;
 	}
