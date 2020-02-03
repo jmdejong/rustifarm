@@ -23,7 +23,8 @@ use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
 #[derive(Default)]
 pub struct View {
-    reader_id: Option<ReaderId<ComponentEvent>>,
+    pos_reader_id: Option<ReaderId<ComponentEvent>>,
+    vis_reader_id: Option<ReaderId<ComponentEvent>>,
     dirty: BitSet
 }
 
@@ -50,7 +51,9 @@ impl <'a> System<'a> for View {
 		
 		self.dirty.clear();
 		{
-			let events = positions.channel().read(self.reader_id.as_mut().unwrap());
+			let pos_events = positions.channel().read(self.pos_reader_id.as_mut().unwrap());
+			let vis_events = visible.channel().read(self.vis_reader_id.as_mut().unwrap());
+			let events = vec![pos_events, vis_events].into_iter().flatten();
 			for event in events {
 				match event {
 					ComponentEvent::Modified(id) | ComponentEvent::Inserted(id) | ComponentEvent::Removed(id) => { 
@@ -91,8 +94,11 @@ impl <'a> System<'a> for View {
 	
 	fn setup(&mut self, world: &mut World) {
 		Self::SystemData::setup(world);
-		self.reader_id = Some(
+		self.pos_reader_id = Some(
 			WriteStorage::<Position>::fetch(&world).register_reader()
+		);
+		self.vis_reader_id = Some(
+			WriteStorage::<Visible>::fetch(&world).register_reader()
 		);
 	}
 }
