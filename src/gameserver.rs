@@ -134,7 +134,12 @@ impl GameServer {
 			Message::Input(inp) => {
 				if let Some(nameref) = self.players.get(&id) {
 					let name = nameref.clone();
-					Some(Action::Input(name, Control::from_json(inp).unwrap()))
+					if let Some(control) = Control::from_json(&inp) {
+						Some(Action::Input(name, control))
+					} else {
+						let _ = self.send_error(id, "invalidaction", &format!("unknown action: {}", inp));
+						None
+					}
 				} else {
 					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
 					None

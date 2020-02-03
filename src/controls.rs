@@ -47,7 +47,7 @@ pub enum Control {
 
 
 impl Control {
-	pub fn from_json(val: Value) -> Option<Control>{
+	pub fn from_json(val: &Value) -> Option<Control>{
 		if let Value::String(control_type) = &val[0] {
 			match control_type.as_str() {
 				"move" => match Direction::from_json(&val[1]) {
