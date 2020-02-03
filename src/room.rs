@@ -12,6 +12,7 @@ use specs::{
 
 use super::controls::Action;
 use super::pos::Pos;
+use super::components::Position;
 use super::assemblages::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{
@@ -49,7 +50,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(MakeFloor, "makefloor", &[])
 			.with(Move, "move", &["makefloor", "controlinput"])
 			.with(ClearControllers, "clearcontrollers", &["move"])
-			.with(View, "view", &["move"])
+			.with(View::default(), "view", &["move"])
 			.build();
 		
 		dispatcher.setup(&mut world);
@@ -69,7 +70,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		let assemblages = self.world.remove::<NewEntities>().unwrap_or(NewEntities{assemblages: Vec::new()}).assemblages;
 		self.world.insert(NewEntities{assemblages: Vec::new()});
 		for (pos, assemblage) in assemblages{
-			assemblage.build(self.world.create_entity()).with(pos).build();
+			assemblage.build(self.world.create_entity()).with(Position::new(pos)).build();
 		}
 		self.world.maintain();
 	}
@@ -84,7 +85,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
-		template.build(self.world.create_entity()).with(Pos{x, y}).build()
+		template.build(self.world.create_entity()).with(Position::new(Pos{x, y})).build()
 	}
 }
 

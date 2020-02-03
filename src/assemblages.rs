@@ -50,7 +50,7 @@ impl Grass {
 }
 
 
-assemblage!(Player {name: String}; Visible{sprite: "player".to_string(), height: 1.0}, Played{name: name.to_string()});
+assemblage!(Player {name: String}; Visible{sprite: "player".to_string(), height: 1.0}, Played::new(name.to_string()));
 
 impl Player {	
 	pub fn new(name: &str) -> Player {

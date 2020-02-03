@@ -1,5 +1,6 @@
 
 use serde_json::{Value, json};
+use serde::Serialize;
 use super::util::ToJson;
 use super::pos::Pos;
 
@@ -18,34 +19,26 @@ impl ToJson for WorldMessage {
 #[derive(Clone)]
 pub enum WorldUpdate {
 	Field(FieldMessage),
-	Pos(Pos)
+	Pos(Pos),
+	Change(Vec<(Pos, Vec<String>)>)
 }
 
 impl ToJson for WorldUpdate {
 	fn to_json(&self) -> Value {
 		match self {
-			WorldUpdate::Field(msg) => Value::Array(vec![Value::String("field".to_string()), msg.to_json()]),
-			WorldUpdate::Pos(pos) => Value::Array(vec![Value::String("playerpos".to_string()), pos.to_json()])
+			WorldUpdate::Field(msg) => json!(["field", msg]),
+			WorldUpdate::Pos(pos) => json!(["playerpos", pos]),
+			WorldUpdate::Change(changes) => json!(["changecells", changes])
 		}
 	}
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct FieldMessage {
 	pub width: i32,
 	pub height: i32,
 	pub field: Vec<usize>,
 	pub mapping: Vec<Vec<String>>
-}
-impl ToJson for FieldMessage {
-	fn to_json(&self) -> Value {
-		json!({
-			"width": self.width,
-			"height": self.height,
-			"field": self.field,
-			"mapping": self.mapping
-		})
-	}
 }
 
 
