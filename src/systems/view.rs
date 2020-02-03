@@ -10,16 +10,15 @@ use specs::{
 };
 
 use super::super::components::{
-	Position,
+	Pos,
 	Visible,
 	Played
 };
 
 
 use super::super::resources::{
-	TopView,
 	Size,
-	Output,
+	Output
 };
 
 use super::super::worldmessages::{
@@ -32,13 +31,18 @@ use super::super::worldmessages::{
 
 pub struct View;
 impl <'a> System<'a> for View {
-	type SystemData = (Read<'a, TopView>, Read<'a, Size>, ReadStorage<'a, Played>, Write<'a, Output>);
-	fn run(&mut self, (topview, size, players, mut output): Self::SystemData) {
+	type SystemData = (ReadStorage<'a, Pos>, ReadStorage<'a, Visible>, Read<'a, Size>, ReadStorage<'a, Played>, Write<'a, Output>);
+	fn run(&mut self, (positions, visible, size, players, mut output): Self::SystemData) {
 		
 		
+		let mut cells: HashMap<Pos, Vec<Visible>> = HashMap::new();
+		for (pos, vis) in (&positions, &visible).join(){
+			cells.entry(*pos).or_insert(Vec::new()).push(vis.clone());
+			cells.get_mut(pos).unwrap().sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
+		}
 		let width = size.width;
 		let height = size.height;
-		let (values, mapping) = draw_room(&topview.cells, (width, height));
+		let (values, mapping) = draw_room(cells, (width, height));
 		
 		let message = WorldMessage{updates: vec![WorldUpdate::Field(FieldMessage{
 			width,
@@ -54,14 +58,14 @@ impl <'a> System<'a> for View {
 }
 
 
-
-fn draw_room(cells: &HashMap<Position, Vec<Visible>>, (width, height): (i32, i32)) -> (Vec<usize>, Vec<Vec<String>>){
+fn draw_room(cells: HashMap<Pos, Vec<Visible>>, (width, height): (i32, i32)) -> (Vec<usize>, Vec<Vec<String>>){
+	
 	let size = width * height;
 	let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 	let mut mapping: Vec<Vec<String>> = Vec::new();
 	for y in 0..height {
 		for x in 0..width {
-			let sprites: Vec<String> = match cells.get(&Position{x: x, y: y}) {
+			let sprites: Vec<String> = match cells.get(&Pos{x: x, y: y}) {
 				Some(sprites) => {sprites.iter().map(|v| v.sprite.clone()).collect()}
 				None => {vec![]}
 			};

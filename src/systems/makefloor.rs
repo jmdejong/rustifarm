@@ -9,7 +9,7 @@ use specs::{
 };
 
 use super::super::components::{
-	Position
+	Pos
 };
 
 use super::super::resources::{
@@ -19,7 +19,7 @@ use super::super::resources::{
 
 pub struct MakeFloor;
 impl <'a> System<'a> for MakeFloor {
-	type SystemData = (Entities<'a>, Write<'a, Floor>, ReadStorage<'a, Position>);
+	type SystemData = (Entities<'a>, Write<'a, Floor>, ReadStorage<'a, Pos>);
 	fn run(&mut self, (entities, mut floor, positions): Self::SystemData) {
 		floor.cells.clear();
 		for (ent, pos) in (&entities, &positions).join() {

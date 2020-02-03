@@ -14,7 +14,7 @@ use specs::{
 use super::super::components::{
 	Controller,
 	Played,
-	Position
+	Pos
 };
 
 use super::super::controls::{
@@ -39,7 +39,7 @@ impl <'a> System<'a> for ControlInput {
 		let mut leaving = HashSet::new();
 		for action in &input.actions {
 			match action {
-				Action::Join(name) => {new.assemblages.push((Position{x:10, y:10}, Box::new(Player::new(&name))));}
+				Action::Join(name) => {new.assemblages.push((Pos{x:10, y:10}, Box::new(Player::new(&name))));}
 				Action::Leave(name) => {leaving.insert(name);}
 				Action::Input(name, control) => {playercontrols.insert(name, control.clone());}
 			}

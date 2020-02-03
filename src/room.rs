@@ -11,7 +11,7 @@ use specs::{
 };
 
 use super::controls::Action;
-use super::components::Position;
+use super::components::Pos;
 use super::assemblages::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{
@@ -21,7 +21,6 @@ use super::resources::{
 	NewEntities
 };
 use super::systems::{
-	draw::Draw,
 	moving::Move,
 	clearcontrols::ClearControllers,
 	makefloor::MakeFloor,
@@ -49,9 +48,8 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(ControlInput, "controlinput", &[])
 			.with(MakeFloor, "makefloor", &[])
 			.with(Move, "move", &["makefloor", "controlinput"])
-			.with(Draw, "draw", &["move"])
 			.with(ClearControllers, "clearcontrollers", &["move"])
-			.with(View, "view", &["draw"])
+			.with(View, "view", &["move"])
 			.build();
 		
 		dispatcher.setup(&mut world);
@@ -86,7 +84,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
-		template.build(self.world.create_entity()).with(Position{x, y}).build()
+		template.build(self.world.create_entity()).with(Pos{x, y}).build()
 	}
 }
 

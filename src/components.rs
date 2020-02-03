@@ -11,30 +11,30 @@ use super::util::clamp;
 
 
 #[derive(Component, Debug, Hash, PartialEq, Eq, Clone, Copy)]
-pub struct Position {
+pub struct Pos {
 	pub x: i32,
 	pub y: i32
 }
 
-impl ops::Add<Position> for Position {
-	type Output = Position;
+impl ops::Add<Pos> for Pos {
+	type Output = Pos;
 
-	fn add(self, other: Position) -> Position {
-		Position {
+	fn add(self, other: Pos) -> Pos {
+		Pos {
 			x: self.x + other.x,
 			y: self.y + other.y
 		}
 	}
 }
 
-impl Position {
+impl Pos {
 	
-	pub fn new(x: i32, y: i32) -> Position {
-		Position {x, y}
+	pub fn new(x: i32, y: i32) -> Pos {
+		Pos {x, y}
 	}
 	
-	pub fn clamp(self, smaller: Position, larger: Position) -> Position {
-		Position {
+	pub fn clamp(self, smaller: Pos, larger: Pos) -> Pos {
+		Pos {
 			x: clamp(self.x, smaller.x, larger.x),
 			y: clamp(self.y, smaller.y, larger.y)
 		}

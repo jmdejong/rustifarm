@@ -1,7 +1,7 @@
 
 
 use serde_json::Value;
-use super::components::Position;
+use super::components::Pos;
 
 #[derive(Debug, Clone)]
 pub enum Direction {
@@ -28,13 +28,13 @@ impl Direction {
 		}
 	}
 	
-	pub fn to_position(&self) -> Position {
+	pub fn to_position(&self) -> Pos {
 		match self {
-			Direction::North => Position::new(0, -1),
-			Direction::South => Position::new(0, 1),
-			Direction::East => Position::new(1, 0),
-			Direction::West => Position::new(-1, 0),
-			Direction::None => Position::new(0, 0)
+			Direction::North => Pos::new(0, -1),
+			Direction::South => Pos::new(0, 1),
+			Direction::East => Pos::new(1, 0),
+			Direction::West => Pos::new(-1, 0),
+			Direction::None => Pos::new(0, 0)
 		}
 	}
 }
