@@ -21,12 +21,12 @@ use super::resources::{
 	NewEntities
 };
 use super::systems::{
-	Draw,
-	Move,
-	ClearControllers,
-	MakeFloor,
-	ControlInput,
-	View
+	draw::Draw,
+	moving::Move,
+	clearcontrols::ClearControllers,
+	makefloor::MakeFloor,
+	controlinput::ControlInput,
+	view::View
 };
 
 
