@@ -26,17 +26,18 @@ macro_rules! assemblage {
 				builder
 			}
 			
-			fn init_from_json(&mut self, mut _args: Vec<Value>, _kwargs: HashMap<&str, Value>) {
+			#[allow(unused_variables, unused_mut)]
+			fn init_from_json(&mut self, mut args: Vec<Value>, kwargs: HashMap<&str, Value>) {
 				$(
-					if _args.len() > 0 {
-						let val = _args.remove(0);
+					if args.len() > 0 {
+						let val = args.remove(0);
 						if let Some(actual_val) = unpack_json!($argt, val) {
 							self.$arg = actual_val;
 						}
 					}
 				)*
 				$(
-					if let Some(val) = _kwargs.get(stringify!($arg)) {
+					if let Some(val) = kwargs.get(stringify!($arg)) {
 						if let Some(actual_val) = unpack_json!($argt, val) {
 							self.$arg = actual_val;
 						}
@@ -44,8 +45,6 @@ macro_rules! assemblage {
 				)*
 			}
 		}
-		unsafe impl Send for $name {}
-		unsafe impl Sync for $name {}
 	}
 }
 
@@ -87,3 +86,27 @@ impl Player {
 		Player { name: name.to_string()}
 	}
 }
+
+
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use serde_json::json;
+	use super::super::hashmap;
+	#[test]
+	fn test_assemblage_from_json() {
+		let mut p = Player::new("Joe");
+		assert_eq!(p.name, "Joe");
+		p.init_from_json(vec![json!("Bob"), json!("Mike")], HashMap::new());
+		assert_eq!(p.name, "Bob");
+		p.init_from_json(vec![], hashmap!("sprite" => json!("stone")));
+		assert_eq!(p.name, "Bob");
+		p.init_from_json(vec![], hashmap!("name" => json!("Teddy")));
+		assert_eq!(p.name, "Teddy");
+		p.init_from_json(vec![json!("Bill")], hashmap!("name" => json!("Stan")));
+		assert_eq!(p.name, "Stan");
+	}
+}
+
+
