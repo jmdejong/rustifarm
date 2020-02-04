@@ -28,7 +28,7 @@ impl Component for Position {
 #[derive(Debug, Clone)]
 pub struct Visible {
 	pub sprite: String,
-	pub height: f32
+	pub height: f64
 }
 impl Component for Visible {
 	type Storage = FlaggedStorage<Self, VecStorage<Self>>;
@@ -37,10 +37,10 @@ impl Component for Visible {
 #[derive(Component, Debug)]
 pub struct Controller(pub Control);
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Blocking;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Played {
 	pub name: String,
 	pub is_new: bool
@@ -50,3 +50,4 @@ impl Played {
 		Played{name, is_new: true}
 	}
 }
+

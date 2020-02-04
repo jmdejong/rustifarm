@@ -28,6 +28,7 @@ use super::systems::{
 	controlinput::ControlInput,
 	view::View
 };
+use super::compwrapper::CompWrapper;
 
 
 
@@ -81,6 +82,14 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
 		template.build(self.world.create_entity()).with(Position::new(Pos{x, y})).build()
+	}
+	
+	pub fn add_complist(&mut self, template: &Vec<CompWrapper>, (x, y): (i32, i32)) -> Entity{
+		let mut builder = self.world.create_entity();
+		for comp in template {
+			builder = comp.build(builder);
+		}
+		builder.with(Position::new(Pos{x, y})).build()
 	}
 }
 

@@ -1,5 +1,6 @@
 
 
+use std::any::Any;
 
 
 #[macro_export]
@@ -21,7 +22,7 @@ macro_rules! assemblage {
 			}
 			
 			#[allow(unused_variables, unused_mut)]
-			fn init_from_json(&mut self, mut args: Vec<serde_json::Value>, kwargs: std::collections::HashMap<&str, serde_json::Value>) {
+			fn init_from_json(&mut self, mut args: Vec<serde_json::Value>, kwargs: std::collections::HashMap<String, serde_json::Value>) {
 				$(
 					if args.len() > 0 {
 						let val = args.remove(0);
@@ -54,9 +55,9 @@ macro_rules! unpack_json {
 }
 
 
-pub trait Assemblage: Send + Sync {
+pub trait Assemblage: Send + Sync + Any {
 	fn build<'a>(&self, builder: specs::EntityBuilder<'a>) -> specs::EntityBuilder<'a>;
-	fn init_from_json(&mut self, args: Vec<serde_json::Value>, kwargs: std::collections::HashMap<&str, serde_json::Value>);
+	fn init_from_json(&mut self, args: Vec<serde_json::Value>, kwargs: std::collections::HashMap<String, serde_json::Value>);
 }
 
 

@@ -11,6 +11,7 @@ pub trait ToJson {
 	fn to_json(&self) -> Value;
 }
 
+
 #[macro_export]
 macro_rules! hashmap {
 	( $($key:expr => $value:expr ),* ) => {{

@@ -38,11 +38,11 @@ mod tests {
 		assert_eq!(p.name, "Joe");
 		p.init_from_json(vec![json!("Bob"), json!("Mike")], hashmap!());
 		assert_eq!(p.name, "Bob");
-		p.init_from_json(vec![], hashmap!("sprite" => json!("stone")));
+		p.init_from_json(vec![], hashmap!("sprite".to_string() => json!("stone")));
 		assert_eq!(p.name, "Bob");
-		p.init_from_json(vec![], hashmap!("name" => json!("Teddy")));
+		p.init_from_json(vec![], hashmap!("name".to_string() => json!("Teddy")));
 		assert_eq!(p.name, "Teddy");
-		p.init_from_json(vec![json!("Bill")], hashmap!("name" => json!("Stan")));
+		p.init_from_json(vec![json!("Bill")], hashmap!("name".to_string() => json!("Stan")));
 		assert_eq!(p.name, "Stan");
 	}
 }

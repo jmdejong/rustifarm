@@ -3,6 +3,9 @@
 use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
+use std::collections::HashMap;
+
+use serde_json::json;
 
 mod server;
 mod gameserver;
@@ -16,14 +19,18 @@ mod systems;
 mod worldmessages;
 mod pos;
 mod assemblage;
+// mod load;
+mod compwrapper;
+mod template;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::assemblages::{Wall, Grass};
-use self::util::ToJson;
 use self::room::Room;
+use self::template::{Template, CompParam};
+use self::util::ToJson;
 
 
 
@@ -58,14 +65,23 @@ fn main() {
 
 fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let mut room = Room::new((width, height));
-	let wall = Wall{};
+	let wall = Template{
+		arguments: Vec::new(),
+		components: vec![
+			("Blocking".to_string(), HashMap::new()),
+			("Visible".to_string(), hashmap!(
+				"sprite".to_string() => CompParam::Constant(json!("wall")),
+				"height".to_string() => CompParam::Constant(json!(1))
+			))
+		]
+	}.instantiate(Vec::new(), HashMap::new()).unwrap();
 	for x in 0..width {
-		room.add_obj(&wall, (x, 0));
-		room.add_obj(&wall, (x, height - 1));
+		room.add_complist(&wall, (x, 0));
+		room.add_complist(&wall, (x, height - 1));
 	}
 	for y in 1..height-1 {
-		room.add_obj(&wall, (0, y));
-		room.add_obj(&wall, (width - 1, y));
+		room.add_complist(&wall, (0, y));
+		room.add_complist(&wall, (width - 1, y));
 	}
 	for x in 1..width-1 {
 		for y in 1..height-1 {
