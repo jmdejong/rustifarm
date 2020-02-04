@@ -15,6 +15,7 @@ mod resources;
 mod systems;
 mod worldmessages;
 mod pos;
+mod assemblage;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;

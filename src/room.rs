@@ -13,7 +13,7 @@ use specs::{
 use super::controls::Action;
 use super::pos::Pos;
 use super::components::Position;
-use super::assemblages::Assemblage;
+use super::assemblage::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
