@@ -22,16 +22,16 @@ impl Position {
 }
 
 impl Component for Position {
-    type Storage = FlaggedStorage<Self, VecStorage<Self>>;
+	type Storage = FlaggedStorage<Self, VecStorage<Self>>;
 }
 
 #[derive(Debug, Clone)]
 pub struct Visible {
-    pub sprite: String,
-    pub height: f32
+	pub sprite: String,
+	pub height: f32
 }
 impl Component for Visible {
-    type Storage = FlaggedStorage<Self, VecStorage<Self>>;
+	type Storage = FlaggedStorage<Self, VecStorage<Self>>;
 }
 
 #[derive(Component, Debug)]

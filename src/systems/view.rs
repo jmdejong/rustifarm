@@ -23,9 +23,9 @@ use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
 #[derive(Default)]
 pub struct View {
-    pos_reader_id: Option<ReaderId<ComponentEvent>>,
-    vis_reader_id: Option<ReaderId<ComponentEvent>>,
-    dirty: BitSet
+	pos_reader_id: Option<ReaderId<ComponentEvent>>,
+	vis_reader_id: Option<ReaderId<ComponentEvent>>,
+	dirty: BitSet
 }
 
 impl <'a> System<'a> for View {
