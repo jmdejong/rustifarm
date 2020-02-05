@@ -5,7 +5,6 @@ use std::time::Duration;
 use std::path::Path;
 use std::collections::HashMap;
 
-use serde_json::json;
 
 mod server;
 mod gameserver;
@@ -21,7 +20,6 @@ mod pos;
 mod assemblage;
 // mod load;
 mod compwrapper;
-mod template;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -29,8 +27,8 @@ use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::assemblages::{Wall, Grass};
 use self::room::Room;
-use self::template::{Template, CompParam};
 use self::util::ToJson;
+use self::compwrapper::{Parameter, Template, CompParam, ComponentType};
 
 
 
@@ -68,10 +66,10 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let wall = Template{
 		arguments: Vec::new(),
 		components: vec![
-			("Blocking".to_string(), HashMap::new()),
-			("Visible".to_string(), hashmap!(
-				"sprite".to_string() => CompParam::Constant(json!("wall")),
-				"height".to_string() => CompParam::Constant(json!(1))
+			(ComponentType::from_str("Blocking").unwrap(), HashMap::new()),
+			(ComponentType::from_str("Visible").unwrap(), hashmap!(
+				"sprite".to_string() => CompParam::Constant(Parameter::String("wall".to_string())),
+				"height".to_string() => CompParam::Constant(Parameter::Float(1.0))
 			))
 		]
 	}.instantiate(Vec::new(), HashMap::new()).unwrap();

@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
-use serde_json::Value;
-use super::compwrapper::CompWrapper;
+use crate::parameter::Parameter;
+use crate::compwrapper::CompWrapper;
 
 pub struct Template {
 	pub arguments: Vec<String>,
@@ -9,10 +9,10 @@ pub struct Template {
 }
 
 impl Template {
-	pub fn instantiate(&self, args: Vec<Value>, kwargs: HashMap<String, Value>) -> Option<Vec<CompWrapper>>{
+	pub fn instantiate(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Option<Vec<CompWrapper>>{
 		let mut components: Vec<CompWrapper> = Vec::new();
 		for (compname, compparams) in &self.components {
-			let mut compargs: HashMap<&str, &Value> = HashMap::new();
+			let mut compargs: HashMap<&str, &Parameter> = HashMap::new();
 			for (name, param) in compparams {
 				match param {
 					CompParam::Constant(val) => {compargs.insert(name.as_str(), &val); Some(())},
@@ -43,6 +43,6 @@ impl Template {
 
 
 pub enum CompParam {
-	Constant(Value),
+	Constant(Parameter),
 	Argument(String)
 }
