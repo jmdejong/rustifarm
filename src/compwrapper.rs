@@ -164,9 +164,9 @@ pub struct Template {
 impl Template {
 
 
-	fn parse_definition_arguments(args: &Vec<Value>) -> Result<Vec<(String, ParamType, Option<Parameter>)>, &'static str> {
+	fn parse_definition_arguments(args: &Value) -> Result<Vec<(String, ParamType, Option<Parameter>)>, &'static str> {
 		let mut arguments: Vec<(String, ParamType, Option<Parameter>)> = Vec::new();
-		for arg in args {
+		for arg in args.as_array().ok_or("arguments is not an array")? {
 			let tup = arg.as_array().ok_or("argument is not an array")?;
 			let key = tup.get(0).ok_or("argument has no name")?.as_str().ok_or("argument name is not a string")?.to_string();
 			let typ = ParamType::from_str(tup.get(1).ok_or("argument has no type")?.as_str().ok_or("argument type not a string")?).ok_or("failed to parse argument type")?;
@@ -180,10 +180,9 @@ impl Template {
 		Ok(arguments)
 	}
 	
-	pub fn from_json(val: Value) -> Result<Template, &'static str>{
-		let arguments = Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not an array")?)?;
+	fn parse_definition_components(comps: &Value, arguments: &Vec<(String, ParamType, Option<Parameter>)>) -> Result<Vec<(ComponentType, HashMap<String, CompParam>)>, &'static str> {
 		let mut components = Vec::new();
-		for tup in val.get("components").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not a json object")? {
+		for tup in comps.as_array().ok_or("components is not a json array")? {
 			let comptype = ComponentType::from_str(tup
 				.get(0).ok_or("index 0 not in component")?
 				.as_str().ok_or("component name not a string")?
@@ -196,6 +195,12 @@ impl Template {
 			}
 			components.push((comptype, parameters));
 		}
+		Ok(components)
+	}
+	
+	pub fn from_json(val: Value) -> Result<Template, &'static str>{
+		let arguments = Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?)?;
+		let components = Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?, &arguments)?;
 		Ok(Template {
 			arguments,
 			components
