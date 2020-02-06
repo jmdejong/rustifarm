@@ -24,16 +24,6 @@ impl CompWrapper {
 			Self::Player(c) => builder.with(c)
 		}
 	}
-	
-// 	pub fn parse_component(data: Value) -> Option<CompWrapper> {
-// 		let a = data.as_array()?;
-// 		if a.len() != 2 {
-// 			return None
-// 		}
-// 		let typename = a[0].as_str()?;
-// 		let params: HashMap<&str, &Parameter> = a[1].as_object()?.into_iter().map(|(key, val)| (key.as_str(), val)).collect();
-// 		Self::load_component(typename, params)
-// 	}
 
 	pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Option<CompWrapper> {
 		match comptype {
@@ -180,7 +170,7 @@ impl Template {
 		Ok(arguments)
 	}
 	
-	fn parse_definition_components(comps: &Value, arguments: &Vec<(String, ParamType, Option<Parameter>)>) -> Result<Vec<(ComponentType, HashMap<String, CompParam>)>, &'static str> {
+	fn parse_definition_components(comps: &Value) -> Result<Vec<(ComponentType, HashMap<String, CompParam>)>, &'static str> {
 		let mut components = Vec::new();
 		for tup in comps.as_array().ok_or("components is not a json array")? {
 			let comptype = ComponentType::from_str(tup
@@ -189,8 +179,7 @@ impl Template {
 			).ok_or("not a valid componenttype")?;
 			let mut parameters: HashMap<String, CompParam> = HashMap::new();
 			for (key, value) in tup.get(1).ok_or("index 1 not in component")?.as_object().ok_or("component parameters not a json object")? {
-				let paramtype: ParamType = comptype.parameters().remove(key.as_str()).ok_or("unknown parameter name")?;
-				let param = CompParam::from_json(paramtype, value, &arguments)?;
+				let param = CompParam::from_json(value)?;
 				parameters.insert(key.clone(), param);
 			}
 			components.push((comptype, parameters));
@@ -198,13 +187,26 @@ impl Template {
 		Ok(components)
 	}
 	
-	pub fn from_json(val: Value) -> Result<Template, &'static str>{
-		let arguments = Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?)?;
-		let components = Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?, &arguments)?;
-		Ok(Template {
-			arguments,
-			components
-		})
+	fn validate(&self) -> Result<(), &'static str> {
+		for (comptype, parameters) in &self.components {
+			for (paramname, paramtype) in comptype.parameters() {
+				let param = parameters.get(paramname).ok_or("missing parameter")?;
+				let actualtype = param.get_type(&self.arguments)?;
+				if actualtype != paramtype {
+					return Err("parameter type incorrect");
+				}
+			}
+		}
+		Ok(())
+	}
+	
+	pub fn from_json(val: &Value) -> Result<Template, &'static str>{
+		let template = Template {
+			arguments: Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?)?,
+			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?
+		};
+		template.validate()?;
+		Ok(template)
 	}
 	
 	fn prepare_arguments(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &str> {
@@ -212,11 +214,11 @@ impl Template {
 		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
 			let value: Option<Parameter> = {
 				if let Some(val) = kwargs.get(name) {
-					Some((*val).clone())
+					Some(val.clone())
 				} else if let Some(val) = args.get(idx) {
-					Some((*val).clone())
+					Some(val.clone())
 				} else if let Some(val) = def {
-					Some((*val).clone())
+					Some(val.clone())
 				} else {
 					None
 				}
@@ -252,7 +254,7 @@ pub enum CompParam {
 }
 
 impl CompParam {
-	fn evaluate(&self, arguments: &HashMap<&str, Parameter>) -> Option<Parameter> {
+	pub fn evaluate(&self, arguments: &HashMap<&str, Parameter>) -> Option<Parameter> {
 		match self {
 			CompParam::Constant(val) => {
 				Some(val.clone())
@@ -263,23 +265,27 @@ impl CompParam {
 		}
 	}
 	
-	fn from_json(paramtype: ParamType, value: &Value, arguments: &Vec<(String, ParamType, Option<Parameter>)>) -> Result<Self, &'static str> {
+	pub fn from_json(value: &Value) -> Result<Self, &'static str> {
 		let paramvalue = value.get(1).ok_or("index 0 not in component parameter")?;
-		match value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")? {
-			"C" | "const" => Ok(CompParam::Constant(
-				Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?
-			)),
-			"A" | "arg" => {
-				let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
-				let arg = arguments.iter().find(|(a, _t, _d)| a == &argname).ok_or("unknown argument name")?;
-				if arg.1 == paramtype {
+		let typename = value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")?;
+		if let Some(paramtype) = ParamType::from_str(typename) {
+			Ok(CompParam::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?))
+		} else {
+			match typename {
+				"A" | "arg" => {
+					let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
 					Ok(CompParam::Argument(argname))
-				} else {
-					Err("wrong argument type")
-				}
-			},
-			_ => Err("unknown compparam type")
+				},
+				_ => Err("unknown compparam type")
+			}
 		}
+	}
+	
+	pub fn get_type(&self, arguments: &Vec<(String, ParamType, Option<Parameter>)>) -> Result<ParamType, &'static str>{
+		Ok(match self {
+			Self::Constant(param) => param.paramtype(),
+			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or("unknown argument name")?.1
+		})
 	}
 }
 
@@ -293,7 +299,7 @@ mod tests {
 	#[test]
 	fn empty_template_from_json() {
 		assert_eq!(
-			Template::from_json(json!({
+			Template::from_json(&json!({
 				"arguments": [],
 				"components": []
 			})).unwrap(),
@@ -306,14 +312,14 @@ mod tests {
 	
 	#[test]
 	fn grass_from_json(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap();
@@ -331,14 +337,14 @@ mod tests {
 	
 	#[test]
 	fn invalid_component_name(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", null]
 				],
 				"components": [
 					["visible", { // no capital so invalid
 						"sprite": ["A", "sprite"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap_err();
@@ -349,30 +355,30 @@ mod tests {
 	
 	#[test]
 	fn invalid_parameter_type(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["C", "0.1"]
+						"height": ["string", "0.1"]
 					}]
 				]
 			})).unwrap_err();
-		assert_eq!(result, "failed to parse parameter constant");
+		assert_eq!(result, "parameter type incorrect");
 	}
 	
 	#[test]
 	fn unknown_argument_name(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprits"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap_err();
@@ -381,32 +387,32 @@ mod tests {
 	
 	#[test]
 	fn wrong_argument_type(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "int", 1]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap_err();
-		assert_eq!(result, "wrong argument type");
+		assert_eq!(result, "parameter type incorrect");
 	}
 	
 	
 	
 	#[test]
 	fn wrong_argument_default(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", 1]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprits"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap_err();
@@ -416,14 +422,14 @@ mod tests {
 	
 	#[test]
 	fn null_argument(){
-		let result = Template::from_json(json!({
+		let result = Template::from_json(&json!({
 				"arguments": [
 					["sprite", "string", null]
 				],
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["C", 0.1]
+						"height": ["float", 0.1]
 					}]
 				]
 			})).unwrap();

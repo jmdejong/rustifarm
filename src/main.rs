@@ -64,16 +64,8 @@ fn main() {
 
 fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let mut room = Room::new((width, height));
-	let wall = Template::from_json(json!({
-		"arguments": [],
-		"components": [
-			["Blocking", {}],
-			["Visible", {
-				"sprite": ["const", "wall"],
-				"height": ["const", 1.0]
-			}]
-		]
-	})).unwrap().instantiate(Vec::new(), HashMap::new()).unwrap();
+	let assemblages = default_assemblages();
+	let wall = assemblages["wall"].instantiate(Vec::new(), HashMap::new()).unwrap();
 	for x in 0..width {
 		room.add_complist(&wall, (x, 0));
 		room.add_complist(&wall, (x, height - 1));
@@ -90,7 +82,29 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	room
 }
 
-// fn default_assemblages() -> Hashmap<&str, Template> {
-// 	hashmap!(
-// 		
+fn default_assemblages() -> HashMap<String, Template> {
+	json!({
+		"wall": {
+			"arguments": [],
+			"components": [
+				["Blocking", {}],
+				["Visible", {
+					"sprite": ["string", "wall"],
+					"height": ["float", 1.0]
+				}]
+			]
+		},
+		"grass": {
+			"arguments": [
+				["sprite", "string", "grass1"]
+			],
+			"components": [
+				["Visible", {
+					"sprite": ["arg", "sprite"],
+					"height": ["float", 0.1]
+				}]
+			]
+		}
+	}).as_object().unwrap().into_iter().map(|(k, v)| (k.clone(), Template::from_json(v).unwrap())).collect()
+}
 
