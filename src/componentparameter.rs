@@ -1,12 +1,14 @@
 
 use std::collections::HashMap;
+use rand::Rng;
 use serde_json::Value;
 use crate::parameter::{Parameter, ParameterType};
 
 #[derive(Debug, PartialEq)]
 pub enum ComponentParameter {
 	Constant(Parameter),
-	Argument(String)
+	Argument(String),
+	Random(Vec<ComponentParameter>)
 }
 
 impl ComponentParameter {
@@ -17,6 +19,10 @@ impl ComponentParameter {
 			},
 			Self::Argument(argname) => {
 				Some(arguments.get(argname.as_str())?.clone())
+			}
+			Self::Random(options) => {
+				let r = rand::thread_rng().gen_range(0, options.len());
+				options[r].evaluate(arguments)
 			}
 		}
 	}
@@ -32,6 +38,14 @@ impl ComponentParameter {
 					let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
 					Ok(Self::Argument(argname))
 				},
+				"random" => {
+					let optionvalues = paramvalue.as_array().ok_or("random argument not a a string")?;
+					let mut options = Vec::new();
+					for option in optionvalues {
+						options.push(Self::from_json(option)?)
+					}
+					Ok(Self::Random(options))
+				},
 				_ => Err("unknown compparam type")
 			}
 		}
@@ -40,7 +54,16 @@ impl ComponentParameter {
 	pub fn get_type(&self, arguments: &Vec<(String, ParameterType, Option<Parameter>)>) -> Result<ParameterType, &'static str>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
-			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or("unknown argument name")?.1
+			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or("unknown argument name")?.1,
+			Self::Random(options) => {
+				let typ: ParameterType = options.get(0).ok_or("random has no options")?.get_type(arguments)?;
+				for param in options {
+					if param.get_type(arguments)? != typ {
+						return Err("inconsistent parameter types");
+					}
+				}
+				typ
+			}
 		})
 	}
 }

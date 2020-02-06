@@ -69,6 +69,7 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let mut room = Room::new((width, height));
 	let assemblages = default_assemblages();
 	let wall = assemblages["wall"].instantiate(Vec::new(), HashMap::new()).unwrap();
+	let grass = &assemblages["grass"];
 	for x in 0..width {
 		room.add_complist(&wall, (x, 0));
 		room.add_complist(&wall, (x, height - 1));
@@ -79,7 +80,7 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	}
 	for x in 1..width-1 {
 		for y in 1..height-1 {
-			room.add_obj(&Grass::new(), (x, y));
+			room.add_complist(&grass.instantiate(Vec::new(), HashMap::new()).unwrap(), (x, y));
 		}
 	}
 	room
@@ -98,12 +99,18 @@ fn default_assemblages() -> HashMap<String, Template> {
 			]
 		},
 		"grass": {
-			"arguments": [
-				["sprite", "string", "grass1"]
-			],
+			"arguments": [],
 			"components": [
 				["Visible", {
-					"sprite": ["arg", "sprite"],
+					"sprite": ["random", [
+						["string", "grass1"],
+						["string", "grass2"],
+						["string", "grass3"],
+						["string", "grass1"],
+						["string", "grass2"],
+						["string", "grass3"],
+						["string", "ground"]
+					]],
 					"height": ["float", 0.1]
 				}]
 			]
