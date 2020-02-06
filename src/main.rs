@@ -5,6 +5,7 @@ use std::time::Duration;
 use std::path::Path;
 use std::collections::HashMap;
 
+use serde_json::json;
 
 mod server;
 mod gameserver;
@@ -63,16 +64,16 @@ fn main() {
 
 fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let mut room = Room::new((width, height));
-	let wall = Template{
-		arguments: Vec::new(),
-		components: vec![
-			(ComponentType::from_str("Blocking").unwrap(), HashMap::new()),
-			(ComponentType::from_str("Visible").unwrap(), hashmap!(
-				"sprite".to_string() => CompParam::Constant(Parameter::String("wall".to_string())),
-				"height".to_string() => CompParam::Constant(Parameter::Float(1.0))
-			))
+	let wall = Template::from_json(json!({
+		"arguments": [],
+		"components": [
+			["Blocking", {}],
+			["Visible", {
+				"sprite": ["const", "wall"],
+				"height": ["const", 1.0]
+			}]
 		]
-	}.instantiate(Vec::new(), HashMap::new()).unwrap();
+	})).unwrap().instantiate(Vec::new(), HashMap::new()).unwrap();
 	for x in 0..width {
 		room.add_complist(&wall, (x, 0));
 		room.add_complist(&wall, (x, height - 1));
@@ -88,4 +89,8 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	}
 	room
 }
+
+// fn default_assemblages() -> Hashmap<&str, Template> {
+// 	hashmap!(
+// 		
 

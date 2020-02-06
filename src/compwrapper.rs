@@ -17,7 +17,7 @@ pub enum CompWrapper{
 
 impl CompWrapper {
 
-	pub fn build<'a>(&self, builder: specs::EntityBuilder<'a>) -> specs::EntityBuilder<'a> {
+	pub fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a> {
 		match self.clone() {
 			Self::Visible(c) => builder.with(c),
 			Self::Blocking(c) => builder.with(c),
@@ -76,7 +76,7 @@ impl ComponentType {
 	}
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Parameter {
 	String(String),
 	Int(i64),
@@ -187,12 +187,12 @@ impl Template {
 				let paramtype: ParamType = comptype.parameters().remove(key.as_str()).ok_or("unknown parameter name")?;
 				let paramvalue = value.get(1).ok_or("index 0 not in component parameter")?;
 				let param = match value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")? {
-					"C" => Ok(CompParam::Constant(
+					"C" | "const" => Ok(CompParam::Constant(
 						Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?
 					)),
-					"A" => {
+					"A" | "arg" => {
 						let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
-						let arg = arguments.iter().find(|(a, t, d)| a == &argname).ok_or("unknown argument name")?;
+						let arg = arguments.iter().find(|(a, _t, _d)| a == &argname).ok_or("unknown argument name")?;
 						if arg.1 == paramtype {
 							Ok(CompParam::Argument(argname))
 						} else {
@@ -210,28 +210,42 @@ impl Template {
 			components
 		})
 	}
+	
+	fn prepare_arguments(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &str> {
+		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
+		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
+			let value: Option<Parameter> = {
+				if let Some(val) = kwargs.get(name) {
+					Some((*val).clone())
+				} else if let Some(val) = args.get(idx) {
+					Some((*val).clone())
+				} else if let Some(val) = def {
+					Some((*val).clone())
+				} else {
+					None
+				}
+			};
+			let param = value.ok_or("argument has no value")?;
+			if param.paramtype() != *typ {
+				return Err("argument has incorrect type");
+			}
+			arguments.insert(name, param);
+		}
+		Ok(arguments)
+	}
 
 	pub fn instantiate(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Result<Vec<CompWrapper>, &str>{
 		let mut components: Vec<CompWrapper> = Vec::new();
+		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, &Parameter> = HashMap::new();
 			for (name, param) in compparams {
 				match param {
 					CompParam::Constant(val) => {compargs.insert(name.as_str(), &val); Ok(())},
 					CompParam::Argument(argname) => {
-						if let Some(argval) = kwargs.get(argname.as_str()) {
-							compargs.insert(name.as_str(), argval);
-							Ok(())
-						} else if let Some(idx) = self.arguments.iter().position(|(x, t, d)| x == name){
-							if idx < args.len() {
-								compargs.insert(name.as_str(), &args[idx]);
-								Ok(())
-							} else {
-								Err("positional argument out of range")
-							}
-						} else {
-							Err("can't find parameter value")
-						}
+						let value = arguments.get(argname.as_str()).ok_or("argument not found")?;
+						compargs.insert(name.as_str(), value);
+						Ok(())
 					}
 				}?;
 			}
