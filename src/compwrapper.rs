@@ -35,7 +35,7 @@ impl CompWrapper {
 // 		Self::load_component(typename, params)
 // 	}
 
-	pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, &Parameter>) -> Option<CompWrapper> {
+	pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Option<CompWrapper> {
 		match comptype {
 			ComponentType::Visible => Some(CompWrapper::Visible(Visible{
 				sprite: parameters.remove("sprite")?.as_str()?.to_string(),
@@ -163,9 +163,10 @@ pub struct Template {
 
 impl Template {
 
-	pub fn from_json(val: Value) -> Result<Template, &'static str>{
+
+	fn parse_definition_arguments(args: &Vec<Value>) -> Result<Vec<(String, ParamType, Option<Parameter>)>, &'static str> {
 		let mut arguments: Vec<(String, ParamType, Option<Parameter>)> = Vec::new();
-		for arg in val.get("arguments").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not an array")? {
+		for arg in args {
 			let tup = arg.as_array().ok_or("argument is not an array")?;
 			let key = tup.get(0).ok_or("argument has no name")?.as_str().ok_or("argument name is not a string")?.to_string();
 			let typ = ParamType::from_str(tup.get(1).ok_or("argument has no type")?.as_str().ok_or("argument type not a string")?).ok_or("failed to parse argument type")?;
@@ -176,6 +177,11 @@ impl Template {
 				arguments.push((key.clone(), typ, Some(Parameter::from_typed_json(typ, def).ok_or("invalid argument default")?)));
 			}
 		}
+		Ok(arguments)
+	}
+	
+	pub fn from_json(val: Value) -> Result<Template, &'static str>{
+		let arguments = Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not an array")?)?;
 		let mut components = Vec::new();
 		for tup in val.get("components").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not a json object")? {
 			let comptype = ComponentType::from_str(tup
@@ -185,23 +191,8 @@ impl Template {
 			let mut parameters: HashMap<String, CompParam> = HashMap::new();
 			for (key, value) in tup.get(1).ok_or("index 1 not in component")?.as_object().ok_or("component parameters not a json object")? {
 				let paramtype: ParamType = comptype.parameters().remove(key.as_str()).ok_or("unknown parameter name")?;
-				let paramvalue = value.get(1).ok_or("index 0 not in component parameter")?;
-				let param = match value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")? {
-					"C" | "const" => Ok(CompParam::Constant(
-						Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?
-					)),
-					"A" | "arg" => {
-						let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
-						let arg = arguments.iter().find(|(a, _t, _d)| a == &argname).ok_or("unknown argument name")?;
-						if arg.1 == paramtype {
-							Ok(CompParam::Argument(argname))
-						} else {
-							Err("wrong argument type")
-						}
-					},
-					_ => Err("unknown compparam type")
-				};
-				parameters.insert(key.clone(), param?);
+				let param = CompParam::from_json(paramtype, value, &arguments)?;
+				parameters.insert(key.clone(), param);
 			}
 			components.push((comptype, parameters));
 		}
@@ -238,16 +229,9 @@ impl Template {
 		let mut components: Vec<CompWrapper> = Vec::new();
 		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {
-			let mut compargs: HashMap<&str, &Parameter> = HashMap::new();
+			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {
-				match param {
-					CompParam::Constant(val) => {compargs.insert(name.as_str(), &val); Ok(())},
-					CompParam::Argument(argname) => {
-						let value = arguments.get(argname.as_str()).ok_or("argument not found")?;
-						compargs.insert(name.as_str(), value);
-						Ok(())
-					}
-				}?;
+				compargs.insert(name.as_str(), param.evaluate(&arguments).ok_or("argument not found")?);
 			}
 			components.push(CompWrapper::load_component(*comptype, compargs).ok_or("failed to load component")?);
 		}
@@ -262,12 +246,43 @@ pub enum CompParam {
 	Argument(String)
 }
 
+impl CompParam {
+	fn evaluate(&self, arguments: &HashMap<&str, Parameter>) -> Option<Parameter> {
+		match self {
+			CompParam::Constant(val) => {
+				Some(val.clone())
+			},
+			CompParam::Argument(argname) => {
+				Some(arguments.get(argname.as_str())?.clone())
+			}
+		}
+	}
+	
+	fn from_json(paramtype: ParamType, value: &Value, arguments: &Vec<(String, ParamType, Option<Parameter>)>) -> Result<Self, &'static str> {
+		let paramvalue = value.get(1).ok_or("index 0 not in component parameter")?;
+		match value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")? {
+			"C" | "const" => Ok(CompParam::Constant(
+				Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?
+			)),
+			"A" | "arg" => {
+				let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
+				let arg = arguments.iter().find(|(a, _t, _d)| a == &argname).ok_or("unknown argument name")?;
+				if arg.1 == paramtype {
+					Ok(CompParam::Argument(argname))
+				} else {
+					Err("wrong argument type")
+				}
+			},
+			_ => Err("unknown compparam type")
+		}
+	}
+}
+
 
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use serde_json::json;
-	use std::collections::HashMap;
 	
 	
 	#[test]
