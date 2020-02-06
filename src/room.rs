@@ -28,7 +28,7 @@ use super::systems::{
 	controlinput::ControlInput,
 	view::View
 };
-use super::compwrapper::CompWrapper;
+use super::componentwrapper::ComponentWrapper;
 
 
 
@@ -84,7 +84,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		template.build(self.world.create_entity()).with(Position::new(Pos{x, y})).build()
 	}
 	
-	pub fn add_complist(&mut self, template: &Vec<CompWrapper>, (x, y): (i32, i32)) -> Entity{
+	pub fn add_complist(&mut self, template: &Vec<ComponentWrapper>, (x, y): (i32, i32)) -> Entity{
 		let mut builder = self.world.create_entity();
 		for comp in template {
 			builder = comp.build(builder);

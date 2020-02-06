@@ -20,16 +20,19 @@ mod worldmessages;
 mod pos;
 mod assemblage;
 // mod load;
-mod compwrapper;
+mod componentwrapper;
+mod parameter;
+mod template;
+mod componentparameter;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
-use self::assemblages::{Wall, Grass};
+use self::assemblages::{Grass};
 use self::room::Room;
 use self::util::ToJson;
-use self::compwrapper::{Parameter, Template, CompParam, ComponentType};
+use self::template::{Template};
 
 
 
