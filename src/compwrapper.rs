@@ -135,7 +135,7 @@ impl Parameter {
 	}
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParamType {
 	String,
 // 	Pos,
@@ -157,22 +157,23 @@ impl ParamType {
 
 #[derive(Debug, PartialEq)]
 pub struct Template {
-	pub arguments: Vec<(String, Option<Parameter>)>,
+	pub arguments: Vec<(String, ParamType, Option<Parameter>)>,
 	pub components: Vec<(ComponentType, HashMap<String, CompParam>)>
 }
 
 impl Template {
 
 	pub fn from_json(val: Value) -> Result<Template, &'static str>{
-		let mut arguments: Vec<(String, Option<Parameter>)> = Vec::new();
-		for arg in val.get("arguments").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not a json object")? {
+		let mut arguments: Vec<(String, ParamType, Option<Parameter>)> = Vec::new();
+		for arg in val.get("arguments").ok_or("property 'arguments' not found")?.as_array().ok_or("arguments is not an array")? {
 			let tup = arg.as_array().ok_or("argument is not an array")?;
-			let key = tup.get(0).ok_or("argument has no index name")?.as_str().ok_or("argument name is not a string")?.to_string();
-			let value = tup.get(1).ok_or("argument has only name")?;
-			if value.is_null() {
-				arguments.push((key.clone(), None));
+			let key = tup.get(0).ok_or("argument has no name")?.as_str().ok_or("argument name is not a string")?.to_string();
+			let typ = ParamType::from_str(tup.get(1).ok_or("argument has no type")?.as_str().ok_or("argument type not a string")?).ok_or("failed to parse argument type")?;
+			let def = tup.get(2).ok_or("argument has no default")?;
+			if def.is_null() {
+				arguments.push((key.clone(), typ, None));
 			} else {
-				arguments.push((key.clone(), Some(Parameter::from_json(value).ok_or("invalid argument default")?)));
+				arguments.push((key.clone(), typ, Some(Parameter::from_typed_json(typ, def).ok_or("invalid argument default")?)));
 			}
 		}
 		let mut components = Vec::new();
@@ -191,16 +192,11 @@ impl Template {
 					)),
 					"A" => {
 						let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
-						let arg = arguments.iter().find(|(a, d)| a == &argname).ok_or("unknown argument name")?;
-						match &arg.1 {
-							Some(param) => {
-								if param.paramtype() == paramtype {
-									Ok(CompParam::Argument(argname))
-								} else {
-									Err("wrong argument type")
-								}
-							},
-							None => Ok(CompParam::Argument(argname))
+						let arg = arguments.iter().find(|(a, t, d)| a == &argname).ok_or("unknown argument name")?;
+						if arg.1 == paramtype {
+							Ok(CompParam::Argument(argname))
+						} else {
+							Err("wrong argument type")
 						}
 					},
 					_ => Err("unknown compparam type")
@@ -215,35 +211,33 @@ impl Template {
 		})
 	}
 
-	pub fn instantiate(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Option<Vec<CompWrapper>>{
+	pub fn instantiate(&self, args: Vec<Parameter>, kwargs: HashMap<String, Parameter>) -> Result<Vec<CompWrapper>, &str>{
 		let mut components: Vec<CompWrapper> = Vec::new();
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, &Parameter> = HashMap::new();
 			for (name, param) in compparams {
 				match param {
-					CompParam::Constant(val) => {compargs.insert(name.as_str(), &val); Some(())},
+					CompParam::Constant(val) => {compargs.insert(name.as_str(), &val); Ok(())},
 					CompParam::Argument(argname) => {
 						if let Some(argval) = kwargs.get(argname.as_str()) {
 							compargs.insert(name.as_str(), argval);
-							Some(())
-						} else if let Some(idx) = self.arguments.iter().position(|(x, d)| x == name){
+							Ok(())
+						} else if let Some(idx) = self.arguments.iter().position(|(x, t, d)| x == name){
 							if idx < args.len() {
 								compargs.insert(name.as_str(), &args[idx]);
-								Some(())
+								Ok(())
 							} else {
-								println!("positional argument out of range");
-								None
+								Err("positional argument out of range")
 							}
 						} else {
-							println!("can't find parameter value, comptype: {:?}, name: {}, argname: {}", comptype, name, argname);
-							None
+							Err("can't find parameter value")
 						}
 					}
 				}?;
 			}
-			components.push(CompWrapper::load_component(*comptype, compargs)?);
+			components.push(CompWrapper::load_component(*comptype, compargs).ok_or("failed to load component")?);
 		}
-		Some(components)
+		Ok(components)
 	}
 }
 
@@ -280,7 +274,7 @@ mod tests {
 	fn grass_from_json(){
 		let result = Template::from_json(json!({
 				"arguments": [
-					["sprite", ["string", "grass1"]]
+					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
@@ -290,7 +284,7 @@ mod tests {
 				]
 			})).unwrap();
 		let constructed = Template{
-				arguments: vec![("sprite".to_string(), Some(Parameter::String("grass1".to_string())))],
+				arguments: vec![("sprite".to_string(), ParamType::String, Some(Parameter::String("grass1".to_string())))],
 				components: vec![
 					(ComponentType::Visible, hashmap!(
 						"sprite".to_string() => CompParam::Argument("sprite".to_string()),
@@ -305,7 +299,7 @@ mod tests {
 	fn invalid_component_name(){
 		let result = Template::from_json(json!({
 				"arguments": [
-					["sprite", ["string", "grass1"]]
+					["sprite", "string", null]
 				],
 				"components": [
 					["visible", { // no capital so invalid
@@ -323,7 +317,7 @@ mod tests {
 	fn invalid_parameter_type(){
 		let result = Template::from_json(json!({
 				"arguments": [
-					["sprite", ["string", "grass1"]]
+					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
@@ -339,7 +333,7 @@ mod tests {
 	fn unknown_argument_name(){
 		let result = Template::from_json(json!({
 				"arguments": [
-					["sprite", ["string", "grass1"]]
+					["sprite", "string", "grass1"]
 				],
 				"components": [
 					["Visible", {
@@ -355,7 +349,7 @@ mod tests {
 	fn wrong_argument_type(){
 		let result = Template::from_json(json!({
 				"arguments": [
-					["sprite", ["int", 1]]
+					["sprite", "int", 1]
 				],
 				"components": [
 					["Visible", {
@@ -365,6 +359,50 @@ mod tests {
 				]
 			})).unwrap_err();
 		assert_eq!(result, "wrong argument type");
+	}
+	
+	
+	
+	#[test]
+	fn wrong_argument_default(){
+		let result = Template::from_json(json!({
+				"arguments": [
+					["sprite", "string", 1]
+				],
+				"components": [
+					["Visible", {
+						"sprite": ["A", "sprits"],
+						"height": ["C", 0.1]
+					}]
+				]
+			})).unwrap_err();
+		assert_eq!(result, "invalid argument default");
+	}
+	
+	
+	#[test]
+	fn null_argument(){
+		let result = Template::from_json(json!({
+				"arguments": [
+					["sprite", "string", null]
+				],
+				"components": [
+					["Visible", {
+						"sprite": ["A", "sprite"],
+						"height": ["C", 0.1]
+					}]
+				]
+			})).unwrap();
+		let constructed = Template{
+				arguments: vec![("sprite".to_string(), ParamType::String, None)],
+				components: vec![
+					(ComponentType::Visible, hashmap!(
+						"sprite".to_string() => CompParam::Argument("sprite".to_string()),
+						"height".to_string() => CompParam::Constant(Parameter::Float(0.1))
+					))
+				]
+			};
+		assert_eq!(result, constructed);
 	}
 }
 
