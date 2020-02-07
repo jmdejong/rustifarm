@@ -110,7 +110,6 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 fn default_assemblages() -> Encyclopedia {
 	Encyclopedia::from_json(json!({
 		"wall": {
-			"arguments": [],
 			"components": [
 				["Blocking", {}],
 				["Visible", {
@@ -120,7 +119,6 @@ fn default_assemblages() -> Encyclopedia {
 			]
 		},
 		"grass": {
-			"arguments": [],
 			"components": [
 				["Visible", {
 					"sprite": ["random", [

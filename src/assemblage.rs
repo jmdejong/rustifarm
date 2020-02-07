@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use serde_json::Value;
+use serde_json::{Value, json};
 use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
 use super::componentwrapper::{ComponentWrapper, ComponentType};
@@ -62,7 +62,7 @@ impl Assemblage {
 	
 	pub fn from_json(val: &Value) -> Result<Self, &'static str>{
 		let assemblage = Self {
-			arguments: Self::parse_definition_arguments(val.get("arguments").ok_or("property 'arguments' not found")?)?,
+			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?
 		};
 		assemblage.validate()?;
