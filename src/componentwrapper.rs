@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use specs::{Builder, EntityBuilder};
 
-use crate::components::{Visible, Blocking, Player};
+use crate::components::{Visible, Blocking, Player, Floor};
 use crate::hashmap;
 use crate::parameter::{Parameter, ParameterType};
 
@@ -11,7 +11,8 @@ use crate::parameter::{Parameter, ParameterType};
 pub enum ComponentWrapper{
 	Visible(Visible),
 	Blocking(Blocking),
-	Player(Player)
+	Player(Player),
+	Floor(Floor)
 }
 
 impl ComponentWrapper {
@@ -20,7 +21,8 @@ impl ComponentWrapper {
 		match self.clone() {
 			Self::Visible(c) => builder.with(c),
 			Self::Blocking(c) => builder.with(c),
-			Self::Player(c) => builder.with(c)
+			Self::Player(c) => builder.with(c),
+			Self::Floor(c) => builder.with(c)
 		}
 	}
 
@@ -33,7 +35,8 @@ impl ComponentWrapper {
 			ComponentType::Blocking => Some(Self::Blocking(Blocking)),
 			ComponentType::Player => Some(Self::Player(Player::new(
 				parameters.remove("name")?.as_str()?.to_string()
-			)))
+			))),
+			ComponentType::Floor => Some(Self::Floor(Floor))
 		}
 	}
 }
@@ -42,7 +45,8 @@ impl ComponentWrapper {
 pub enum ComponentType {
 	Visible,
 	Blocking,
-	Player
+	Player,
+	Floor
 }
 
 impl ComponentType {
@@ -52,6 +56,7 @@ impl ComponentType {
 			"Visible" => Some(ComponentType::Visible),
 			"Blocking" => Some(ComponentType::Blocking),
 			"Player" => Some(ComponentType::Player),
+			"Floor" => Some(ComponentType::Floor),
 			_ => None
 		}
 	}
@@ -60,6 +65,7 @@ impl ComponentType {
 		match self {
 			ComponentType::Visible => hashmap!("sprite" => ParameterType::String, "height" => ParameterType::Float),
 			ComponentType::Blocking => HashMap::new(),
+			ComponentType::Floor => HashMap::new(),
 			ComponentType::Player => hashmap!("name" => ParameterType::String)
 		}
 	}

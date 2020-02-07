@@ -31,7 +31,7 @@ pub struct Spawn {
 }
 
 #[derive(Default)]
-pub struct Floor {
+pub struct Ground {
 	pub cells: HashMap<Pos, Vec<Entity>>
 }
 

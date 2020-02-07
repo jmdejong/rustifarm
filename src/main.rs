@@ -72,7 +72,7 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let roomtemplate = RoomTemplate::from_json(&json!({
 		"width": 42,
 		"height": 22,
-		"spawn": [35, 5],
+		"spawn": [5, 15],
 		"field": [
 			"##########################################",
 			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
@@ -133,7 +133,8 @@ fn default_assemblages() -> Encyclopedia {
 						["string", "ground"]
 					]],
 					"height": ["float", 0.1]
-				}]
+				}],
+				["Floor", {}]
 			]
 		},
 		"player": {
