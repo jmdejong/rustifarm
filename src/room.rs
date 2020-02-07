@@ -13,7 +13,7 @@ use specs::{
 use super::controls::Action;
 use super::pos::Pos;
 use super::components::Position;
-use super::assemblage::Assemblage;
+use super::oldassemblage::Assemblage as OldAssemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
@@ -80,7 +80,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Input>().actions = actions;
 	}
 	
-	pub fn add_obj(&mut self, template: &dyn Assemblage, (x, y): (i32, i32)) -> Entity {
+	pub fn add_obj(&mut self, template: &dyn OldAssemblage, (x, y): (i32, i32)) -> Entity {
 		template.build(self.world.create_entity()).with(Position::new(Pos{x, y})).build()
 	}
 	

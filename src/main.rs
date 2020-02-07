@@ -3,7 +3,6 @@
 use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
-use std::collections::HashMap;
 
 use serde_json::json;
 
@@ -18,21 +17,22 @@ mod resources;
 mod systems;
 mod worldmessages;
 mod pos;
-mod assemblage;
-// mod load;
+mod oldassemblage;
 mod componentwrapper;
 mod parameter;
-mod template;
+mod assemblage;
 mod componentparameter;
+mod encyclopedia;
+mod template;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
-use self::assemblages::{Grass};
 use self::room::Room;
 use self::util::ToJson;
-use self::template::{Template};
+use self::encyclopedia::Encyclopedia;
+use self::template::Template;
 
 
 
@@ -68,8 +68,8 @@ fn main() {
 fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	let mut room = Room::new((width, height));
 	let assemblages = default_assemblages();
-	let wall = assemblages["wall"].instantiate(Vec::new(), HashMap::new()).unwrap();
-	let grass = &assemblages["grass"];
+	let wall = assemblages.construct(&Template::empty("wall")).unwrap();
+// 	let grass = &assemblages["grass"];
 	for x in 0..width {
 		room.add_complist(&wall, (x, 0));
 		room.add_complist(&wall, (x, height - 1));
@@ -80,14 +80,15 @@ fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
 	}
 	for x in 1..width-1 {
 		for y in 1..height-1 {
-			room.add_complist(&grass.instantiate(Vec::new(), HashMap::new()).unwrap(), (x, y));
+			let grass = assemblages.construct(&Template::empty("grass")).unwrap();
+			room.add_complist(&grass, (x, y)); //&grass.instantiate(&Vec::new(), &HashMap::new()).unwrap(), (x, y));
 		}
 	}
 	room
 }
 
-fn default_assemblages() -> HashMap<String, Template> {
-	json!({
+fn default_assemblages() -> Encyclopedia {
+	Encyclopedia::from_json(json!({
 		"wall": {
 			"arguments": [],
 			"components": [
@@ -115,6 +116,6 @@ fn default_assemblages() -> HashMap<String, Template> {
 				}]
 			]
 		}
-	}).as_object().unwrap().into_iter().map(|(k, v)| (k.clone(), Template::from_json(v).unwrap())).collect()
+	})).unwrap()
 }
 

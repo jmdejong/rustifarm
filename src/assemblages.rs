@@ -2,7 +2,7 @@
 use rand::Rng;
 use super::components::{Visible, Blocking, Played};
 use super::assemblage;
-use super::assemblage::Assemblage;
+use super::oldassemblage::Assemblage;
 
 assemblage!(Wall {}; Visible{sprite: "wall".to_string(), height: 2.0}, Blocking);
 

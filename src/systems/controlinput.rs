@@ -11,25 +11,25 @@ use specs::{
 	Join
 };
 
-use super::super::pos::Pos;
+use crate::pos::Pos;
 
-use super::super::components::{
+use crate::components::{
 	Controller,
 	Played
 };
 
-use super::super::controls::{
+use crate::controls::{
 	Control,
 	Action
 };
 
-use super::super::resources::{
+use crate::resources::{
 	Input,
 	NewEntities
 };
 
 
-use super::super::assemblages::Player;
+use crate::assemblages::Player;
 
 
 pub struct ControlInput;

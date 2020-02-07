@@ -4,7 +4,7 @@ use specs::Entity;
 
 use super::pos::Pos;
 use super::controls::Action;
-use super::assemblage::Assemblage;
+use super::oldassemblage::Assemblage;
 use super::worldmessages::WorldMessage;
 
 
