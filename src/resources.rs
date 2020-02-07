@@ -26,6 +26,11 @@ pub struct Size {
 }
 
 #[derive(Default)]
+pub struct Spawn {
+	pub pos: Pos
+}
+
+#[derive(Default)]
 pub struct Floor {
 	pub cells: HashMap<Pos, Vec<Entity>>
 }

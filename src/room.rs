@@ -18,7 +18,8 @@ use super::resources::{
 	Size,
 	Output,
 	Input,
-	NewEntities
+	NewEntities,
+	Spawn
 };
 use super::systems::{
 	moving::Move,
@@ -69,14 +70,16 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Size>().width = width;
 		self.world.fetch_mut::<Size>().height = height;
 		
-		// todo: set spawn
+		self.world.fetch_mut::<Spawn>().pos = template.spawn;
 		
 		for (idx, templates) in template.field.iter().enumerate() {
 			let x = (idx as i64) % width;
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.add_entity(template, Pos{x, y});
+				if let Err(msg) = self.add_entity(template, Pos{x, y}){
+					println!("{}", msg);
+				}
 			}
 		}
 	}

@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 use serde::{Serialize, Serializer, ser::SerializeTuple};
 use super::util::{clamp, ToJson};
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Default)]
 pub struct Pos {
 	pub x: i64,
 	pub y: i64

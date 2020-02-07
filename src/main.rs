@@ -32,7 +32,6 @@ use self::server::Server;
 use self::room::Room;
 use self::util::ToJson;
 use self::encyclopedia::Encyclopedia;
-use self::template::Template;
 use self::roomtemplate::RoomTemplate;
 
 
@@ -73,7 +72,7 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let roomtemplate = RoomTemplate::from_json(&json!({
 		"width": 42,
 		"height": 22,
-		"spawn": [5, 5],
+		"spawn": [35, 5],
 		"field": [
 			"##########################################",
 			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
