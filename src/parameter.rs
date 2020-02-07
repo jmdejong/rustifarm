@@ -10,7 +10,11 @@ pub enum Parameter {
 }
 
 impl Parameter {
-
+	
+	pub fn string(string: &str) -> Self {
+		Self::String(string.to_string())
+	}
+	
 	pub fn from_typed_json(typ: ParameterType, val: &Value) -> Option<Parameter>{
 		match typ {
 			ParameterType::String => Some(Self::String(val.as_str()?.to_string())),
@@ -36,9 +40,10 @@ impl Parameter {
 			} else if val.is_f64() {
 				ParameterType::Float
 			} else {
+				println!("{:?}", val);
 				return None
 			};
-		Self::from_typed_json(typ, val.get(1)?)
+		Self::from_typed_json(typ, val)
 	}
 	
 	pub fn as_str(&self) -> Option<&str> {
@@ -87,5 +92,43 @@ impl ParameterType {
 			"float" => Some(Self::Float),
 			_ => None
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use serde_json::json;
+	
+	macro_rules! gfj { // guess from json
+		($j:expr) => {Parameter::guess_from_json(&json!($j)).unwrap()}
+	}
+	
+	#[test]
+	fn can_guess_json() {
+		Parameter::guess_from_json(&json!(3)).unwrap();
+	}
+	
+	#[test]
+	fn guess_json() {
+		assert_eq!(gfj!("charles"), Parameter::string("charles"));
+		assert_eq!(gfj!("1"), Parameter::string("1"));
+		assert_eq!(gfj!(""), Parameter::string(""));
+		assert_eq!(gfj!(3), Parameter::Int(3));
+		assert_eq!(gfj!(-3), Parameter::Int(-3));
+		assert_eq!(gfj!(0), Parameter::Int(0));
+		assert_eq!(gfj!(-0), Parameter::Int(0));
+		assert_eq!(gfj!(3.5), Parameter::Float(3.5));
+		assert_eq!(gfj!(3.0), Parameter::Float(3.0));
+		assert_eq!(gfj!(-3.0), Parameter::Float(-3.0));
+		assert_eq!(gfj!(0.0), Parameter::Float(0.0));
+		assert_eq!(gfj!(-0.0), Parameter::Float(0.0));
+	}
+	
+	#[test]
+	fn guess_json_none() {
+		assert!(Parameter::guess_from_json(&json!([2, 5])).is_none());
+		assert!(Parameter::guess_from_json(&json!(true)).is_none());
+		assert!(Parameter::guess_from_json(&json!({"hello": "world"})).is_none());
 	}
 }
