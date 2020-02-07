@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::parameter::Parameter;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Template {
 	pub name: String,
 	pub args: Vec<Parameter>,
@@ -26,7 +26,7 @@ impl Template {
 		Self::new(name, HashMap::new())
 	}
 	
-	pub fn from_json(val: Value) -> Option<Template> {
+	pub fn from_json(val: &Value) -> Option<Template> {
 		if val.is_string(){
 			return Some(Self::empty(val.as_str()?));
 		}

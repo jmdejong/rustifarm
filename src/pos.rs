@@ -7,14 +7,14 @@ use super::util::{clamp, ToJson};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct Pos {
-	pub x: i32,
-	pub y: i32
+	pub x: i64,
+	pub y: i64
 }
 
 
 impl Pos {
 	
-	pub fn new(x: i32, y: i32) -> Pos {
+	pub fn new(x: i64, y: i64) -> Pos {
 		Pos {x, y}
 	}
 	
@@ -23,6 +23,13 @@ impl Pos {
 			x: clamp(self.x, smaller.x, larger.x),
 			y: clamp(self.y, smaller.y, larger.y)
 		}
+	}
+	
+	pub fn from_json(val: &Value) -> Option<Self>{
+		Some(Pos {
+			x: val.get(0)?.as_i64()?,
+			y: val.get(1)?.as_i64()?
+		})
 	}
 }
 

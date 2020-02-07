@@ -41,7 +41,7 @@ pub struct Room<'a, 'b> {
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(encyclopedia: Encyclopedia, size: (i32, i32)) -> Room<'a, 'b> {
+	pub fn new(encyclopedia: Encyclopedia, size: (i64, i64)) -> Room<'a, 'b> {
 		let (width, height) = size;
 		let mut world = World::new();
 		world.insert(Size{width, height});

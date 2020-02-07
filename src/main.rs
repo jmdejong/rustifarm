@@ -22,6 +22,7 @@ mod assemblage;
 mod componentparameter;
 mod encyclopedia;
 mod template;
+mod roomtemplate;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -31,7 +32,7 @@ use self::room::Room;
 use self::util::ToJson;
 use self::encyclopedia::Encyclopedia;
 use self::template::Template;
-use self::pos::Pos;
+pub use self::pos::Pos;
 
 
 
@@ -64,7 +65,7 @@ fn main() {
 	}
 }
 
-fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
+fn gen_room<'a, 'b>(width: i64, height: i64) -> Room<'a, 'b> {
 	let assemblages = default_assemblages();
 	let mut room = Room::new(assemblages.clone(), (width, height));
 	let wall = &Template::empty("wall");

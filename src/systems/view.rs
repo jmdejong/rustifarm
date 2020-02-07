@@ -103,7 +103,7 @@ impl <'a> System<'a> for View {
 	}
 }
 
-fn draw_room(cells: HashMap<Pos, Vec<Visible>>, (width, height): (i32, i32)) -> (Vec<usize>, Vec<Vec<String>>){
+fn draw_room(cells: HashMap<Pos, Vec<Visible>>, (width, height): (i64, i64)) -> (Vec<usize>, Vec<Vec<String>>){
 	
 	let size = width * height;
 	let mut values :Vec<usize> = Vec::with_capacity(size as usize);

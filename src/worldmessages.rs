@@ -35,8 +35,8 @@ impl ToJson for WorldUpdate {
 
 #[derive(Clone, Serialize)]
 pub struct FieldMessage {
-	pub width: i32,
-	pub height: i32,
+	pub width: i64,
+	pub height: i64,
 	pub field: Vec<usize>,
 	pub mapping: Vec<Vec<String>>
 }
