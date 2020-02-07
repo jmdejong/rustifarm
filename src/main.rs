@@ -24,6 +24,7 @@ mod encyclopedia;
 mod template;
 mod roomtemplate;
 
+pub use self::pos::Pos;
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
@@ -32,7 +33,7 @@ use self::room::Room;
 use self::util::ToJson;
 use self::encyclopedia::Encyclopedia;
 use self::template::Template;
-pub use self::pos::Pos;
+use self::roomtemplate::RoomTemplate;
 
 
 
@@ -50,7 +51,7 @@ fn main() {
 	let mut gameserver = GameServer::new(servers);
 	
 	
-	let mut room = gen_room(50, 40);
+	let mut room = gen_room();
 	
 	loop {
 		let actions = gameserver.update();
@@ -65,24 +66,45 @@ fn main() {
 	}
 }
 
-fn gen_room<'a, 'b>(width: i64, height: i64) -> Room<'a, 'b> {
+fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let assemblages = default_assemblages();
-	let mut room = Room::new(assemblages.clone(), (width, height));
-	let wall = &Template::empty("wall");
-	for x in 0..width {
-		room.add_entity(&wall, Pos::new(x, 0)).unwrap();
-		room.add_entity(&wall, Pos::new(x, height - 1)).unwrap();
-	}
-	for y in 1..height-1 {
-		room.add_entity(&wall, Pos::new(0, y)).unwrap();
-		room.add_entity(&wall, Pos::new(width - 1, y)).unwrap();
-	}
-	for x in 1..width-1 {
-		for y in 1..height-1 {
-			let grass = &Template::empty("grass");
-			room.add_entity(&grass, Pos::new(x, y)).unwrap();
+	let mut room = Room::new(assemblages.clone());
+
+	let roomtemplate = RoomTemplate::from_json(&json!({
+		"width": 42,
+		"height": 22,
+		"spawn": [5, 5],
+		"field": [
+			"##########################################",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#   ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#",
+			"#####,,,##################################"
+		],
+		"mapping": {
+			"#": "wall",
+			",": "grass",
+			" ": []
 		}
-	}
+	})).unwrap();
+	room.load_from_template(&roomtemplate);
 	room
 }
 

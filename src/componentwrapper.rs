@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use specs::{Builder, EntityBuilder};
 
-use crate::components::{Visible, Blocking, Played};
+use crate::components::{Visible, Blocking, Player};
 use crate::hashmap;
 use crate::parameter::{Parameter, ParameterType};
 
@@ -11,7 +11,7 @@ use crate::parameter::{Parameter, ParameterType};
 pub enum ComponentWrapper{
 	Visible(Visible),
 	Blocking(Blocking),
-	Player(Played)
+	Player(Player)
 }
 
 impl ComponentWrapper {
@@ -31,7 +31,7 @@ impl ComponentWrapper {
 				height: parameters.remove("height")?.as_f64()?
 			})),
 			ComponentType::Blocking => Some(Self::Blocking(Blocking)),
-			ComponentType::Player => Some(Self::Player(Played::new(
+			ComponentType::Player => Some(Self::Player(Player::new(
 				parameters.remove("name")?.as_str()?.to_string()
 			)))
 		}

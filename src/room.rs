@@ -30,6 +30,7 @@ use super::systems::{
 use super::componentwrapper::ComponentWrapper;
 use crate::encyclopedia::Encyclopedia;
 use crate::template::Template;
+use crate::roomtemplate::RoomTemplate;
 
 
 
@@ -41,12 +42,8 @@ pub struct Room<'a, 'b> {
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(encyclopedia: Encyclopedia, size: (i64, i64)) -> Room<'a, 'b> {
-		let (width, height) = size;
+	pub fn new(encyclopedia: Encyclopedia) -> Room<'a, 'b> {
 		let mut world = World::new();
-		world.insert(Size{width, height});
-		world.insert(Input{actions: Vec::new()});
-		world.insert(Output{output: HashMap::new()});
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(ControlInput, "controlinput", &[])
@@ -58,10 +55,29 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		dispatcher.setup(&mut world);
 		
+		
 		Room {
 			world,
 			dispatcher,
 			encyclopedia
+		}
+	}
+	
+	pub fn load_from_template(&mut self, template: &RoomTemplate) {
+	
+		let (width, height) = template.size;
+		self.world.fetch_mut::<Size>().width = width;
+		self.world.fetch_mut::<Size>().height = height;
+		
+		// todo: set spawn
+		
+		for (idx, templates) in template.field.iter().enumerate() {
+			let x = (idx as i64) % width;
+			let y = (idx as i64) / width;
+			
+			for template in templates {
+				self.add_entity(template, Pos{x, y});
+			}
 		}
 	}
 	

@@ -4,10 +4,10 @@ use serde_json::Value;
 use crate::Pos;
 use crate::template::Template;
 
-struct RoomTemplate {
-	size: (i64, i64),
-	spawn: Pos,
-	field: Vec<Vec<Template>>
+pub struct RoomTemplate {
+	pub size: (i64, i64),
+	pub spawn: Pos,
+	pub field: Vec<Vec<Template>>
 }
 
 impl RoomTemplate {

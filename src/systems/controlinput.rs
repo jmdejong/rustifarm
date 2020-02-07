@@ -12,7 +12,7 @@ use specs::{
 };
 
 use crate::pos::Pos;
-use crate::components::{Controller, Played};
+use crate::components::{Controller, Player};
 use crate::controls::{Control, Action};
 use crate::resources::{Input, NewEntities};
 use crate::hashmap;
@@ -24,7 +24,7 @@ use crate::parameter::Parameter;
 
 pub struct ControlInput;
 impl <'a> System<'a> for ControlInput {
-	type SystemData = (Entities<'a>, Read<'a, Input>, WriteStorage<'a, Controller>, ReadStorage<'a, Played>, Write<'a, NewEntities>);
+	type SystemData = (Entities<'a>, Read<'a, Input>, WriteStorage<'a, Controller>, ReadStorage<'a, Player>, Write<'a, NewEntities>);
 	fn run(&mut self, (entities, input, mut controllers, players, mut new): Self::SystemData) {
 		let mut playercontrols: HashMap<&str, Control> = HashMap::new();
 		let mut leaving = HashSet::new();

@@ -2,6 +2,7 @@
 use specs::{
 	DenseVecStorage,
 	VecStorage,
+	HashMapStorage,
 	FlaggedStorage,
 	Component
 };
@@ -41,13 +42,17 @@ pub struct Controller(pub Control);
 pub struct Blocking;
 
 #[derive(Component, Debug, Clone)]
-pub struct Played {
+pub struct Floor;
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Player {
 	pub name: String,
 	pub is_new: bool
 }
-impl Played {
-	pub fn new(name: String) -> Played {
-		Played{name, is_new: true}
+impl Player {
+	pub fn new(name: String) -> Self {
+		Self{name, is_new: true}
 	}
 }
 
