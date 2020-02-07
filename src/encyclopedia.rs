@@ -5,7 +5,7 @@ use crate::assemblage::Assemblage;
 use crate::componentwrapper::ComponentWrapper;
 use crate::template::Template;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Encyclopedia {
 	items: HashMap<String, Assemblage>
 }
@@ -32,7 +32,7 @@ impl Encyclopedia {
 		Ok(())
 	}
 	
-	pub fn construct(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &str> {
+	pub fn construct(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &'static str> {
 		let assemblage = self.items.get(&template.name).ok_or("unknown assemblage name")?;
 		assemblage.instantiate(&template.args, &template.kwargs)
 	}

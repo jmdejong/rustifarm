@@ -4,7 +4,7 @@ use rand::Rng;
 use serde_json::Value;
 use crate::parameter::{Parameter, ParameterType};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ComponentParameter {
 	Constant(Parameter),
 	Argument(String),

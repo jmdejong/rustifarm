@@ -11,13 +11,11 @@ mod gameserver;
 mod room;
 mod util;
 mod controls;
-mod assemblages;
 mod components;
 mod resources;
 mod systems;
 mod worldmessages;
 mod pos;
-mod oldassemblage;
 mod componentwrapper;
 mod parameter;
 mod assemblage;
@@ -33,6 +31,7 @@ use self::room::Room;
 use self::util::ToJson;
 use self::encyclopedia::Encyclopedia;
 use self::template::Template;
+use self::pos::Pos;
 
 
 
@@ -66,22 +65,21 @@ fn main() {
 }
 
 fn gen_room<'a, 'b>(width: i32, height: i32) -> Room<'a, 'b> {
-	let mut room = Room::new((width, height));
 	let assemblages = default_assemblages();
-	let wall = assemblages.construct(&Template::empty("wall")).unwrap();
-// 	let grass = &assemblages["grass"];
+	let mut room = Room::new(assemblages.clone(), (width, height));
+	let wall = &Template::empty("wall");
 	for x in 0..width {
-		room.add_complist(&wall, (x, 0));
-		room.add_complist(&wall, (x, height - 1));
+		room.add_entity(&wall, Pos::new(x, 0)).unwrap();
+		room.add_entity(&wall, Pos::new(x, height - 1)).unwrap();
 	}
 	for y in 1..height-1 {
-		room.add_complist(&wall, (0, y));
-		room.add_complist(&wall, (width - 1, y));
+		room.add_entity(&wall, Pos::new(0, y)).unwrap();
+		room.add_entity(&wall, Pos::new(width - 1, y)).unwrap();
 	}
 	for x in 1..width-1 {
 		for y in 1..height-1 {
-			let grass = assemblages.construct(&Template::empty("grass")).unwrap();
-			room.add_complist(&grass, (x, y)); //&grass.instantiate(&Vec::new(), &HashMap::new()).unwrap(), (x, y));
+			let grass = &Template::empty("grass");
+			room.add_entity(&grass, Pos::new(x, y)).unwrap();
 		}
 	}
 	room
@@ -95,7 +93,7 @@ fn default_assemblages() -> Encyclopedia {
 				["Blocking", {}],
 				["Visible", {
 					"sprite": ["string", "wall"],
-					"height": ["float", 1.0]
+					"height": ["float", 2.0]
 				}]
 			]
 		},
@@ -113,6 +111,18 @@ fn default_assemblages() -> Encyclopedia {
 						["string", "ground"]
 					]],
 					"height": ["float", 0.1]
+				}]
+			]
+		},
+		"player": {
+			"arguments": [["name", "string", null]],
+			"components": [
+				["Visible", {
+					"sprite": ["string", "player"],
+					"height": ["float", 1.0]
+				}],
+				["Player", {
+					"name": ["arg", "name"]
 				}]
 			]
 		}

@@ -13,11 +13,15 @@ pub struct Template {
 
 impl Template {
 	
-	pub fn empty(name: &str) -> Self {
+	pub fn new(name: &str, kwargs: HashMap<String, Parameter>) -> Self {
 		Self {
 			name: name.to_string(),
 			args: Vec::new(),
-			kwargs: HashMap::new()
+			kwargs
 		}
+	}
+	
+	pub fn empty(name: &str) -> Self {
+		Self::new(name, HashMap::new())
 	}
 }

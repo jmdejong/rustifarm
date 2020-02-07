@@ -13,7 +13,6 @@ use specs::{
 use super::controls::Action;
 use super::pos::Pos;
 use super::components::Position;
-use super::oldassemblage::Assemblage as OldAssemblage;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
@@ -29,17 +28,20 @@ use super::systems::{
 	view::View
 };
 use super::componentwrapper::ComponentWrapper;
+use crate::encyclopedia::Encyclopedia;
+use crate::template::Template;
 
 
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>
+	dispatcher: Dispatcher<'a, 'b>,
+	encyclopedia: Encyclopedia
 }
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(size: (i32, i32)) -> Room<'a, 'b> {
+	pub fn new(encyclopedia: Encyclopedia, size: (i32, i32)) -> Room<'a, 'b> {
 		let (width, height) = size;
 		let mut world = World::new();
 		world.insert(Size{width, height});
@@ -58,7 +60,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher
+			dispatcher,
+			encyclopedia
 		}
 	}
 	
@@ -68,10 +71,12 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn update(&mut self) {
 		self.dispatcher.dispatch(&mut self.world);
-		let assemblages = self.world.remove::<NewEntities>().unwrap_or(NewEntities{assemblages: Vec::new()}).assemblages;
-		self.world.insert(NewEntities{assemblages: Vec::new()});
-		for (pos, assemblage) in assemblages{
-			assemblage.build(self.world.create_entity()).with(Position::new(pos)).build();
+		let templates = self.world.remove::<NewEntities>().unwrap_or(NewEntities::default()).templates;
+		self.world.insert(NewEntities::default());
+		for (pos, template) in templates{
+			if let Err(msg) = self.add_entity(&template, pos){
+				println!("failed to add entity {:?}: {}", template, msg);
+			}
 		}
 		self.world.maintain();
 	}
@@ -80,16 +85,17 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Input>().actions = actions;
 	}
 	
-	pub fn add_obj(&mut self, template: &dyn OldAssemblage, (x, y): (i32, i32)) -> Entity {
-		template.build(self.world.create_entity()).with(Position::new(Pos{x, y})).build()
+	pub fn add_entity(&mut self, template: &Template, pos: Pos) -> Result<Entity, &'static str> {
+		let preentity = self.encyclopedia.construct(template)?;
+		Ok(self.add_complist(&preentity, pos))
 	}
-	
-	pub fn add_complist(&mut self, template: &Vec<ComponentWrapper>, (x, y): (i32, i32)) -> Entity{
+// 	
+	pub fn add_complist(&mut self, template: &Vec<ComponentWrapper>, pos: Pos) -> Entity{
 		let mut builder = self.world.create_entity();
 		for comp in template {
 			builder = comp.build(builder);
 		}
-		builder.with(Position::new(Pos{x, y})).build()
+		builder.with(Position::new(pos)).build()
 	}
 }
 

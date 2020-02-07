@@ -4,8 +4,9 @@ use specs::Entity;
 
 use super::pos::Pos;
 use super::controls::Action;
-use super::oldassemblage::Assemblage;
+// use super::oldassemblage::Assemblage;
 use super::worldmessages::WorldMessage;
+use super::template::Template;
 
 
 #[derive(Default)]
@@ -31,5 +32,5 @@ pub struct Floor {
 
 #[derive(Default)]
 pub struct NewEntities {
-	pub assemblages: Vec<(Pos, Box<dyn Assemblage>)>
+	pub templates: Vec<(Pos, Template)>
 }

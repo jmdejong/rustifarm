@@ -12,24 +12,14 @@ use specs::{
 };
 
 use crate::pos::Pos;
+use crate::components::{Controller, Played};
+use crate::controls::{Control, Action};
+use crate::resources::{Input, NewEntities};
+use crate::hashmap;
+use crate::template::Template;
+use crate::parameter::Parameter;
 
-use crate::components::{
-	Controller,
-	Played
-};
-
-use crate::controls::{
-	Control,
-	Action
-};
-
-use crate::resources::{
-	Input,
-	NewEntities
-};
-
-
-use crate::assemblages::Player;
+// use crate::assemblages::Player;
 
 
 pub struct ControlInput;
@@ -40,7 +30,12 @@ impl <'a> System<'a> for ControlInput {
 		let mut leaving = HashSet::new();
 		for action in &input.actions {
 			match action {
-				Action::Join(name) => {new.assemblages.push((Pos{x:10, y:10}, Box::new(Player::new(&name))));}
+				Action::Join(name) => {
+					new.templates.push((
+						Pos{x:10, y:10},
+						Template::new("player", hashmap!("name".to_string() => Parameter::String(name.to_string())))
+					));
+				}
 				Action::Leave(name) => {leaving.insert(name);}
 				Action::Input(name, control) => {playercontrols.insert(name, control.clone());}
 			}

@@ -5,7 +5,7 @@ use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
 use super::componentwrapper::{ComponentWrapper, ComponentType};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
 	pub arguments: Vec<(String, ParameterType, Option<Parameter>)>,
 	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>
@@ -69,7 +69,7 @@ impl Assemblage {
 		Ok(assemblage)
 	}
 	
-	fn prepare_arguments(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &str> {
+	fn prepare_arguments(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &'static str> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
 		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
 			let value: Option<Parameter> = {
@@ -92,7 +92,7 @@ impl Assemblage {
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &str>{
+	pub fn instantiate(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &'static str>{
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {
