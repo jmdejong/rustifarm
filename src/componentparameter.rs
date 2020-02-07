@@ -4,6 +4,9 @@ use rand::Rng;
 use serde_json::Value;
 use crate::parameter::{Parameter, ParameterType};
 
+const MAX_NESTING: usize = 3;
+
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum ComponentParameter {
 	Constant(Parameter),
@@ -12,7 +15,15 @@ pub enum ComponentParameter {
 }
 
 impl ComponentParameter {
+
 	pub fn evaluate(&self, arguments: &HashMap<&str, Parameter>) -> Option<Parameter> {
+		self.evaluate_(arguments, 0)
+	}
+	
+	fn evaluate_(&self, arguments: &HashMap<&str, Parameter>, nesting: usize) -> Option<Parameter> {
+		if nesting > MAX_NESTING {
+			return None;
+		}
 		match self {
 			Self::Constant(val) => {
 				Some(val.clone())
@@ -22,7 +33,7 @@ impl ComponentParameter {
 			}
 			Self::Random(options) => {
 				let r = rand::thread_rng().gen_range(0, options.len());
-				options[r].evaluate(arguments)
+				options[r].evaluate_(arguments, nesting + 1)
 			}
 		}
 	}
