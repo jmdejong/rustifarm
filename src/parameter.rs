@@ -27,9 +27,19 @@ impl Parameter {
 		}
 	}
 	
-// 	pub fn from_json(val: &Value) -> Option<Parameter> {
-// 		Self::from_typed_json(ParameterType::from_str(val.get(0)?.as_str()?)?, val.get(1)?)
-// 	}
+	pub fn guess_from_json(val: &Value) -> Option<Parameter> {
+		let typ = 
+			if val.is_string() {
+				ParameterType::String
+			} else if val.is_u64() || val.is_i64() {
+				ParameterType::Int
+			} else if val.is_f64() {
+				ParameterType::Float
+			} else {
+				return None
+			};
+		Self::from_typed_json(typ, val.get(1)?)
+	}
 	
 	pub fn as_str(&self) -> Option<&str> {
 		if let Self::String(str) = self {
