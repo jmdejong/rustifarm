@@ -11,9 +11,7 @@ use specs::{
 
 use crate::components::{
 	Position,
-	New,
-	Moved,
-	Removed
+	New
 };
 
 use crate::resources::{
@@ -22,17 +20,15 @@ use crate::resources::{
 
 
 #[derive(Default)]
-pub struct MakeFloor;
-impl <'a> System<'a> for MakeFloor {
+pub struct RegisterNew;
+impl <'a> System<'a> for RegisterNew {
 	type SystemData = (
 		Entities<'a>,
 		Write<'a, Ground>,
 		ReadStorage<'a, Position>,
 		ReadStorage<'a, New>,
-		ReadStorage<'a, Moved>,
-		ReadStorage<'a, Removed>
 	);
-	fn run(&mut self, (entities, mut ground, positions, new, moved, removed): Self::SystemData) {
+	fn run(&mut self, (entities, mut ground, positions, new): Self::SystemData) {
 		for (ent, pos, _new) in (&entities, &positions, &new).join() {
 			ground.cells.entry(pos.pos).or_insert(HashSet::new()).insert(ent);
 		}

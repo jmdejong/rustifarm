@@ -20,7 +20,7 @@ use super::resources::{
 };
 use super::systems::{
 	moving::Move,
-	makefloor::MakeFloor,
+	registernew::RegisterNew,
 	controlinput::ControlInput,
 	view::View,
 	remove::Remove,
@@ -45,7 +45,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(ControlInput, "controlinput", &[])
-			.with(MakeFloor::default(), "makefloor", &[])
+			.with(RegisterNew::default(), "makefloor", &[])
 			.with(Move, "move", &["makefloor", "controlinput"])
 			.with(View::default(), "view", &["move"])
 			.with(Create, "create", &["view", "controlinput"])

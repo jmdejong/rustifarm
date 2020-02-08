@@ -2,13 +2,7 @@
 use std::collections::{HashMap, HashSet};
 
 use specs::{
-	BitSet,
-	storage::ComponentEvent,
-	ReaderId,
-	World,
-	SystemData,
 	ReadStorage,
-	WriteStorage,
 	Read,
 	Write,
 	System,
@@ -32,14 +26,14 @@ impl <'a> System<'a> for View {
 		ReadStorage<'a, Position>,
 		ReadStorage<'a, Visible>,
 		Read<'a, Size>,
-		WriteStorage<'a, Player>,
+		ReadStorage<'a, Player>,
 		Write<'a, Output>,
 		ReadStorage<'a, New>,
 		ReadStorage<'a, Moved>,
 		ReadStorage<'a, Removed>,
 		Read<'a, Ground>
 	);
-	fn run(&mut self, (entities, positions, visible, size, mut players, mut output, new, moved, removed, ground): Self::SystemData) {
+	fn run(&mut self, (entities, positions, visible, size, players, mut output, new, moved, removed, ground): Self::SystemData) {
 		
 		let mut changed = HashSet::new();
 		for (pos, _new) in (&positions, &new).join() {
@@ -64,7 +58,7 @@ impl <'a> System<'a> for View {
 		
 		output.output.clear();
 		
-		for (ent, mut player, pos) in (&entities, &mut players, &positions).join() {
+		for (ent, player, pos) in (&entities, &players, &positions).join() {
 			let mut updates: Vec<WorldUpdate> = Vec::new();
 			if new.get(ent).is_some() {
 				let (values, mapping) = draw_room(&ground.cells, (size.width, size.height), &visible);
