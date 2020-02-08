@@ -28,22 +28,20 @@ use super::systems::{
 };
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
+use crate::template::Template;
 
 
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>
+	dispatcher: Dispatcher<'a, 'b>,
+	encyclopedia: Encyclopedia
 }
 
 impl <'a, 'b>Room<'a, 'b> {
 
 	pub fn new(encyclopedia: Encyclopedia) -> Room<'a, 'b> {
 		let mut world = World::new();
-		world.insert(NewEntities{
-			templates: Vec::new(),
-			encyclopedia
-		});
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(ControlInput, "controlinput", &[])
@@ -59,7 +57,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher
+			dispatcher,
+			encyclopedia
 		}
 	}
 	
@@ -76,9 +75,17 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, template.clone()));
+				if let Err(msg) = self.add_entity(Pos{x, y}, template) {
+					println!("{}", msg);
+				}
 			}
 		}
+	}
+	
+	pub fn add_entity(&mut self, pos: Pos, template: &Template) -> Result<(), &'static str>{
+		let pre_entity = self.encyclopedia.construct(template)?;
+		self.world.fetch_mut::<NewEntities>().ents.push((pos, pre_entity));
+		Ok(())
 	}
 	
 	pub fn view(&self) -> HashMap<String, WorldMessage> {

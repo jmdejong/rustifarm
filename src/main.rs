@@ -23,6 +23,7 @@ mod componentparameter;
 mod encyclopedia;
 mod template;
 mod roomtemplate;
+mod player;
 
 pub use self::pos::Pos;
 use self::gameserver::GameServer;
@@ -218,18 +219,6 @@ fn default_assemblages() -> Encyclopedia {
 				["Visible", {
 					"sprite": ["string", "water"],
 					"height": ["float", 0.1]
-				}]
-			]
-		},
-		"player": {
-			"arguments": [["name", "string", null]],
-			"components": [
-				["Visible", {
-					"sprite": ["string", "player"],
-					"height": ["float", 1.0]
-				}],
-				["Player", {
-					"name": ["arg", "name"]
 				}]
 			]
 		}

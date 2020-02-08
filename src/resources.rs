@@ -4,10 +4,8 @@ use specs::Entity;
 
 use super::pos::Pos;
 use super::controls::Action;
-// use super::oldassemblage::Assemblage;
 use super::worldmessages::WorldMessage;
-use super::template::Template;
-use crate::encyclopedia::Encyclopedia;
+use crate::componentwrapper::PreEntity;
 
 
 #[derive(Default)]
@@ -38,6 +36,5 @@ pub struct Ground {
 
 #[derive(Default)]
 pub struct NewEntities {
-	pub templates: Vec<(Pos, Template)>,
-	pub encyclopedia: Encyclopedia
+	pub ents: Vec<(Pos, PreEntity)>
 }
