@@ -13,12 +13,11 @@ use super::pos::Pos;
 
 #[derive(Debug, Clone)]
 pub struct Position{
-	pub pos: Pos,
-	pub prev: Option<Pos>
+	pub pos: Pos
 }
 impl Position {
 	pub fn new(pos: Pos) -> Position {
-		Position{pos, prev: None}
+		Position{pos}
 	}
 }
 
@@ -58,12 +57,11 @@ pub struct Moved {
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Player {
-	pub name: String,
-	pub is_new: bool
+	pub name: String
 }
 impl Player {
 	pub fn new(name: String) -> Self {
-		Self{name, is_new: true}
+		Self{name}
 	}
 }
 

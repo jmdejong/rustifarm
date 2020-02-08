@@ -12,106 +12,94 @@ use specs::{
 	Read,
 	Write,
 	System,
-	Join
+	Join,
+	Entities,
+	Entity
 };
 
 use super::super::pos::Pos;
-use super::super::components::{Visible, Player, Position, New};
-use super::super::resources::{Size, Output};
+use super::super::components::{Visible, Player, Position, New, Moved, Removed};
+use super::super::resources::{Size, Output, Ground};
 use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
 
 #[derive(Default)]
-pub struct View {
-	pos_reader_id: Option<ReaderId<ComponentEvent>>,
-	vis_reader_id: Option<ReaderId<ComponentEvent>>,
-	dirty: BitSet
-}
+pub struct View;
 
 impl <'a> System<'a> for View {
-	type SystemData = (ReadStorage<'a, Position>, ReadStorage<'a, Visible>, Read<'a, Size>, WriteStorage<'a, Player>, Write<'a, Output>, ReadStorage<'a, New>);
-	fn run(&mut self, (positions, visible, size, mut players, mut output, _new): Self::SystemData) {
+	type SystemData = (
+		Entities<'a>,
+		ReadStorage<'a, Position>,
+		ReadStorage<'a, Visible>,
+		Read<'a, Size>,
+		WriteStorage<'a, Player>,
+		Write<'a, Output>,
+		ReadStorage<'a, New>,
+		ReadStorage<'a, Moved>,
+		ReadStorage<'a, Removed>,
+		Read<'a, Ground>
+	);
+	fn run(&mut self, (entities, positions, visible, size, mut players, mut output, new, moved, removed, ground): Self::SystemData) {
 		
-		let mut cells: HashMap<Pos, Vec<Visible>> = HashMap::new();
-		for (pos, vis) in (&positions, &visible).join(){
-			cells.entry(pos.pos).or_insert(Vec::new()).push(vis.clone());
-			cells.get_mut(&pos.pos).unwrap().sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
-		}
-		let width = size.width;
-		let height = size.height;
-		let (values, mapping) = draw_room(cells.clone(), (width, height));
-		
-		let field = WorldUpdate::Field(FieldMessage{
-			width,
-			height,
-			field: values,
-			mapping
-		});
-		
-		
-		self.dirty.clear();
-		{
-			let pos_events = positions.channel().read(self.pos_reader_id.as_mut().unwrap());
-			let vis_events = visible.channel().read(self.vis_reader_id.as_mut().unwrap());
-			let events = vec![pos_events, vis_events].into_iter().flatten();
-			for event in events {
-				match event {
-					ComponentEvent::Modified(id) | ComponentEvent::Inserted(id) | ComponentEvent::Removed(id) => { 
-						self.dirty.add(*id);
-					}
-				};
-			}
-		}
-		let mut changed: HashSet<Pos> = HashSet::new();
-		for (pos, _) in (&positions, &self.dirty).join(){
+		let mut changed = HashSet::new();
+		for (pos, _new) in (&positions, &new).join() {
 			changed.insert(pos.pos);
-			if let Some(prev) = pos.prev{
-				changed.insert(prev);
-			}
 		}
+		for (pos, mov) in (&positions, &moved).join() {
+			changed.insert(pos.pos);
+			changed.insert(mov.from);
+		}
+		for (pos, _removed) in (&positions, &removed).join() {
+			changed.insert(pos.pos);
+		}
+		
+		
 		let has_changed: bool = changed.len() > 0;
 		let mut changes: Vec<(Pos, Vec<String>)> = Vec::new();
 		for pos in changed {
-			changes.push((pos, cells.get(&pos).unwrap_or(&Vec::new()).iter().map(|v| v.sprite.clone()).collect()));
+			changes.push((pos, cell_sprites(ground.cells.get(&pos).unwrap_or(&HashSet::new()), &visible)));
 		}
 		let changed_msg = WorldUpdate::Change(changes);
 		
 		
 		output.output.clear();
-		for (mut player, pos) in (&mut players, &positions).join() {
+		
+		for (ent, mut player, pos) in (&entities, &mut players, &positions).join() {
 			let mut updates: Vec<WorldUpdate> = Vec::new();
-			if player.is_new {
-				updates.push(field.clone());
+			if new.get(ent).is_some() {
+				let (values, mapping) = draw_room(&ground.cells, (size.width, size.height), &visible);
+				let field = WorldUpdate::Field(FieldMessage{
+					width: size.width,
+					height: size.height,
+					field: values,
+					mapping
+				});
+				updates.push(field);
 			} else if has_changed {
 				updates.push(changed_msg.clone());
 			}
 			updates.push(WorldUpdate::Pos(pos.pos));
 			let message = WorldMessage{updates};
 			output.output.insert(player.name.clone(), message);
-			player.is_new = false;
 		}
-	}
-	
-	fn setup(&mut self, world: &mut World) {
-		Self::SystemData::setup(world);
-		self.pos_reader_id = Some(
-			WriteStorage::<Position>::fetch(&world).register_reader()
-		);
-		self.vis_reader_id = Some(
-			WriteStorage::<Visible>::fetch(&world).register_reader()
-		);
 	}
 }
 
-fn draw_room(cells: HashMap<Pos, Vec<Visible>>, (width, height): (i64, i64)) -> (Vec<usize>, Vec<Vec<String>>){
+fn cell_sprites(entities: &HashSet<Entity>, visible: &ReadStorage<Visible>) -> Vec<String> {
+	let mut visibles: Vec<&Visible> = entities.iter().filter_map(|ent| visible.get(*ent)).collect();
+	visibles.sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
+	visibles.iter().map(|vis| vis.sprite.clone()).collect()
+}
+
+fn draw_room(ground: &HashMap<Pos, HashSet<Entity>>, (width, height): (i64, i64), visible: &ReadStorage<Visible>) -> (Vec<usize>, Vec<Vec<String>>){
 	
 	let size = width * height;
 	let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 	let mut mapping: Vec<Vec<String>> = Vec::new();
 	for y in 0..height {
 		for x in 0..width {
-			let sprites: Vec<String> = match cells.get(&Pos{x: x, y: y}) {
-				Some(sprites) => {sprites.iter().map(|v| v.sprite.clone()).collect()}
+			let sprites: Vec<String> = match ground.get(&Pos{x: x, y: y}) {
+				Some(ents) => {cell_sprites(ents, visible)}
 				None => {vec![]}
 			};
 			values.push(

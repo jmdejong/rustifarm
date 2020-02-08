@@ -7,7 +7,8 @@ use specs::{
 	WriteStorage,
 	Read,
 	System,
-	Join
+	Join,
+	Write
 };
 
 use super::super::pos::Pos;
@@ -39,12 +40,12 @@ impl <'a> System<'a> for Move {
 		WriteStorage<'a, Position>,
 		Read<'a, Size>,
 		ReadStorage<'a, Blocking>,
-		Read<'a, Ground>,
+		Write<'a, Ground>,
 		ReadStorage<'a, Floor>,
 		WriteStorage<'a, Moved>
 	);
 	
-	fn run(&mut self, (entities, controllers, mut positions, size, blocking, ground, floor, mut moved): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved): Self::SystemData) {
 		{
 			let mut ents = Vec::new();
 			for (ent, _moved) in (&*entities, &moved).join() {
@@ -71,9 +72,10 @@ impl <'a> System<'a> for Move {
 					}
 					if !blocked && on_floor {
 						let mut pos_mut = pos.get_mut_unchecked();
-						pos_mut.prev = Some(pos_mut.pos);
 						moved.insert(ent, Moved{from: pos_mut.pos}).expect("can't insert Moved");
+						ground.cells.get_mut(&pos_mut.pos).unwrap().remove(&ent);
 						pos_mut.pos = newpos.clone();
+						ground.cells.entry(newpos).or_insert(HashSet::new()).insert(ent);
 					}
 				}
 				_ => {}

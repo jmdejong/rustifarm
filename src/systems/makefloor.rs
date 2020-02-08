@@ -36,13 +36,6 @@ impl <'a> System<'a> for MakeFloor {
 		for (ent, pos, _new) in (&entities, &positions, &new).join() {
 			ground.cells.entry(pos.pos).or_insert(HashSet::new()).insert(ent);
 		}
-		for (ent, pos, mov) in (&entities, &positions, &moved).join() {
-			ground.cells.entry(pos.pos).or_insert(HashSet::new()).insert(ent);
-			ground.cells.get_mut(&mov.from).unwrap().remove(&ent);
-		}
-		for (ent, pos, _removed) in (&entities, &positions, &removed).join() {
-			ground.cells.get_mut(&pos.pos).unwrap().remove(&ent);
-		}
 	}
 }
 

@@ -4,7 +4,7 @@ use serde::Serialize;
 use super::util::ToJson;
 use super::pos::Pos;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct WorldMessage {
 	pub updates: Vec<WorldUpdate>
 }
@@ -16,7 +16,7 @@ impl ToJson for WorldMessage {
 	}
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum WorldUpdate {
 	Field(FieldMessage),
 	Pos(Pos),
@@ -33,7 +33,7 @@ impl ToJson for WorldUpdate {
 	}
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FieldMessage {
 	pub width: i64,
 	pub height: i64,
