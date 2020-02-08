@@ -54,9 +54,9 @@ impl Parameter {
 		}
 	}
 	
-// 	pub fn as_string(&self) -> Option<String> {
-// 		Some(self.as_str()?.to_string())
-// 	}
+	pub fn as_string(&self) -> Option<String> {
+		Some(self.as_str()?.to_string())
+	}
 	
 	pub fn as_i64(&self) -> Option<i64> {
 		if let Self::Int(num) = self {
