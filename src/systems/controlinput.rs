@@ -11,7 +11,7 @@ use specs::{
 	Join
 };
 
-use crate::components::{Controller, Player};
+use crate::components::{Controller, Player, Removed};
 use crate::controls::{Control, Action};
 use crate::resources::{Input, NewEntities, Spawn};
 use crate::hashmap;
@@ -23,8 +23,26 @@ use crate::parameter::Parameter;
 
 pub struct ControlInput;
 impl <'a> System<'a> for ControlInput {
-	type SystemData = (Entities<'a>, Read<'a, Input>, WriteStorage<'a, Controller>, ReadStorage<'a, Player>, Write<'a, NewEntities>, Read<'a, Spawn>);
-	fn run(&mut self, (entities, input, mut controllers, players, mut new, spawn): Self::SystemData) {
+	type SystemData = (
+		Entities<'a>,
+		Read<'a, Input>,
+		WriteStorage<'a, Controller>,
+		ReadStorage<'a, Player>,
+		Write<'a, NewEntities>,
+		Read<'a, Spawn>,
+		WriteStorage<'a, Removed>
+	);
+	fn run(&mut self, (entities, input, mut controllers, players, mut new, spawn, mut removed): Self::SystemData) {
+		{
+			let mut ents = Vec::new();
+			for (ent, _controller) in (&*entities, &controllers).join() {
+				ents.push(ent);
+			}
+			for ent in ents {
+				controllers.remove(ent);
+			}
+		}
+	
 		let mut playercontrols: HashMap<&str, Control> = HashMap::new();
 		let mut leaving = HashSet::new();
 		for action in &input.actions {
@@ -44,7 +62,7 @@ impl <'a> System<'a> for ControlInput {
 				let _ = controllers.insert(entity, Controller(control.clone()));
 			}
 			if leaving.contains(&player.name) {
-				let _ = entities.delete(entity);
+				let _ = removed.insert(entity, Removed);
 			}
 		}
 	}

@@ -4,15 +4,12 @@ use std::collections::HashMap;
 use specs::{
 	World,
 	WorldExt,
-	Builder,
 	DispatcherBuilder,
-	Dispatcher,
-	Entity
+	Dispatcher
 };
 
 use super::controls::Action;
 use super::pos::Pos;
-use super::components::Position;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
@@ -23,35 +20,38 @@ use super::resources::{
 };
 use super::systems::{
 	moving::Move,
-	clearcontrols::ClearControllers,
 	makefloor::MakeFloor,
 	controlinput::ControlInput,
-	view::View
+	view::View,
+	remove::Remove,
+	create::Create
 };
-use super::componentwrapper::ComponentWrapper;
 use crate::encyclopedia::Encyclopedia;
-use crate::template::Template;
 use crate::roomtemplate::RoomTemplate;
 
 
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>,
-	encyclopedia: Encyclopedia
+	dispatcher: Dispatcher<'a, 'b>
 }
 
 impl <'a, 'b>Room<'a, 'b> {
 
 	pub fn new(encyclopedia: Encyclopedia) -> Room<'a, 'b> {
 		let mut world = World::new();
+		world.insert(NewEntities{
+			templates: Vec::new(),
+			encyclopedia
+		});
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(ControlInput, "controlinput", &[])
-			.with(MakeFloor, "makefloor", &[])
+			.with(MakeFloor::default(), "makefloor", &[])
 			.with(Move, "move", &["makefloor", "controlinput"])
-			.with(ClearControllers, "clearcontrollers", &["move"])
 			.with(View::default(), "view", &["move"])
+			.with(Create, "create", &["view", "controlinput"])
+			.with(Remove, "remove", &["view", "move"])
 			.build();
 		
 		dispatcher.setup(&mut world);
@@ -59,8 +59,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher,
-			encyclopedia
+			dispatcher
 		}
 	}
 	
@@ -77,9 +76,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				if let Err(msg) = self.add_entity(template, Pos{x, y}){
-					println!("{}", msg);
-				}
+				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, template.clone()));
 			}
 		}
 	}
@@ -90,13 +87,6 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn update(&mut self) {
 		self.dispatcher.dispatch(&mut self.world);
-		let templates = self.world.remove::<NewEntities>().unwrap_or(NewEntities::default()).templates;
-		self.world.insert(NewEntities::default());
-		for (pos, template) in templates{
-			if let Err(msg) = self.add_entity(&template, pos){
-				println!("failed to add entity {:?}: {}", template, msg);
-			}
-		}
 		self.world.maintain();
 	}
 	
@@ -104,18 +94,6 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Input>().actions = actions;
 	}
 	
-	pub fn add_entity(&mut self, template: &Template, pos: Pos) -> Result<Entity, &'static str> {
-		let preentity = self.encyclopedia.construct(template)?;
-		Ok(self.add_complist(&preentity, pos))
-	}
-// 	
-	pub fn add_complist(&mut self, template: &Vec<ComponentWrapper>, pos: Pos) -> Entity{
-		let mut builder = self.world.create_entity();
-		for comp in template {
-			builder = comp.build(builder);
-		}
-		builder.with(Position::new(pos)).build()
-	}
 }
 
 

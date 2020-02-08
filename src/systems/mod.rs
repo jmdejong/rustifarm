@@ -1,8 +1,10 @@
 
-pub mod clearcontrols;
+// pub mod clearcontrols;
 pub mod controlinput;
 pub mod makefloor;
 pub mod moving;
 pub mod view;
+pub mod remove;
+pub mod create;
 
 

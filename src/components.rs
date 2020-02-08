@@ -45,6 +45,17 @@ pub struct Blocking;
 pub struct Floor;
 
 #[derive(Component, Debug, Clone)]
+pub struct New;
+
+#[derive(Component, Debug, Clone)]
+pub struct Removed;
+
+#[derive(Component, Debug, Clone)]
+pub struct Moved {
+	pub from: Pos
+}
+
+#[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Player {
 	pub name: String,

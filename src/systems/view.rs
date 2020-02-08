@@ -16,7 +16,7 @@ use specs::{
 };
 
 use super::super::pos::Pos;
-use super::super::components::{Visible, Player, Position};
+use super::super::components::{Visible, Player, Position, New};
 use super::super::resources::{Size, Output};
 use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
@@ -29,8 +29,8 @@ pub struct View {
 }
 
 impl <'a> System<'a> for View {
-	type SystemData = (ReadStorage<'a, Position>, ReadStorage<'a, Visible>, Read<'a, Size>, WriteStorage<'a, Player>, Write<'a, Output>);
-	fn run(&mut self, (positions, visible, size, mut players, mut output): Self::SystemData) {
+	type SystemData = (ReadStorage<'a, Position>, ReadStorage<'a, Visible>, Read<'a, Size>, WriteStorage<'a, Player>, Write<'a, Output>, ReadStorage<'a, New>);
+	fn run(&mut self, (positions, visible, size, mut players, mut output, _new): Self::SystemData) {
 		
 		let mut cells: HashMap<Pos, Vec<Visible>> = HashMap::new();
 		for (pos, vis) in (&positions, &visible).join(){

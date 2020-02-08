@@ -1,5 +1,5 @@
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use specs::Entity;
 
 use super::pos::Pos;
@@ -7,6 +7,7 @@ use super::controls::Action;
 // use super::oldassemblage::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::template::Template;
+use crate::encyclopedia::Encyclopedia;
 
 
 #[derive(Default)]
@@ -32,10 +33,11 @@ pub struct Spawn {
 
 #[derive(Default)]
 pub struct Ground {
-	pub cells: HashMap<Pos, Vec<Entity>>
+	pub cells: HashMap<Pos, HashSet<Entity>>
 }
 
 #[derive(Default)]
 pub struct NewEntities {
-	pub templates: Vec<(Pos, Template)>
+	pub templates: Vec<(Pos, Template)>,
+	pub encyclopedia: Encyclopedia
 }

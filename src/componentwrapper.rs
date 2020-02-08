@@ -1,9 +1,8 @@
 
 use std::collections::HashMap;
-use specs::{Builder, EntityBuilder};
+use specs::{Builder, world::LazyBuilder};
 
 use crate::components::{Visible, Blocking, Player, Floor};
-use crate::hashmap;
 use crate::parameter::{Parameter, ParameterType};
 
 
@@ -20,7 +19,7 @@ macro_rules! components {
 
 	impl ComponentWrapper {
 
-		pub fn build<'a>(&self, builder: EntityBuilder<'a>) -> EntityBuilder<'a> {
+		pub fn build<'a>(&self, builder: LazyBuilder<'a>) -> LazyBuilder<'a> {
 			match self.clone() {
 				$(
 					Self::$comp(c) => builder.with(c),
@@ -28,11 +27,12 @@ macro_rules! components {
 			}
 		}
 		
-		pub fn load_component(comptype: ComponentType, mut parameters_: HashMap<&str, Parameter>) -> Option<Self> {
+		pub fn load_component(comptype: ComponentType, parameters_: HashMap<&str, Parameter>) -> Option<Self> {
 			
 			match comptype {
 				$(
 					ComponentType::$comp => Some(Self::$comp({
+						#[allow(unused_mut)]
 						let mut $paramlist = parameters_;
 						$creation
 					})),
@@ -63,6 +63,7 @@ macro_rules! components {
 			match self {
 				$(
 					Self::$comp => {
+						#[allow(unused_mut)]
 						let mut h = HashMap::new();
 						$(
 							h.insert(stringify!($paramname), ParameterType::$paramtype);
@@ -82,8 +83,8 @@ components!(
 			height: parameters.remove("height")?.as_f64()?
 		}
 	};
-	Blocking [] p {Blocking};
-	Floor [] p {Floor};
+	Blocking [] _p {Blocking};
+	Floor [] _p {Floor};
 	Player [name: String] parameters {Player::new(parameters.remove("name")?.as_string()?)}
 );
 

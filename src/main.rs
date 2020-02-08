@@ -38,19 +38,22 @@ use self::roomtemplate::RoomTemplate;
 
 fn main() {
 	
+	let mut servers: Vec<Box<dyn Server>> = Vec::new();
 
 	let addr = Path::new("\0rustifarm");
 	let unixserver = UnixServer::new(&addr).expect("binding unix server failed");
+	servers.push(Box::new(unixserver));
 	
 	let addr = "127.0.0.1:1234".parse().unwrap();
 	let inetserver = TcpServer::new(&addr).expect("binding inet server failed");
+	servers.push(Box::new(inetserver));
 	
-	
-	let servers: Vec<Box<dyn Server>> = vec![Box::new(unixserver), Box::new(inetserver)];
 	let mut gameserver = GameServer::new(servers);
 	
 	
 	let mut room = gen_room();
+	
+	println!("asciifarm started");
 	
 	loop {
 		let actions = gameserver.update();

@@ -11,6 +11,7 @@ pub enum Parameter {
 
 impl Parameter {
 	
+	#[allow(dead_code)]
 	pub fn string(string: &str) -> Self {
 		Self::String(string.to_string())
 	}
@@ -58,6 +59,7 @@ impl Parameter {
 		Some(self.as_str()?.to_string())
 	}
 	
+	#[allow(dead_code)]
 	pub fn as_i64(&self) -> Option<i64> {
 		if let Self::Int(num) = self {
 			Some(*num)
