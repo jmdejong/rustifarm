@@ -1,5 +1,4 @@
 
-// pub mod clearcontrols;
 pub mod controlinput;
 pub mod registernew;
 pub mod moving;
