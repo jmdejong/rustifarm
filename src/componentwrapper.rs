@@ -94,7 +94,6 @@ components!(
 	Player (name: String) {Player::new(name.to_string())}
 );
 
-pub type PreEntity = Vec<ComponentWrapper>;
 
 
 

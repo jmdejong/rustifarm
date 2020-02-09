@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde_json::{Value, json};
 use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
-use super::componentwrapper::{ComponentWrapper, ComponentType, PreEntity};
+use super::componentwrapper::{ComponentWrapper, ComponentType};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
@@ -92,7 +92,7 @@ impl Assemblage {
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<PreEntity, &'static str>{
+	pub fn instantiate(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &'static str>{
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {

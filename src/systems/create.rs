@@ -34,13 +34,18 @@ impl <'a> System<'a> for Create {
 				new.remove(ent);
 			}
 		}
-		for (pos, comps) in &new_entities.ents {
+		for (pos, template) in &new_entities.templates {
 			let mut builder = updater.create_entity(&entities);
-			for comp in comps {
-				builder = comp.build(builder);
+			match new_entities.encyclopedia.construct(template) {
+				Ok(comps) => {
+					for comp in comps {
+						builder = comp.build(builder);
+					}
+					builder.with(Position::new(*pos)).with(New).build();
+				},
+				Err(msg) => {println!("{}", msg);}
 			}
-			builder.with(Position::new(*pos)).with(New).build();
 		}
-		new_entities.ents.clear();
+		new_entities.templates.clear();
 	}
 }

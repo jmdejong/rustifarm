@@ -14,7 +14,11 @@ use specs::{
 use crate::components::{Controller, Player, Removed};
 use crate::controls::{Control, Action};
 use crate::resources::{Input, NewEntities, Spawn};
+use crate::hashmap;
+use crate::template::Template;
+use crate::parameter::Parameter;
 
+// use crate::assemblages::Player;
 
 
 pub struct ControlInput;
@@ -44,9 +48,9 @@ impl <'a> System<'a> for ControlInput {
 		for action in &input.actions {
 			match action {
 				Action::Join(name) => {
-					new.ents.push((
+					new.templates.push((
 						spawn.pos,
-						crate::player::make_player(name)
+						Template::new("player", hashmap!("name".to_string() => Parameter::String(name.to_string())))
 					));
 				}
 				Action::Leave(name) => {leaving.insert(name);}
