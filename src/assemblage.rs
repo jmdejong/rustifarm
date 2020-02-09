@@ -5,17 +5,19 @@ use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
 use super::componentwrapper::{ComponentWrapper, ComponentType};
 
+type ArgumentDef = (String, ParameterType, Option<Parameter>);
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
-	pub arguments: Vec<(String, ParameterType, Option<Parameter>)>,
+	pub arguments: Vec<ArgumentDef>,
 	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>
 }
 
 impl Assemblage {
 
 
-	fn parse_definition_arguments(args: &Value) -> Result<Vec<(String, ParameterType, Option<Parameter>)>, &'static str> {
-		let mut arguments: Vec<(String, ParameterType, Option<Parameter>)> = Vec::new();
+	fn parse_definition_arguments(args: &Value) -> Result<Vec<ArgumentDef>, &'static str> {
+		let mut arguments: Vec<ArgumentDef> = Vec::new();
 		for arg in args.as_array().ok_or("arguments is not an array")? {
 			let tup = arg.as_array().ok_or("argument is not an array")?;
 			let key = tup.get(0).ok_or("argument has no name")?.as_str().ok_or("argument name is not a string")?.to_string();
@@ -69,7 +71,7 @@ impl Assemblage {
 		Ok(assemblage)
 	}
 	
-	fn prepare_arguments(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &'static str> {
+	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &'static str> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
 		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
 			let value: Option<Parameter> = {
@@ -92,7 +94,7 @@ impl Assemblage {
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, args: &Vec<Parameter>, kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &'static str>{
+	pub fn instantiate(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &'static str>{
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {

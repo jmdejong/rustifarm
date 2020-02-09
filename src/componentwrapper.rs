@@ -91,7 +91,7 @@ components!(
 	};
 	Blocking () {Blocking};
 	Floor () {Floor};
-	Player (name: String) {Player::new(name.to_string())};
+	Player (name: String) {Player::new(name)};
 	Item (ent: Template) {Item{ent}};
 	Inventory () {Inventory::default()}
 	

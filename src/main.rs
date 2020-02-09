@@ -70,7 +70,7 @@ fn main() {
 
 fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let assemblages = default_assemblages();
-	let mut room = Room::new(assemblages.clone());
+	let mut room = Room::new(assemblages);
 
 	let roomtemplate = RoomTemplate::from_json(&json!({
 		"width": 42,

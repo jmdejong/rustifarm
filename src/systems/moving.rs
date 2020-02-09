@@ -74,8 +74,8 @@ impl <'a> System<'a> for Move {
 						let mut pos_mut = pos.get_mut_unchecked();
 						moved.insert(ent, Moved{from: pos_mut.pos}).expect("can't insert Moved");
 						ground.cells.get_mut(&pos_mut.pos).unwrap().remove(&ent);
-						pos_mut.pos = newpos.clone();
-						ground.cells.entry(newpos).or_insert(HashSet::new()).insert(ent);
+						pos_mut.pos = newpos;
+						ground.cells.entry(newpos).or_insert_with(HashSet::new).insert(ent);
 					}
 				}
 				_ => {}

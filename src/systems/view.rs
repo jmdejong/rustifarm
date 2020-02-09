@@ -48,7 +48,7 @@ impl <'a> System<'a> for View {
 		}
 		
 		
-		let has_changed: bool = changed.len() > 0;
+		let has_changed: bool = !changed.is_empty();
 		let mut changes: Vec<(Pos, Vec<String>)> = Vec::new();
 		for pos in changed {
 			changes.push((pos, cell_sprites(ground.cells.get(&pos).unwrap_or(&HashSet::new()), &visible)));
@@ -92,7 +92,7 @@ fn draw_room(ground: &HashMap<Pos, HashSet<Entity>>, (width, height): (i64, i64)
 	let mut mapping: Vec<Vec<String>> = Vec::new();
 	for y in 0..height {
 		for x in 0..width {
-			let sprites: Vec<String> = match ground.get(&Pos{x: x, y: y}) {
+			let sprites: Vec<String> = match ground.get(&Pos{x, y}) {
 				Some(ents) => {cell_sprites(ents, visible)}
 				None => {vec![]}
 			};

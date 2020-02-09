@@ -183,10 +183,10 @@ fn parse_message(msg: &str) -> Message {
 						Message::Input(arr[1].clone())
 					}
 					_ => {
-						Message::Invalid(format!("unknown messsage type {:?}", msgtype).to_string())
+						Message::Invalid(format!("unknown messsage type {:?}", msgtype))
 					}
 				}
-			} else { Message::Invalid(format!("first array value not string: {:?}", arr[0].to_string()).to_string()) }
+			} else { Message::Invalid(format!("first array value not string: {:?}", arr[0].to_string())) }
 		} else { Message::Invalid("not json array".to_string()) }
 	} else { Message::Invalid("not json message".to_string()) }
 }

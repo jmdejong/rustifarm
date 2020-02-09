@@ -88,7 +88,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn update(&mut self) {
-		self.dispatcher.dispatch(&mut self.world);
+		self.dispatcher.dispatch(&self.world);
 		self.world.maintain();
 	}
 	

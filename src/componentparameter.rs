@@ -62,7 +62,7 @@ impl ComponentParameter {
 		}
 	}
 	
-	pub fn get_type(&self, arguments: &Vec<(String, ParameterType, Option<Parameter>)>) -> Result<ParameterType, &'static str>{
+	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType, &'static str>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
 			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or("unknown argument name")?.1,
