@@ -1,12 +1,14 @@
 
 use serde_json::Value;
+use crate::template::Template;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Parameter {
 	String(String),
 	Int(i64),
 // 	Pos(Pos),
-	Float(f64)
+	Float(f64),
+	Template(Template)
 }
 
 impl Parameter {
@@ -20,7 +22,8 @@ impl Parameter {
 		match typ {
 			ParameterType::String => Some(Self::String(val.as_str()?.to_string())),
 			ParameterType::Int => Some(Self::Int(val.as_i64()?)),
-			ParameterType::Float => Some(Self::Float(val.as_f64()?))
+			ParameterType::Float => Some(Self::Float(val.as_f64()?)),
+			ParameterType::Template => Some(Self::Template(Template::from_json(val)?))
 		}
 	}
 	
@@ -28,7 +31,8 @@ impl Parameter {
 		match self {
 			Self::String(_) => ParameterType::String,
 			Self::Int(_) => ParameterType::Int,
-			Self::Float(_) => ParameterType::Float
+			Self::Float(_) => ParameterType::Float,
+			Self::Template(_) => ParameterType::Template
 		}
 	}
 	
@@ -40,6 +44,8 @@ impl Parameter {
 				ParameterType::Int
 			} else if val.is_f64() {
 				ParameterType::Float
+			} else if val.is_object(){
+				ParameterType::Template
 			} else {
 				println!("{:?}", val);
 				return None
@@ -52,7 +58,8 @@ impl Parameter {
 pub enum ParameterType {
 	String,
 	Int,
-	Float
+	Float,
+	Template
 }
 
 impl ParameterType {
@@ -62,6 +69,7 @@ impl ParameterType {
 			"string" => Some(Self::String),
 			"int" => Some(Self::Int),
 			"float" => Some(Self::Float),
+			"template" => Some(Self::Template),
 			_ => None
 		}
 	}

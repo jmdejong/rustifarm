@@ -24,7 +24,8 @@ use super::systems::{
 	controlinput::ControlInput,
 	view::View,
 	remove::Remove,
-	create::Create
+	create::Create,
+	take::Take
 };
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
@@ -46,9 +47,10 @@ impl <'a, 'b>Room<'a, 'b> {
 		});
 		
 		let mut dispatcher = DispatcherBuilder::new()
+			.with(RegisterNew::default(), "registernew", &[])
 			.with(ControlInput, "controlinput", &[])
-			.with(RegisterNew::default(), "makefloor", &[])
-			.with(Move, "move", &["makefloor", "controlinput"])
+			.with(Take, "take", &["controlinput"])
+			.with(Move, "move", &["registernew", "controlinput"])
 			.with(View::default(), "view", &["move"])
 			.with(Create, "create", &["view", "controlinput"])
 			.with(Remove, "remove", &["view", "move"])

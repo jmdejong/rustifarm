@@ -42,7 +42,8 @@ impl Direction {
 #[derive(Debug, Clone)]
 pub enum Control {
 	Move(Direction),
-	Take(u64)
+	Take(u64),
+	Drop(u64)
 }
 
 
@@ -54,10 +55,11 @@ impl Control {
 					Some(dir) => Some(Control::Move(dir)),
 					None => None
 				},
-				"take" => match val[1].as_u64() {
+				"take" => Some(Control::Take(0)), /*match val[1].as_u64() {
 					Some(rank) => Some(Control::Take(rank)),
 					_ => None
-				}
+				}*/
+				"drop" => Some(Control::Drop(0)),
 				_ => None
 			}
 		} else {None}

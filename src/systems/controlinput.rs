@@ -18,8 +18,6 @@ use crate::hashmap;
 use crate::template::Template;
 use crate::parameter::Parameter;
 
-// use crate::assemblages::Player;
-
 
 pub struct ControlInput;
 impl <'a> System<'a> for ControlInput {

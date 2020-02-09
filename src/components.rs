@@ -9,6 +9,7 @@ use specs::{
 
 use super::controls::Control;
 use super::pos::Pos;
+use crate::template::Template;
 
 
 #[derive(Debug, Clone)]
@@ -63,5 +64,20 @@ impl Player {
 	pub fn new(name: String) -> Self {
 		Self{name}
 	}
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Inventory {
+	pub items: Vec<Item>,
+	pub capacity: u64
+}
+impl Component for Inventory {
+	type Storage = FlaggedStorage<Self, HashMapStorage<Self>>;
+}
+
+
+#[derive(Component, Debug, Clone)]
+pub struct Item {
+	pub ent: Template
 }
 

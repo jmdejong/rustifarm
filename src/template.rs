@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::parameter::Parameter;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Template {
 	pub name: String,
 	pub args: Vec<Parameter>,
