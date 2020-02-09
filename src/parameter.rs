@@ -46,41 +46,11 @@ impl Parameter {
 			};
 		Self::from_typed_json(typ, val)
 	}
-	
-	pub fn as_str(&self) -> Option<&str> {
-		if let Self::String(str) = self {
-			Some(str)
-		} else {
-			None
-		}
-	}
-	
-	pub fn as_string(&self) -> Option<String> {
-		Some(self.as_str()?.to_string())
-	}
-	
-	#[allow(dead_code)]
-	pub fn as_i64(&self) -> Option<i64> {
-		if let Self::Int(num) = self {
-			Some(*num)
-		} else {
-			None
-		}
-	}
-	
-	pub fn as_f64(&self) -> Option<f64> {
-		if let Self::Float(num) = self {
-			Some(*num)
-		} else {
-			None
-		}
-	}
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParameterType {
 	String,
-// 	Pos,
 	Int,
 	Float
 }
