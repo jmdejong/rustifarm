@@ -41,7 +41,7 @@ impl <'a> System<'a> for Take {
 	fn run(&mut self, (entities, controllers, positions, ground, mut removed, items, mut inventories, mut new): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.0 {
-				Control::Take(_rank) => {
+				Control::Take(_rank) if inventory.items.len() < inventory.capacity => {
 					let mut ents = ground.cells.get(&position.pos).unwrap_or(&HashSet::new()).clone();
 					ents.remove(&ent);
 					for ent in ents {

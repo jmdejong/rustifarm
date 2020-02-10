@@ -93,7 +93,7 @@ components!(
 	Floor () {Floor};
 	Player (name: String) {Player::new(name)};
 	Item (ent: Template) {Item{ent}};
-	Inventory () {Inventory::default()}
+	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}}
 	
 );
 

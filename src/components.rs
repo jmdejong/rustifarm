@@ -69,7 +69,7 @@ impl Player {
 #[derive(Debug, Clone, Default)]
 pub struct Inventory {
 	pub items: Vec<Item>,
-	pub capacity: u64
+	pub capacity: usize
 }
 impl Component for Inventory {
 	type Storage = FlaggedStorage<Self, HashMapStorage<Self>>;

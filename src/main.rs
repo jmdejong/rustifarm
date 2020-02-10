@@ -241,7 +241,7 @@ fn default_assemblages() -> Encyclopedia {
 				["Player", {
 					"name": ["arg", "name"]
 				}],
-				["Inventory", {}]
+				["Inventory", {"capacity": ["int", 3]}]
 			]
 		}
 	})).unwrap()

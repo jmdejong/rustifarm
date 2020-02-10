@@ -39,7 +39,7 @@ impl ComponentParameter {
 	}
 	
 	pub fn from_json(value: &Value) -> Result<Self, &'static str> {
-		let paramvalue = value.get(1).ok_or("index 0 not in component parameter")?;
+		let paramvalue = value.get(1).ok_or("index 1 not in component parameter")?;
 		let typename = value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")?;
 		if let Some(paramtype) = ParameterType::from_str(typename) {
 			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?))
