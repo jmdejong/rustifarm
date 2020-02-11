@@ -123,39 +123,31 @@ fn default_assemblages() -> Encyclopedia {
 	Encyclopedia::from_json(json!({
 		"wall": {
 			"components": [
-				["Blocking", {}],
-				["Visible", {
-					"sprite": ["string", "wall"],
-					"height": ["float", 2.0]
-				}]
-			]
+				["Blocking", {}]
+			],
+			"sprite": "wall",
+			"height": 2
 		},
 		"rock": {
 			"components": [
-				["Blocking", {}],
-				["Visible", {
-					"sprite": ["string", "rock"],
-					"height": ["float", 10.0]
-				}]
-			]
+				["Blocking", {}]
+			],
+			"sprite": "rock",
+			"height": 10
 		},
 		"tree": {
 			"components": [
-				["Blocking", {}],
-				["Visible", {
-					"sprite": ["string", "tree"],
-					"height": ["float", 3.0]
-				}]
-			]
+				["Blocking", {}]
+			],
+			"sprite": "tree",
+			"height": 3
 		},
 		"fence": {
 			"components": [
-				["Blocking", {}],
-				["Visible", {
-					"sprite": ["string", "fence"],
-					"height": ["float", 1.0]
-				}]
-			]
+				["Blocking", {}]
+			],
+			"sprite": "fence",
+			"height": 1
 		},
 		"grass": {
 			"components": [
@@ -189,47 +181,36 @@ fn default_assemblages() -> Encyclopedia {
 		},
 		"ground": {
 			"components": [
-				["Visible", {
-					"sprite": ["string", "ground"],
-					"height": ["float", 0.1]
-				}],
 				["Floor", {}]
-			]
+			],
+			"sprite": "ground",
+			"height": 0.1
 		},
 		"floor": {
 			"components": [
-				["Visible", {
-					"sprite": ["string", "floor"],
-					"height": ["float", 0.1]
-				}],
 				["Floor", {}]
-			]
+			],
+			"sprite": "floor",
+			"height": 0.1
 		},
 		"bridge": {
 			"components": [
-				["Visible", {
-					"sprite": ["string", "bridge"],
-					"height": ["float", 0.1]
-				}],
 				["Floor", {}]
-			]
+			],
+			"sprite": "bridge",
+			"height": 0.1
 		},
 		"water": {
-			"components": [
-				["Visible", {
-					"sprite": ["string", "water"],
-					"height": ["float", 0.1]
-				}]
-			]
+			"components": [],
+			"sprite": "water",
+			"height": 0.1
 		},
 		"pebble": {
 			"components": [
-				["Visible", {
-					"sprite": ["string", "pebble"],
-					"height": ["float", 0.4]
-				}],
 				["Item", {"ent": ["template", "pebble"], "name": ["string", "pebble"]}]
-			]
+			],
+			"sprite": "pebble",
+			"height": 0.4
 		},
 		"player": {
 			"arguments": [["name", "string", null]],

@@ -4,6 +4,7 @@ use serde_json::{Value, json};
 use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
 use super::componentwrapper::{ComponentWrapper, ComponentType};
+use crate::hashmap;
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
 
@@ -63,10 +64,24 @@ impl Assemblage {
 	}
 	
 	pub fn from_json(val: &Value) -> Result<Self, &'static str>{
-		let assemblage = Self {
+		let mut assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?
 		};
+		if let Some(spritename) = val.get("sprite") {
+			let height = val.get("height").ok_or("defining a sprite requires also defining a height")?;
+			assemblage.components.push((
+				ComponentType::Visible,
+				hashmap!(
+					"sprite".to_string() => ComponentParameter::Constant(
+						Parameter::String(spritename.as_str().ok_or("sprite not a string")?.to_string())
+					),
+					"height".to_string() => ComponentParameter::Constant(
+						Parameter::Float(height.as_f64().ok_or("height not a float")?)
+					)
+				)
+			));
+		}
 		assemblage.validate()?;
 		Ok(assemblage)
 	}
