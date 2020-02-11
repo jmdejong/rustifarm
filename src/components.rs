@@ -82,3 +82,9 @@ pub struct Item {
 	pub name: String
 }
 
+#[derive(Component, Debug, Clone)]
+pub struct Health {
+	pub health: i64,
+	pub maxhealth: i64
+}
+

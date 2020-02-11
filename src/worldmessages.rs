@@ -21,7 +21,8 @@ pub enum WorldUpdate {
 	Field(FieldMessage),
 	Pos(Pos),
 	Change(Vec<(Pos, Vec<String>)>),
-	Inventory(Vec<String>)
+	Inventory(Vec<String>),
+	Health(i64, i64)
 }
 
 impl ToJson for WorldUpdate {
@@ -30,7 +31,8 @@ impl ToJson for WorldUpdate {
 			WorldUpdate::Field(msg) => json!(["field", msg]),
 			WorldUpdate::Pos(pos) => json!(["playerpos", pos]),
 			WorldUpdate::Change(changes) => json!(["changecells", changes]),
-			WorldUpdate::Inventory(items) => json!(["inventory", items])
+			WorldUpdate::Inventory(items) => json!(["inventory", items]),
+			WorldUpdate::Health(health, maxhealth) => json!(["health", [health, maxhealth]])
 		}
 	}
 }
