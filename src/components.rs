@@ -78,6 +78,7 @@ impl Component for Inventory {
 
 #[derive(Component, Debug, Clone)]
 pub struct Item {
-	pub ent: Template
+	pub ent: Template,
+	pub name: String
 }
 

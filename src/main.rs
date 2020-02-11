@@ -228,7 +228,7 @@ fn default_assemblages() -> Encyclopedia {
 					"sprite": ["string", "pebble"],
 					"height": ["float", 0.4]
 				}],
-				["Item", {"ent": ["template", "pebble"]}]
+				["Item", {"ent": ["template", "pebble"], "name": ["string", "pebble"]}]
 			]
 		},
 		"player": {

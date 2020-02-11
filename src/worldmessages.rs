@@ -20,7 +20,8 @@ impl ToJson for WorldMessage {
 pub enum WorldUpdate {
 	Field(FieldMessage),
 	Pos(Pos),
-	Change(Vec<(Pos, Vec<String>)>)
+	Change(Vec<(Pos, Vec<String>)>),
+	Inventory(Vec<String>)
 }
 
 impl ToJson for WorldUpdate {
@@ -28,7 +29,8 @@ impl ToJson for WorldUpdate {
 		match self {
 			WorldUpdate::Field(msg) => json!(["field", msg]),
 			WorldUpdate::Pos(pos) => json!(["playerpos", pos]),
-			WorldUpdate::Change(changes) => json!(["changecells", changes])
+			WorldUpdate::Change(changes) => json!(["changecells", changes]),
+			WorldUpdate::Inventory(items) => json!(["inventory", items])
 		}
 	}
 }

@@ -12,7 +12,7 @@ use specs::{
 };
 
 use super::super::pos::Pos;
-use super::super::components::{Visible, Player, Position, New, Moved, Removed};
+use super::super::components::{Visible, Player, Position, Inventory, New, Moved, Removed};
 use super::super::resources::{Size, Output, Ground};
 use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
@@ -24,6 +24,7 @@ impl <'a> System<'a> for View {
 	type SystemData = (
 		Entities<'a>,
 		ReadStorage<'a, Position>,
+		ReadStorage<'a, Inventory>,
 		ReadStorage<'a, Visible>,
 		Read<'a, Size>,
 		ReadStorage<'a, Player>,
@@ -33,7 +34,7 @@ impl <'a> System<'a> for View {
 		ReadStorage<'a, Removed>,
 		Read<'a, Ground>
 	);
-	fn run(&mut self, (entities, positions, visible, size, players, mut output, new, moved, removed, ground): Self::SystemData) {
+	fn run(&mut self, (entities, positions, inventories, visible, size, players, mut output, new, moved, removed, ground): Self::SystemData) {
 		
 		let mut changed = HashSet::new();
 		for (pos, _new) in (&positions, &new).join() {
@@ -71,6 +72,9 @@ impl <'a> System<'a> for View {
 				updates.push(field);
 			} else if has_changed {
 				updates.push(changed_msg.clone());
+			}
+			if let Some(inventory) = inventories.get(ent){
+				updates.push(WorldUpdate::Inventory(inventory.items.iter().map(|item| item.name.clone()).collect()));
 			}
 			updates.push(WorldUpdate::Pos(pos.pos));
 			let message = WorldMessage{updates};
