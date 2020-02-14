@@ -24,6 +24,7 @@ mod encyclopedia;
 mod template;
 mod roomtemplate;
 mod savestate;
+mod defaultencyclopedia;
 
 pub use self::pos::Pos;
 use self::gameserver::GameServer;
@@ -32,8 +33,8 @@ use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::room::Room;
 use self::util::ToJson;
-use self::encyclopedia::Encyclopedia;
 use self::roomtemplate::RoomTemplate;
+use self::defaultencyclopedia::default_encyclopedia;
 
 
 
@@ -77,7 +78,7 @@ fn main() {
 }
 
 fn gen_room<'a, 'b>() -> Room<'a, 'b> {
-	let assemblages = default_assemblages();
+	let assemblages = default_encyclopedia();
 	let mut room = Room::new(assemblages);
 
 	let roomtemplate = RoomTemplate::from_json(&json!({
@@ -89,14 +90,14 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 			"     ,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,,X",
 			"    ,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,,X",
 			"    ,,,,,,,,,,,,,~~~~,,,,,,,,,,,,,,,,,,,,X",
-			" bbbb,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"    ,,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"   ,,,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"  ,,,,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"X,,,,,,,,,,,,,,,,,~~~~,,,,,,T,,,,,,,,,,,,X",
-			"X,,,,,,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,X",
-			"X,,,,,,,,,,,,,,,,,,~~~,,,,,T,,,,######,,,X",
-			"X,,,,,,,,,,,,,,,,,,bbb,,,,,,,,,,#++++#,,,X",
+			" bbbb..,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
+			"    ,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
+			"   ,,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
+			"  ,,,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
+			"X,,,,,.,,,,,,,,,,,~~~~,,,,,,T,,,,,,,,,,,,X",
+			"X,,,,,.,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,X",
+			"X,,,,,.,,,,,,,,,,,,~~~,,,,,T,,,,######,,,X",
+			"X,,,,,.,,,,,,,,,,,,bbb,,,,,,,,,,#++++#,,,X",
 			"X,,,,,.............bbb...........++++#,,,X",
 			"X,**,,.,,,,,,,,,,,,bbb,,,,,,,,,,#++++#,,,X",
 			"X,*,*,.,,,,,,,,,,,,~~~,,,T,,,T,,#++++#,,,X",
@@ -127,101 +128,4 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	room
 }
 
-fn default_assemblages() -> Encyclopedia {
-	Encyclopedia::from_json(json!({
-		"wall": {
-			"components": ["Blocking"],
-			"sprite": "wall",
-			"height": 2
-		},
-		"rock": {
-			"components": ["Blocking"],
-			"sprite": "rock",
-			"height": 10
-		},
-		"tree": {
-			"components": ["Blocking"],
-			"sprite": "tree",
-			"height": 3
-		},
-		"fence": {
-			"components": ["Blocking"],
-			"sprite": "fence",
-			"height": 1
-		},
-		"grass": {
-			"components": [
-				["Visible", {
-					"sprite": ["random", [
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"],
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"],
-						["string", "ground"]
-					]],
-					"height": ["float", 0.1]
-				}],
-				"Floor"
-			]
-		},
-		"greengrass": {
-			"components": [
-				["Visible", {
-					"sprite": ["random", [
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"]
-					]],
-					"height": ["float", 0.1]
-				}],
-				"Floor"
-			]
-		},
-		"ground": {
-			"components": ["Floor"],
-			"sprite": "ground",
-			"height": 0.1
-		},
-		"floor": {
-			"components": ["Floor"],
-			"sprite": "floor",
-			"height": 0.1
-		},
-		"bridge": {
-			"components": [
-				"Floor"
-			],
-			"sprite": "bridge",
-			"height": 0.1
-		},
-		"water": {
-			"components": [],
-			"sprite": "water",
-			"height": 0.1
-		},
-		"pebble": {
-			"components": [
-				["Item", {"ent": ["template", "pebble"], "name": ["string", "pebble"]}]
-			],
-			"sprite": "pebble",
-			"height": 0.4
-		},
-		"player": {
-			"arguments": [["name", "string", null]],
-			"components": [
-				["Visible", {
-					"sprite": ["string", "player"],
-					"height": ["float", 1.0]
-				}],
-				["Player", {
-					"name": ["arg", "name"]
-				}],
-				["Inventory", {"capacity": ["int", 3]}],
-				["Health", {"health": ["int", 9], "maxhealth": ["int", 10]}]
-			]
-		}
-	})).unwrap()
-}
 
