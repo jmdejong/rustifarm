@@ -11,9 +11,9 @@ use specs::{
 	Write
 };
 
-use super::super::pos::Pos;
+use crate::pos::Pos;
 
-use super::super::components::{
+use crate::components::{
 	Controller,
 	Blocking,
 	Position,
@@ -21,11 +21,11 @@ use super::super::components::{
 	Moved
 };
 
-use super::super::controls::{
+use crate::controls::{
 	Control
 };
 
-use super::super::resources::{
+use crate::resources::{
 	Size,
 	Ground
 };

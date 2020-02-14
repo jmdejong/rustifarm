@@ -88,3 +88,8 @@ pub struct Health {
 	pub maxhealth: i64
 }
 
+#[derive(Component, Debug, Clone)]
+pub struct Serialise {
+	pub template: Template
+}
+

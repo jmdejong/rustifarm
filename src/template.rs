@@ -8,7 +8,8 @@ use crate::parameter::Parameter;
 pub struct Template {
 	pub name: String,
 	pub args: Vec<Parameter>,
-	pub kwargs: HashMap<String, Parameter>
+	pub kwargs: HashMap<String, Parameter>,
+	pub save: bool
 }
 
 
@@ -18,7 +19,8 @@ impl Template {
 		Self {
 			name: name.to_string(),
 			args: Vec::new(),
-			kwargs
+			kwargs,
+			save: true
 		}
 	}
 	
@@ -39,6 +41,19 @@ impl Template {
 		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object()? {
 			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg)?);
 		}
-		Some(Template {name, args, kwargs})
+		Some(Template {name, args, kwargs, save: true})
+	}
+	
+	pub fn to_json(&self) -> Value {
+		if self.args.is_empty() && self.kwargs.is_empty() {
+			return json!(self.name);
+		}
+		let jsonargs: Vec<Value> = self.args.iter().map(|a| a.to_json()).collect();
+		let jsonkwargs: HashMap<&String, Value> = self.kwargs.iter().map(|(k, a)| (k, a.to_json())).collect();
+		json!({
+			"type": self.name,
+			"args": jsonargs,
+			"kwargs": jsonkwargs
+		})
 	}
 }

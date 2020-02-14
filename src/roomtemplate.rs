@@ -11,7 +11,7 @@ pub struct RoomTemplate {
 }
 
 impl RoomTemplate {
-	
+
 	pub fn from_json(jsonroom: &Value) -> Result<RoomTemplate, &'static str>{
 		let size = (
 			jsonroom.get("width").ok_or("no with")?.as_i64().ok_or("with not a number")?,

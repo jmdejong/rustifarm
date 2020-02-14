@@ -5,7 +5,8 @@ use specs::{
 	World,
 	WorldExt,
 	DispatcherBuilder,
-	Dispatcher
+	Dispatcher,
+	Join
 };
 
 use super::controls::Action;
@@ -27,8 +28,10 @@ use super::systems::{
 	create::Create,
 	take::Take
 };
+use crate::components::{Position, Serialise};
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
+use crate::savestate::SaveState;
 
 
 
@@ -45,6 +48,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			templates: Vec::new(),
 			encyclopedia
 		});
+		world.register::<Serialise>();
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(RegisterNew::default(), "registernew", &[])
@@ -78,7 +82,9 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, template.clone()));
+				let mut obj = template.clone();
+				obj.save = false;
+				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, obj));
 			}
 		}
 	}
@@ -94,6 +100,16 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn set_input(&mut self, actions: Vec<Action>){
 		self.world.fetch_mut::<Input>().actions = actions;
+	}
+	
+	pub fn save(&self) -> SaveState {
+		let positions = self.world.read_component::<Position>();
+		let serialisers = self.world.write_component::<Serialise>();
+		let mut state = SaveState::new();
+		for (pos, serialiser) in (&positions, &serialisers).join() {
+			state.changes.entry(pos.pos).or_insert(Vec::new()).push(serialiser.template.clone());
+		}
+		state
 	}
 	
 }

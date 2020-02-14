@@ -10,9 +10,7 @@ use specs::{
 	Write
 };
 
-use super::super::pos::Pos;
-
-use super::super::components::{
+use crate::components::{
 	Controller,
 	Position,
 	Removed,
@@ -20,8 +18,8 @@ use super::super::components::{
 	Item
 };
 
-use super::super::controls::{Control};
-use super::super::resources::{Ground, NewEntities};
+use crate::controls::{Control};
+use crate::resources::{Ground, NewEntities};
 
 
 

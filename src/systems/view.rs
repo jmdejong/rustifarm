@@ -11,10 +11,10 @@ use specs::{
 	Entity
 };
 
-use super::super::pos::Pos;
-use super::super::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
-use super::super::resources::{Size, Output, Ground};
-use super::super::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
+use crate::pos::Pos;
+use crate::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
+use crate::resources::{Size, Output, Ground};
+use crate::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
 
 
 #[derive(Default)]

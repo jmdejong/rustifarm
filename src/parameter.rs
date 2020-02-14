@@ -1,5 +1,5 @@
 
-use serde_json::Value;
+use serde_json::{Value, json};
 use crate::template::Template;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -51,6 +51,15 @@ impl Parameter {
 				return None
 			};
 		Self::from_typed_json(typ, val)
+	}
+	
+	pub fn to_json(&self) -> Value {
+		match self {
+			Self::String(s) => json!(s),
+			Self::Int(i) => json!(i),
+			Self::Float(f) => json!(f),
+			Self::Template(t) => t.to_json()
+		}
 	}
 }
 

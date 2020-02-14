@@ -6,4 +6,3 @@ pub mod view;
 pub mod remove;
 pub mod create;
 pub mod take;
-

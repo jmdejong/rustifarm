@@ -23,6 +23,7 @@ mod componentparameter;
 mod encyclopedia;
 mod template;
 mod roomtemplate;
+mod savestate;
 
 pub use self::pos::Pos;
 use self::gameserver::GameServer;
@@ -55,15 +56,22 @@ fn main() {
 	
 	println!("asciifarm started");
 	
+	
+	let mut count = 0;
 	loop {
 		let actions = gameserver.update();
 		
 		room.set_input(actions);
 		room.update();
+		if count % 20 == 0 {
+			println!("{}", room.save().to_json());
+		}
 		let messages = room.view();
 		for (player, message) in messages {
 			let _ = gameserver.send(&player, message.to_json());
 		}
+		
+		count += 1;
 		sleep(Duration::from_millis(100));
 	}
 }
@@ -122,30 +130,22 @@ fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 fn default_assemblages() -> Encyclopedia {
 	Encyclopedia::from_json(json!({
 		"wall": {
-			"components": [
-				["Blocking", {}]
-			],
+			"components": ["Blocking"],
 			"sprite": "wall",
 			"height": 2
 		},
 		"rock": {
-			"components": [
-				["Blocking", {}]
-			],
+			"components": ["Blocking"],
 			"sprite": "rock",
 			"height": 10
 		},
 		"tree": {
-			"components": [
-				["Blocking", {}]
-			],
+			"components": ["Blocking"],
 			"sprite": "tree",
 			"height": 3
 		},
 		"fence": {
-			"components": [
-				["Blocking", {}]
-			],
+			"components": ["Blocking"],
 			"sprite": "fence",
 			"height": 1
 		},
@@ -163,7 +163,7 @@ fn default_assemblages() -> Encyclopedia {
 					]],
 					"height": ["float", 0.1]
 				}],
-				["Floor", {}]
+				"Floor"
 			]
 		},
 		"greengrass": {
@@ -176,26 +176,22 @@ fn default_assemblages() -> Encyclopedia {
 					]],
 					"height": ["float", 0.1]
 				}],
-				["Floor", {}]
+				"Floor"
 			]
 		},
 		"ground": {
-			"components": [
-				["Floor", {}]
-			],
+			"components": ["Floor"],
 			"sprite": "ground",
 			"height": 0.1
 		},
 		"floor": {
-			"components": [
-				["Floor", {}]
-			],
+			"components": ["Floor"],
 			"sprite": "floor",
 			"height": 0.1
 		},
 		"bridge": {
 			"components": [
-				["Floor", {}]
+				"Floor"
 			],
 			"sprite": "bridge",
 			"height": 0.1

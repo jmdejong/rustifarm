@@ -22,7 +22,7 @@ impl Encyclopedia {
 	
 	pub fn construct(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &'static str> {
 		let assemblage = self.items.get(&template.name).ok_or("unknown assemblage name")?;
-		assemblage.instantiate(&template.args, &template.kwargs)
+		assemblage.instantiate(template)
 	}
 	
 }

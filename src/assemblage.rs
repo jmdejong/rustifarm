@@ -4,7 +4,9 @@ use serde_json::{Value, json};
 use super::componentparameter::ComponentParameter;
 use super::parameter::{Parameter, ParameterType};
 use super::componentwrapper::{ComponentWrapper, ComponentType};
+use super::components::Serialise;
 use crate::hashmap;
+use crate::template::Template;
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
 
@@ -36,16 +38,20 @@ impl Assemblage {
 	fn parse_definition_components(comps: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>, &'static str> {
 		let mut components = Vec::new();
 		for tup in comps.as_array().ok_or("components is not a json array")? {
-			let comptype = ComponentType::from_str(tup
-				.get(0).ok_or("index 0 not in component")?
-				.as_str().ok_or("component name not a string")?
-			).ok_or("not a valid componenttype")?;
-			let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
-			for (key, value) in tup.get(1).ok_or("index 1 not in component")?.as_object().ok_or("component parameters not a json object")? {
-				let param = ComponentParameter::from_json(value)?;
-				parameters.insert(key.clone(), param);
+			if let Some(name) = tup.as_str() {
+				components.push((ComponentType::from_str(name).ok_or("not a valid componenttype")?, HashMap::new()));
+			} else {
+				let comptype = ComponentType::from_str(tup
+					.get(0).ok_or("index 0 not in component")?
+					.as_str().ok_or("component name not a string")?
+				).ok_or("not a valid componenttype")?;
+				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
+				for (key, value) in tup.get(1).ok_or("index 1 not in component")?.as_object().ok_or("component parameters not a json object")? {
+					let param = ComponentParameter::from_json(value)?;
+					parameters.insert(key.clone(), param);
+				}
+				components.push((comptype, parameters));
 			}
-			components.push((comptype, parameters));
 		}
 		Ok(components)
 	}
@@ -109,7 +115,9 @@ impl Assemblage {
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<Vec<ComponentWrapper>, &'static str>{
+	pub fn instantiate(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &'static str>{
+		let args = &template.args;
+		let kwargs = &template.kwargs;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		let arguments = self.prepare_arguments(args, kwargs)?;
 		for (comptype, compparams) in &self.components {
@@ -118,6 +126,9 @@ impl Assemblage {
 				compargs.insert(name.as_str(), param.evaluate(&arguments).ok_or("argument not found")?);
 			}
 			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or("failed to load component")?);
+		}
+		if template.save {
+			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone()}));
 		}
 		Ok(components)
 	}
