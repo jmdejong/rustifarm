@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use specs::{Builder, world::LazyBuilder};
 
+use crate::PlayerId;
 use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise};
 use crate::parameter::{Parameter, ParameterType};
 
@@ -91,7 +92,7 @@ components!(
 	};
 	Blocking () {Blocking};
 	Floor () {Floor};
-	Player (name: String) {Player::new(name)};
+	Player (name: String) {Player::new(PlayerId{name})};
 	Item (ent: Template, name: String) {Item{ent, name}};
 	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}};
 	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};

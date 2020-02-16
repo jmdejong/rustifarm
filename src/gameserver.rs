@@ -7,6 +7,7 @@ use serde_json::{Value, json};
 
 use super::controls::{Control, Action};
 use super::server::Server;
+use crate::PlayerId;
 
 
 #[derive(Debug)]
@@ -19,8 +20,8 @@ enum Message {
 
 
 pub struct GameServer {
-	players: HashMap<(usize, usize), String>,
-	connections: HashMap<String, (usize, usize)>,
+	players: HashMap<(usize, usize), PlayerId>,
+	connections: HashMap<PlayerId, (usize, usize)>,
 	servers: Vec<Box<dyn Server>>
 }
 
@@ -52,10 +53,10 @@ impl GameServer {
 				}
 			}
 			for id in left {
-				if let Some(name) = self.players.remove(&(serverid, id)){
-					self.connections.remove(&name);
-					self.broadcast_message(&format!("{} disconnected", name));
-					actions.push(Action::Leave(name.clone()));
+				if let Some(player) = self.players.remove(&(serverid, id)){
+					self.connections.remove(&player);
+					self.broadcast_message(&format!("{} disconnected", player.name));
+					actions.push(Action::Leave(player.clone()));
 				}
 			}
 		}
@@ -81,8 +82,8 @@ impl GameServer {
 		}
 	}
 	
-	pub fn send(&mut self, playername: &str, value: Value) -> Result<(), io::Error> {
-		match self.connections.get(playername) {
+	pub fn send(&mut self, player: &PlayerId, value: Value) -> Result<(), io::Error> {
+		match self.connections.get(player) {
 			Some((serverid, id)) => {
 				self.servers[*serverid].send(*id, value.to_string().as_str())
 			}
@@ -113,18 +114,19 @@ impl GameServer {
 					let _ = self.send_error(id, "invalidaction", &format!("You can not change your name"));
 					return None;
 				}
-				if self.connections.contains_key(&name) {
+				let player = PlayerId{name};
+				if self.connections.contains_key(&player) {
 					let _ = self.send_error(id, "nametaken", &format!("Another connections to this player exists already"));
 					return None;
 				}
-				self.broadcast_message(&format!("{} connected", name));
-				self.players.insert(id, name.clone());
-				self.connections.insert(name.clone(), id);
-				Some(Action::Join(name))
+				self.broadcast_message(&format!("{} connected", player.name));
+				self.players.insert(id, player.clone());
+				self.connections.insert(player.clone(), id);
+				Some(Action::Join(player))
 			}
 			Message::Chat(text) => {
-				if let Some(nameref) = self.players.get(&id) {
-					let name = nameref.clone();
+				if let Some(player) = self.players.get(&id) {
+					let name = player.name.clone();
 					self.broadcast_message(&format!("{}: {}", name, text));
 				} else {
 					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
@@ -132,10 +134,9 @@ impl GameServer {
 				None
 			}
 			Message::Input(inp) => {
-				if let Some(nameref) = self.players.get(&id) {
-					let name = nameref.clone();
+				if let Some(player) = self.players.get(&id) {
 					if let Some(control) = Control::from_json(&inp) {
-						Some(Action::Input(name, control))
+						Some(Action::Input(player.clone(), control))
 					} else {
 						let _ = self.send_error(id, "invalidaction", &format!("unknown action: {}", inp));
 						None

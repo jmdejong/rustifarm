@@ -1,7 +1,7 @@
 
 
 use serde_json::Value;
-use super::pos::Pos;
+use crate::{PlayerId, Pos};
 
 #[derive(Debug, Clone)]
 pub enum Direction {
@@ -68,8 +68,8 @@ impl Control {
 
 #[derive(Debug, Clone)]
 pub enum Action {
-	Join(String),
-	Leave(String),
-	Input(String, Control)
+	Join(PlayerId),
+	Leave(PlayerId),
+	Input(PlayerId, Control)
 }
 

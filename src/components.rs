@@ -7,8 +7,8 @@ use specs::{
 	Component
 };
 
-use super::controls::Control;
-use super::pos::Pos;
+use crate::{Pos, PlayerId};
+use crate::controls::Control;
 use crate::template::Template;
 
 
@@ -58,11 +58,11 @@ pub struct Moved {
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Player {
-	pub name: String
+	pub id: PlayerId
 }
 impl Player {
-	pub fn new(name: String) -> Self {
-		Self{name}
+	pub fn new(id: PlayerId) -> Self {
+		Self{id}
 	}
 }
 

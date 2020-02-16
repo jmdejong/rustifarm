@@ -10,7 +10,6 @@ use specs::{
 };
 
 use super::controls::Action;
-use super::pos::Pos;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
@@ -32,6 +31,7 @@ use crate::components::{Position, Serialise};
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
 use crate::savestate::SaveState;
+use crate::{Pos, PlayerId};
 
 
 
@@ -82,14 +82,12 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				let mut obj = template.clone();
-				obj.save = false;
-				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, obj));
+				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, template.clone().unsaved()));
 			}
 		}
 	}
 	
-	pub fn view(&self) -> HashMap<String, WorldMessage> {
+	pub fn view(&self) -> HashMap<PlayerId, WorldMessage> {
 		self.world.fetch::<Output>().output.clone()
 	}
 	

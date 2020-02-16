@@ -11,10 +11,10 @@ use specs::{
 	Join
 };
 
+use crate::{PlayerId, hashmap};
 use crate::components::{Controller, Player, Removed};
 use crate::controls::{Control, Action};
 use crate::resources::{Input, NewEntities, Spawn};
-use crate::hashmap;
 use crate::template::Template;
 use crate::parameter::Parameter;
 
@@ -41,25 +41,25 @@ impl <'a> System<'a> for ControlInput {
 			}
 		}
 	
-		let mut playercontrols: HashMap<&str, Control> = HashMap::new();
+		let mut playercontrols: HashMap<&PlayerId, Control> = HashMap::new();
 		let mut leaving = HashSet::new();
 		for action in &input.actions {
 			match action {
-				Action::Join(name) => {
+				Action::Join(player) => {
 					new.templates.push((
 						spawn.pos,
-						Template::new("player", hashmap!("name".to_string() => Parameter::String(name.to_string())))
+						Template::new("player", hashmap!("name".to_string() => Parameter::String(player.name.clone()))).unsaved()
 					));
 				}
-				Action::Leave(name) => {leaving.insert(name);}
-				Action::Input(name, control) => {playercontrols.insert(name, control.clone());}
+				Action::Leave(player) => {leaving.insert(player);}
+				Action::Input(player, control) => {playercontrols.insert(player, control.clone());}
 			}
 		}
 		for (player, entity) in (&players, &entities).join() {
-			if let Some(control) = playercontrols.get(player.name.as_str()){
+			if let Some(control) = playercontrols.get(&player.id){
 				let _ = controllers.insert(entity, Controller(control.clone()));
 			}
-			if leaving.contains(&player.name) {
+			if leaving.contains(&player.id) {
 				let _ = removed.insert(entity, Removed);
 			}
 		}

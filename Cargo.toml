@@ -11,7 +11,7 @@ slab = "0.4.2"
 nix = "0.13"
 libc = "0.2"
 users = "0.8"
-specs = { version = "0.15", features = ["specs-derive"] }
+specs = { version = "0.16", features = ["specs-derive"] }
 rand = "0.7"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }

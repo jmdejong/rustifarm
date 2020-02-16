@@ -11,7 +11,7 @@ use specs::{
 	Entity
 };
 
-use crate::pos::Pos;
+use crate::Pos;
 use crate::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
 use crate::resources::{Size, Output, Ground};
 use crate::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
@@ -82,7 +82,7 @@ impl <'a> System<'a> for View {
 			}
 			updates.push(WorldUpdate::Pos(pos.pos));
 			let message = WorldMessage{updates};
-			output.output.insert(player.name.clone(), message);
+			output.output.insert(player.id.clone(), message);
 		}
 	}
 }

@@ -4,10 +4,10 @@ use specs::Entity;
 
 use super::pos::Pos;
 use super::controls::Action;
-// use super::oldassemblage::Assemblage;
 use super::worldmessages::WorldMessage;
 use super::template::Template;
 use crate::encyclopedia::Encyclopedia;
+use crate::PlayerId;
 
 
 #[derive(Default)]
@@ -17,7 +17,7 @@ pub struct Input {
 
 #[derive(Default)]
 pub struct Output {
-	pub output: HashMap<String, WorldMessage>
+	pub output: HashMap<PlayerId, WorldMessage>
 }
 
 #[derive(Default)]

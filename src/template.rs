@@ -24,6 +24,11 @@ impl Template {
 		}
 	}
 	
+	pub fn unsaved(mut self) -> Self {
+		self.save = false;
+		self
+	}
+	
 	pub fn empty(name: &str) -> Self {
 		Self::new(name, HashMap::new())
 	}

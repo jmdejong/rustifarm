@@ -25,8 +25,12 @@ mod template;
 mod roomtemplate;
 mod savestate;
 mod defaultencyclopedia;
+mod playerstate;
+mod playerid;
 
 pub use self::pos::Pos;
+pub use self::playerid::PlayerId;
+
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
