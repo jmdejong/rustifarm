@@ -27,6 +27,7 @@ mod savestate;
 mod defaultencyclopedia;
 mod playerstate;
 mod playerid;
+mod persistence;
 
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;

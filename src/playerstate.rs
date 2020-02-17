@@ -43,7 +43,7 @@ impl PlayerState {
 		})
 	}
 
-	pub fn from_json(val: Value) -> Option<Self> {
+	pub fn from_json(val: &Value) -> Option<Self> {
 		let inventory = val.get("inventory")?;
 		let mut items = vec![];
 		for item in inventory.get("items")?.as_array()? {

@@ -1,5 +1,6 @@
 
-
+use std::error::Error;
+use std::fmt::{Display, Formatter};
 use std::cmp::{min, max};
 use serde_json::Value;
 
@@ -9,6 +10,46 @@ pub fn clamp<T: Ord>(val: T, lower: T, upper: T) -> T{
 
 pub trait ToJson {
 	fn to_json(&self) -> Value;
+}
+
+
+pub type AnyError = Box<dyn Error + 'static>;
+pub type Result<T> = std::result::Result<T, AnyError>;
+
+#[derive(Debug)]
+pub struct AError {
+	text: String
+}
+
+impl AError {
+	pub fn new(txt: &str) -> Self{
+		AError {
+			text: txt.to_string()
+		}
+	}
+}
+
+impl Error for AError {
+	fn source(&self) -> Option<&(dyn Error + 'static)> {
+		None
+	}
+}
+
+impl Display for AError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Error: {}", self.text)
+    }
+}
+
+
+#[macro_export]
+macro_rules! aerr {
+	($description:expr) => {Box::new(crate::util::AError::new($description))}
+}
+
+#[macro_export]
+macro_rules! err {
+	($description:expr) => {Err(crate::aerr!($description))}
 }
 
 
