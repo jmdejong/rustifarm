@@ -40,6 +40,7 @@ use self::room::Room;
 use self::util::ToJson;
 use self::roomtemplate::RoomTemplate;
 use self::defaultencyclopedia::default_encyclopedia;
+use self::persistence::{FileStorage, PersistentStorage};
 
 
 
@@ -57,8 +58,15 @@ fn main() {
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	
 	let mut room = gen_room();
+	
+	let storage = FileStorage::new("~/.rustifarm/saves");
+	if let Ok(state) = storage.load_room("room".to_string()) {
+		room.load_saved(&state);
+		println!("loaded saved state successfully");
+	} else {
+		println!("loading saved state failed");
+	}
 	
 	println!("asciifarm started");
 	
@@ -69,7 +77,8 @@ fn main() {
 		
 		room.set_input(actions);
 		room.update();
-		if count % 20 == 0 {
+		if count % 50 == 0 {
+			storage.save_room("room".to_string(), room.save());
 			println!("{}", room.save().to_json());
 		}
 		let messages = room.view();

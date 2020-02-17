@@ -31,6 +31,7 @@ use crate::components::{Position, Serialise};
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
 use crate::savestate::SaveState;
+use crate::template::Template;
 use crate::{Pos, PlayerId};
 
 
@@ -82,7 +83,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.world.fetch_mut::<NewEntities>().templates.push((Pos{x, y}, template.clone().unsaved()));
+				self.create_entity(template.clone().unsaved(), Pos{x, y});
 			}
 		}
 	}
@@ -110,6 +111,17 @@ impl <'a, 'b>Room<'a, 'b> {
 		state
 	}
 	
+	pub fn load_saved(&mut self, state: &SaveState) {
+		for (pos, templates) in state.changes.iter() {
+			for template in templates {
+				self.create_entity(template.clone(), *pos);
+			}
+		}
+	}
+	
+	fn create_entity(&mut self, template: Template, pos: Pos){
+		self.world.fetch_mut::<NewEntities>().templates.push((pos, template));
+	}
 }
 
 

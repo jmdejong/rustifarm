@@ -28,6 +28,14 @@ pub struct FileStorage {
 	directory: PathBuf
 }
 
+impl FileStorage {
+	pub fn new(path: &str) -> Self {
+		Self {
+			directory: PathBuf::from(path)
+		}
+	}
+}
+
 impl PersistentStorage for FileStorage {
 	
 	fn load_room(&self, name: String) -> Result<SaveState> {
