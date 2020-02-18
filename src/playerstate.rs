@@ -23,7 +23,7 @@ impl PlayerState {
 
 	pub fn new(id: PlayerId) -> Self {
 		Self{
-			id: id,
+			id,
 			room: None,
 			inventory: Vec::new(),
 			inventory_capacity: 10,

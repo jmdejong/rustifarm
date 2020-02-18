@@ -138,7 +138,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		let serialisers = self.world.read_component::<Serialise>();
 		let mut state = SaveState::new();
 		for (pos, serialiser) in (&positions, &serialisers).join() {
-			state.changes.entry(pos.pos).or_insert(Vec::new()).push(serialiser.template.clone());
+			state.changes.entry(pos.pos).or_insert_with(Vec::new).push(serialiser.template.clone());
 		}
 		state
 	}

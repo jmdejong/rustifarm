@@ -77,7 +77,7 @@ impl GameServer {
 	}
 	
 	pub fn broadcast(&mut self, txt: &str){
-		for ((serverid, id), _name) in &self.players {
+		for (serverid, id) in self.players.keys() {
 			let _ = self.servers[*serverid].send(*id, txt);
 		}
 	}
@@ -106,17 +106,17 @@ impl GameServer {
 				let (firstchar, username) = name.split_at(1);
 				if firstchar == "~" {
 					if Some(username.to_string()) != self.servers[serverid].get_name(connectionid) {
-						let _ = self.send_error(id, "invalidname", &format!("A tilde name must match your username"));
+						let _ = self.send_error(id, "invalidname", "A tilde name must match your username");
 						return None;
 					}
 				}
 				if self.players.contains_key(&id) {
-					let _ = self.send_error(id, "invalidaction", &format!("You can not change your name"));
+					let _ = self.send_error(id, "invalidaction", "You can not change your name");
 					return None;
 				}
 				let player = PlayerId{name};
 				if self.connections.contains_key(&player) {
-					let _ = self.send_error(id, "nametaken", &format!("Another connections to this player exists already"));
+					let _ = self.send_error(id, "nametaken", "Another connections to this player exists already");
 					return None;
 				}
 				self.broadcast_message(&format!("{} connected", player.name));
@@ -129,7 +129,7 @@ impl GameServer {
 					let name = player.name.clone();
 					self.broadcast_message(&format!("{}: {}", name, text));
 				} else {
-					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
+					let _ = self.send_error(id, "invalidaction", "Set a name before you send other messages");
 				}
 				None
 			}
@@ -142,7 +142,7 @@ impl GameServer {
 						None
 					}
 				} else {
-					let _ = self.send_error(id, "invalidaction", &format!("Set a name before you send other messages"));
+					let _ = self.send_error(id, "invalidaction", "Set a name before you send other messages");
 					None
 				}
 			}

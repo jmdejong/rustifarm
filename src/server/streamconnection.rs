@@ -54,7 +54,7 @@ impl <T: Read+Write> StreamConnection<T> {
 			messages.push(message);
 			self.buffer = rest;
 		}
-		return Ok((messages, closed));
+		Ok((messages, closed))
 	}
 	
 	pub fn send(&mut self, text: &str) -> Result<(), io::Error> {

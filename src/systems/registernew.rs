@@ -30,7 +30,7 @@ impl <'a> System<'a> for RegisterNew {
 	);
 	fn run(&mut self, (entities, mut ground, positions, new): Self::SystemData) {
 		for (ent, pos, _new) in (&entities, &positions, &new).join() {
-			ground.cells.entry(pos.pos).or_insert(HashSet::new()).insert(ent);
+			ground.cells.entry(pos.pos).or_insert_with(HashSet::new).insert(ent);
 		}
 	}
 }
