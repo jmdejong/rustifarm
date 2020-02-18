@@ -1,5 +1,5 @@
 
-
+use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
@@ -41,6 +41,8 @@ use self::util::ToJson;
 use self::roomtemplate::RoomTemplate;
 use self::defaultencyclopedia::default_encyclopedia;
 use self::persistence::{FileStorage, PersistentStorage};
+use crate::controls::Action;
+use crate::playerstate::PlayerState;
 
 
 
@@ -60,7 +62,7 @@ fn main() {
 	
 	let mut room = gen_room();
 	
-	let storage = FileStorage::new("~/.rustifarm/saves");
+	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
 	if let Ok(state) = storage.load_room("room".to_string()) {
 		room.load_saved(&state);
 		println!("loaded saved state successfully");
@@ -74,12 +76,39 @@ fn main() {
 	let mut count = 0;
 	loop {
 		let actions = gameserver.update();
-		
-		room.set_input(actions);
+		let mut inputs = HashMap::new();
+		for action in actions {
+			match action {
+				Action::Input(player, control) => {inputs.insert(player, control);}
+				Action::Join(player) => {
+					let state = match storage.load_player(player.clone()) {
+						Ok(state) => state,
+						Err(_) => PlayerState::new(player.name.clone())
+					};
+					room.add_player(player.clone(), &state);
+				}
+				Action::Leave(player) => {
+					if let Err(err) = storage.save_player(player.clone(), room.remove_player(player).unwrap()) {
+						println!("{:?}", err);
+					}
+				}
+			}
+		}
+		room.set_input(inputs);
 		room.update();
 		if count % 50 == 0 {
-			storage.save_room("room".to_string(), room.save());
-			println!("{}", room.save().to_json());
+			if let Err(err) = storage.save_room(room.name.clone(), room.save()) {
+				println!("{:?}",err);
+			} else {
+				println!("{}", room.save().to_json());
+			}
+			for (playerid, state) in room.save_players() {
+				if let Err(err) = storage.save_player(playerid.clone(), state.clone()) {
+					println!("{:?}",err);
+				} else {
+					println!("{:?} {}", playerid, state.to_json());
+				}
+			}
 		}
 		let messages = room.view();
 		for (player, message) in messages {
@@ -93,7 +122,7 @@ fn main() {
 
 fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let assemblages = default_encyclopedia();
-	let mut room = Room::new(assemblages);
+	let mut room = Room::new("room", assemblages);
 
 	let roomtemplate = RoomTemplate::from_json(&json!({
 		"width": 42,

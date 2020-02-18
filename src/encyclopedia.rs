@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use serde_json::Value;
 use crate::assemblage::Assemblage;
-use crate::componentwrapper::ComponentWrapper;
+use crate::componentwrapper::PreEntity;
 use crate::template::Template;
 
 #[derive(Default, Clone)]
@@ -20,7 +20,7 @@ impl Encyclopedia {
 		Ok(Encyclopedia{items})
 	}
 	
-	pub fn construct(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &'static str> {
+	pub fn construct(&self, template: &Template) -> Result<PreEntity, &'static str> {
 		let assemblage = self.items.get(&template.name).ok_or("unknown assemblage name")?;
 		assemblage.instantiate(template)
 	}

@@ -1,6 +1,7 @@
 
 use std::path::PathBuf;
 use std::fs;
+use std::env;
 use serde_json;
 use serde_json::Value;
 use crate::{
@@ -29,9 +30,27 @@ pub struct FileStorage {
 }
 
 impl FileStorage {
-	pub fn new(path: &str) -> Self {
+	pub fn new(path: PathBuf) -> Self {
 		Self {
-			directory: PathBuf::from(path)
+			directory: path
+		}
+	}
+	
+	pub fn savedir() -> Option<PathBuf> {
+		if let Some(pathname) = env::var_os("ASCIIFARM_SAVE_DIR") {
+			Some(PathBuf::from(pathname))
+		} else if let Some(pathname) = env::var_os("XDG_DATA_HOME") {
+			let mut path = PathBuf::from(pathname);
+			path.push("asciifarm");
+			path.push("saves");
+			Some(path)
+		} else if let Some(pathname) = env::var_os("HOME") {
+			let mut path = PathBuf::from(pathname);
+			path.push(".asciifarm");
+			path.push("saves");
+			Some(path)
+		} else {
+			None
 		}
 	}
 }

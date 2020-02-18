@@ -53,7 +53,7 @@ impl <'a> System<'a> for Take {
 				}
 				Control::Drop(_rank) => {
 					if let Some(item) = inventory.items.pop() {
-						new.templates.push((position.pos, item.ent));
+						let _ = new.create(position.pos, item.ent);
 					}
 				}
 				_ => {}

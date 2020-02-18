@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use specs::{Builder, world::LazyBuilder};
+use specs::Builder;
 
 use crate::PlayerId;
 use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise};
@@ -20,7 +20,7 @@ macro_rules! components {
 
 		impl ComponentWrapper {
 
-			pub fn build<'a>(&self, builder: LazyBuilder<'a>) -> LazyBuilder<'a> {
+			pub fn build<A: Builder>(&self, builder: A ) -> A {
 				match self.clone() {
 					$(
 						Self::$comp(c) => builder.with(c),
@@ -101,7 +101,7 @@ components!(
 );
 
 
-
+pub type PreEntity = Vec<ComponentWrapper>;
 
 
 

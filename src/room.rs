@@ -6,17 +6,20 @@ use specs::{
 	WorldExt,
 	DispatcherBuilder,
 	Dispatcher,
-	Join
+	Builder,
+	Join,
+	Entity
 };
 
-use super::controls::Action;
+use super::controls::Control;
 use super::worldmessages::WorldMessage;
 use super::resources::{
 	Size,
 	Output,
 	Input,
 	NewEntities,
-	Spawn
+	Spawn,
+	Players
 };
 use super::systems::{
 	moving::Move,
@@ -27,28 +30,38 @@ use super::systems::{
 	create::Create,
 	take::Take
 };
-use crate::components::{Position, Serialise};
+use crate::components::{
+	Position,
+	Serialise,
+	Player,
+	Inventory,
+	Health,
+	New,
+	Removed
+};
 use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
 use crate::savestate::SaveState;
 use crate::template::Template;
-use crate::{Pos, PlayerId};
+use crate::playerstate::PlayerState;
+use crate::{Pos, PlayerId, aerr};
+use crate::util::Result;
 
 
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>
+	dispatcher: Dispatcher<'a, 'b>,
+	pub name: String
 }
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(encyclopedia: Encyclopedia) -> Room<'a, 'b> {
+	pub fn new(name: &str, encyclopedia: Encyclopedia) -> Room<'a, 'b> {
 		let mut world = World::new();
-		world.insert(NewEntities{
-			templates: Vec::new(),
-			encyclopedia
-		});
+		world.insert(NewEntities::new(encyclopedia));
+		world.insert(Players::default());
+		world.insert(Spawn::default());
 		world.register::<Serialise>();
 		
 		let mut dispatcher = DispatcherBuilder::new()
@@ -66,7 +79,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher
+			dispatcher,
+			name: name.to_string()
 		}
 	}
 	
@@ -83,7 +97,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.create_entity(template.clone().unsaved(), Pos{x, y});
+				let _ = self.create_entity(template.clone().unsaved(), Pos{x, y});
 			}
 		}
 	}
@@ -97,13 +111,31 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.maintain();
 	}
 	
-	pub fn set_input(&mut self, actions: Vec<Action>){
+	pub fn set_input(&mut self, actions: HashMap<PlayerId, Control>){
 		self.world.fetch_mut::<Input>().actions = actions;
+	}
+	
+	pub fn add_player(&mut self, id: PlayerId, state: &PlayerState){
+		let pre_player = state.construct(id.clone());
+		let spawn = self.world.fetch::<Spawn>().pos;
+		let mut builder = self.world.create_entity();
+		let ent = builder.entity;
+		for comp in pre_player {
+			builder = comp.build(builder);
+		}
+		builder.with(Position::new(spawn)).with(New).build();
+		self.world.fetch_mut::<Players>().entities.insert(id, ent);
+	}
+	
+	pub fn remove_player(&mut self, id: PlayerId) -> Result<PlayerState>{
+		let ent = self.world.fetch_mut::<Players>().entities.remove(&id).ok_or(aerr!("failed to remove player"))?;
+		self.world.write_component::<Removed>().insert(ent, Removed)?;
+		self.save_player_ent(ent).ok_or(aerr!("failed to find player to remove"))
 	}
 	
 	pub fn save(&self) -> SaveState {
 		let positions = self.world.read_component::<Position>();
-		let serialisers = self.world.write_component::<Serialise>();
+		let serialisers = self.world.read_component::<Serialise>();
 		let mut state = SaveState::new();
 		for (pos, serialiser) in (&positions, &serialisers).join() {
 			state.changes.entry(pos.pos).or_insert(Vec::new()).push(serialiser.template.clone());
@@ -114,13 +146,49 @@ impl <'a, 'b>Room<'a, 'b> {
 	pub fn load_saved(&mut self, state: &SaveState) {
 		for (pos, templates) in state.changes.iter() {
 			for template in templates {
-				self.create_entity(template.clone(), *pos);
+				let _ = self.create_entity(template.clone(), *pos);
 			}
 		}
 	}
 	
-	fn create_entity(&mut self, template: Template, pos: Pos){
-		self.world.fetch_mut::<NewEntities>().templates.push((pos, template));
+	pub fn save_players(&self) -> HashMap<PlayerId, PlayerState> {
+		let players = self.world.read_component::<Player>();
+		let inventories = self.world.read_component::<Inventory>();
+		let healths = self.world.read_component::<Health>();
+		let mut saved = HashMap::new();
+		for (player, inventory, health) in (&players, &inventories, &healths).join() {
+			saved.insert(player.id.clone(), PlayerState::create(
+				player.id.name.clone(),
+				self.name.clone(),
+				inventory.items.iter().map(|item| item.ent.clone()).collect(),
+				inventory.capacity,
+				health.health,
+				health.maxhealth
+			));
+		}
+		saved
+	}
+	
+	fn save_player_ent(&self, ent: Entity) -> Option<PlayerState> {
+		let players = self.world.read_component::<Player>();
+		let player = players.get(ent)?;
+		let inventories = self.world.read_component::<Inventory>();
+		let inventory = inventories.get(ent)?;
+		let healths = self.world.read_component::<Health>();
+		let health = healths.get(ent)?;
+		Some(PlayerState::create(
+			player.id.name.clone(),
+			self.name.clone(),
+			inventory.items.iter().map(|item| item.ent.clone()).collect(),
+			inventory.capacity,
+			health.health,
+			health.maxhealth
+		))
+	}
+	
+	fn create_entity(&mut self, template: Template, pos: Pos) -> Result<()>{
+		self.world.fetch_mut::<NewEntities>().create(pos, template)?;
+		Ok(())
 	}
 }
 
