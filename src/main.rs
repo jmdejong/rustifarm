@@ -24,13 +24,15 @@ mod encyclopedia;
 mod template;
 mod roomtemplate;
 mod savestate;
+mod playerid;
 mod defaultencyclopedia;
 mod playerstate;
-mod playerid;
+mod roomid;
 mod persistence;
 
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;
+pub use self::roomid::RoomId;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -63,7 +65,7 @@ fn main() {
 	let mut room = gen_room();
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
-	if let Ok(state) = storage.load_room("room".to_string()) {
+	if let Ok(state) = storage.load_room(RoomId::from_str("room")) {
 		room.load_saved(&state);
 		println!("loaded saved state successfully");
 	} else {
@@ -83,9 +85,9 @@ fn main() {
 				Action::Join(player) => {
 					let state = match storage.load_player(player.clone()) {
 						Ok(state) => state,
-						Err(_) => PlayerState::new(player.name.clone())
+						Err(_) => PlayerState::new(player.clone())
 					};
-					room.add_player(player.clone(), &state);
+					room.add_player(&state);
 				}
 				Action::Leave(player) => {
 					if let Err(err) = storage.save_player(player.clone(), room.remove_player(player).unwrap()) {
@@ -97,7 +99,7 @@ fn main() {
 		room.set_input(inputs);
 		room.update();
 		if count % 50 == 0 {
-			if let Err(err) = storage.save_room(room.name.clone(), room.save()) {
+			if let Err(err) = storage.save_room(room.id.clone(), room.save()) {
 				println!("{:?}",err);
 			} else {
 				println!("{}", room.save().to_json());
@@ -122,7 +124,7 @@ fn main() {
 
 fn gen_room<'a, 'b>() -> Room<'a, 'b> {
 	let assemblages = default_encyclopedia();
-	let mut room = Room::new("room", assemblages);
+	let mut room = Room::new(RoomId::from_str("room"), assemblages);
 
 	let roomtemplate = RoomTemplate::from_json(&json!({
 		"width": 42,

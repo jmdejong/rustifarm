@@ -44,7 +44,7 @@ use crate::roomtemplate::RoomTemplate;
 use crate::savestate::SaveState;
 use crate::template::Template;
 use crate::playerstate::PlayerState;
-use crate::{Pos, PlayerId, aerr};
+use crate::{Pos, PlayerId, RoomId, aerr};
 use crate::util::Result;
 
 
@@ -52,12 +52,12 @@ use crate::util::Result;
 pub struct Room<'a, 'b> {
 	world: World,
 	dispatcher: Dispatcher<'a, 'b>,
-	pub name: String
+	pub id: RoomId
 }
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(name: &str, encyclopedia: Encyclopedia) -> Room<'a, 'b> {
+	pub fn new(id: RoomId, encyclopedia: Encyclopedia) -> Room<'a, 'b> {
 		let mut world = World::new();
 		world.insert(NewEntities::new(encyclopedia));
 		world.insert(Players::default());
@@ -80,7 +80,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		Room {
 			world,
 			dispatcher,
-			name: name.to_string()
+			id
 		}
 	}
 	
@@ -115,8 +115,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Input>().actions = actions;
 	}
 	
-	pub fn add_player(&mut self, id: PlayerId, state: &PlayerState){
-		let pre_player = state.construct(id.clone());
+	pub fn add_player(&mut self, state: &PlayerState){
+		let pre_player = state.construct();
 		let spawn = self.world.fetch::<Spawn>().pos;
 		let mut builder = self.world.create_entity();
 		let ent = builder.entity;
@@ -124,7 +124,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			builder = comp.build(builder);
 		}
 		builder.with(Position::new(spawn)).with(New).build();
-		self.world.fetch_mut::<Players>().entities.insert(id, ent);
+		self.world.fetch_mut::<Players>().entities.insert(state.id.clone(), ent);
 	}
 	
 	pub fn remove_player(&mut self, id: PlayerId) -> Result<PlayerState>{
@@ -158,8 +158,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut saved = HashMap::new();
 		for (player, inventory, health) in (&players, &inventories, &healths).join() {
 			saved.insert(player.id.clone(), PlayerState::create(
-				player.id.name.clone(),
-				self.name.clone(),
+				player.id.clone(),
+				self.id.clone(),
 				inventory.items.iter().map(|item| item.ent.clone()).collect(),
 				inventory.capacity,
 				health.health,
@@ -177,8 +177,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		let healths = self.world.read_component::<Health>();
 		let health = healths.get(ent)?;
 		Some(PlayerState::create(
-			player.id.name.clone(),
-			self.name.clone(),
+			player.id.clone(),
+			self.id.clone(),
 			inventory.items.iter().map(|item| item.ent.clone()).collect(),
 			inventory.capacity,
 			health.health,

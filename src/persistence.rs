@@ -6,6 +6,7 @@ use serde_json;
 use serde_json::Value;
 use crate::{
 	PlayerId,
+	RoomId,
 	savestate::SaveState,
 	playerstate::PlayerState,
 	util::Result,
@@ -14,11 +15,11 @@ use crate::{
 
 pub trait PersistentStorage {
 	
-	fn load_room(&self, name: String) -> Result<SaveState>;
+	fn load_room(&self, id: RoomId) -> Result<SaveState>;
 	
 	fn load_player(&self, id: PlayerId) -> Result<PlayerState>;
 	
-	fn save_room(&self, name: String, state: SaveState) -> Result<()>;
+	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()>;
 	
 	fn save_player(&self, id: PlayerId, sate: PlayerState) -> Result<()>;
 	
@@ -57,10 +58,10 @@ impl FileStorage {
 
 impl PersistentStorage for FileStorage {
 	
-	fn load_room(&self, name: String) -> Result<SaveState> {
+	fn load_room(&self, id: RoomId) -> Result<SaveState> {
 		let mut path = self.directory.clone();
 		path.push("rooms");
-		let fname = name + ".save.json";
+		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
@@ -70,18 +71,18 @@ impl PersistentStorage for FileStorage {
 	fn load_player(&self, id: PlayerId) -> Result<PlayerState> {
 		let mut path = self.directory.clone();
 		path.push("players");
-		let fname = id.name + ".save.json";
+		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
 		PlayerState::from_json(&json).ok_or(aerr!("not a valid save state"))
 	}
 	
-	fn save_room(&self, name: String, state: SaveState) -> Result<()> {
+	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()> {
 		let mut path = self.directory.clone();
 		path.push("rooms");
 		fs::create_dir_all(&path)?;
-		let fname = name + ".save.json";
+		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = state.to_json().to_string();
 		// todo: write to a temp file first
@@ -93,7 +94,7 @@ impl PersistentStorage for FileStorage {
 		let mut path = self.directory.clone();
 		path.push("players");
 		fs::create_dir_all(&path)?;
-		let fname = id.name + ".save.json";
+		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = state.to_json().to_string();
 		// todo: write to a temp file first

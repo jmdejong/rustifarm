@@ -1,10 +1,10 @@
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
-pub struct PlayerId {
+pub struct RoomId {
 	pub name: String
 }
 
-impl PlayerId {
+impl RoomId {
 	pub fn from_str(name: &str) -> Self {
 		Self {name: name.to_string()}
 	}
@@ -12,3 +12,4 @@ impl PlayerId {
 		self.name.clone()
 	}
 }
+
