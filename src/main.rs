@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
-
-use serde_json::json;
+use std::path::PathBuf;
+use std::str::FromStr;
 
 mod server;
 mod gameserver;
@@ -29,6 +29,7 @@ mod defaultencyclopedia;
 mod playerstate;
 mod roomid;
 mod persistence;
+mod worldloader;
 
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;
@@ -40,11 +41,11 @@ use self::server::tcpserver::TcpServer;
 use self::server::Server;
 use self::room::Room;
 use self::util::ToJson;
-use self::roomtemplate::RoomTemplate;
 use self::defaultencyclopedia::default_encyclopedia;
 use self::persistence::{FileStorage, PersistentStorage};
 use crate::controls::Action;
 use crate::playerstate::PlayerState;
+use crate::worldloader::WorldLoader;
 
 
 
@@ -62,7 +63,9 @@ fn main() {
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	let mut room = gen_room();
+	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/")).unwrap(), RoomId::from_str("room"));
+	let mut room = Room::new(RoomId::from_str("room"), default_encyclopedia());
+	room.load_from_template(&loader.load_room(room.id.clone()).unwrap());
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
 	if let Ok(state) = storage.load_room(RoomId::from_str("room")) {
@@ -120,57 +123,6 @@ fn main() {
 		count += 1;
 		sleep(Duration::from_millis(100));
 	}
-}
-
-fn gen_room<'a, 'b>() -> Room<'a, 'b> {
-	let assemblages = default_encyclopedia();
-	let mut room = Room::new(RoomId::from_str("room"), assemblages);
-
-	let roomtemplate = RoomTemplate::from_json(&json!({
-		"width": 42,
-		"height": 22,
-		"spawn": [5, 15],
-		"field": [
-			"     XXXXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXXX",
-			"     ,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,,X",
-			"    ,,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,,X",
-			"    ,,,,,,,,,,,,,~~~~,,,,,,,,,,,,,,,,,,,,X",
-			" bbbb..,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"    ,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"   ,,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"  ,,,,.,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,,X",
-			"X,,,,,.,,,,,,,,,,,~~~~,,,,,,T,,,,,,,,,,,,X",
-			"X,,,,,.,,,,,,,,,,,,~~~,,,,,,,,,,,,,,,,,,,X",
-			"X,,,,,.,,,,,,,,,,,,~~~,,,,,T,,,,######,,,X",
-			"X,,,,,.,,,,,,,,,,,,bbb,,,,,,,,,,#++++#,,,X",
-			"X,,,,,.............bbb...........++++#,,,X",
-			"X,**,,.,,,,,,,,,,,,bbb,,,,,,,,,,#++++#,,,X",
-			"X,*,*,.,,,,,,,,,,,,~~~,,,T,,,T,,#++++#,,,X",
-			"X,,*,,.,,,,,,,,,,,,~~~,,,,,,,,,,######,,,X",
-			"X,**,,.,,,,,,,,,,,~~~~,,,,,,,,,,f,,,,f,,,X",
-			"X,,*,,.,,,,,,,,,,,~~~''''''''''''''''f'''X",
-			"X*,,,,.,,,,,,,,,,,~~~'''''''''''f''''f'''X",
-			"X,,,,,.,,,,,,,,,,,~~~'''''''''''ffffff'''X",
-			"X,,,,,.,,,,,,,,,,,~~~''''''''''''''''''''X",
-			"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX"
-		],
-		"mapping": {
-			"#": "wall",
-			",": "grass",
-			".": "ground",
-			"~": "water",
-			"b": "bridge",
-			"+": "floor",
-			"'": "greengrass",
-			"T": ["grass", "tree"],
-			"f": ["grass", "fence"],
-			"X": "rock",
-			"*": ["grass", "pebble"],
-			" ": []
-		}
-	})).unwrap();
-	room.load_from_template(&roomtemplate);
-	room
 }
 
 
