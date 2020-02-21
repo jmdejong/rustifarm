@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::Pos;
 use crate::template::Template;
+use crate::{Result, aerr};
 
 pub struct SaveState {
 	pub changes: HashMap<Pos, Vec<Template>>
@@ -25,16 +26,16 @@ impl SaveState {
 		})
 	}
 	
-	pub fn from_json(val: &Value) -> Option<Self> {
+	pub fn from_json(val: &Value) -> Result<Self> {
 		let mut changes = HashMap::new();
-		for v in val.get("changes")?.as_array()? {
-			let pos = Pos::from_json(v.get(0)?)?;
+		for v in val.get("changes").ok_or(aerr!("save does not have changes"))?.as_array().ok_or(aerr!("changes not an array"))? {
+			let pos = Pos::from_json(v.get(0).ok_or(aerr!("change does not have index 0"))?).ok_or(aerr!("change index 0 is not a pos"))?;
 			let mut templates = Vec::new();
-			for t in v.get(1)?.as_array()? {
+			for t in v.get(1).ok_or(aerr!("change does not have index 1"))?.as_array().ok_or(aerr!("change index 1 not an array"))? {
 				templates.push(Template::from_json(t)?);
 			}
 			changes.insert(pos, templates);
 		}
-		Some(Self {changes})
+		Ok(Self {changes})
 	}
 }

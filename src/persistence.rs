@@ -9,8 +9,7 @@ use crate::{
 	RoomId,
 	savestate::SaveState,
 	playerstate::PlayerState,
-	util::Result,
-	aerr
+	util::Result
 };
 
 pub trait PersistentStorage {
@@ -65,7 +64,7 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
-		SaveState::from_json(&json).ok_or(aerr!("not a valid save state"))
+		SaveState::from_json(&json)
 	}
 	
 	fn load_player(&self, id: PlayerId) -> Result<PlayerState> {
@@ -75,7 +74,7 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
-		PlayerState::from_json(&json).ok_or(aerr!("not a valid save state"))
+		PlayerState::from_json(&json)
 	}
 	
 	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()> {

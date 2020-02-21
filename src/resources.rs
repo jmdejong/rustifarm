@@ -66,7 +66,7 @@ pub struct Players {
 }
 
 #[derive(Default)]
-pub struct Emigrating {
+pub struct Emigration {
 	pub emigrants: Vec<(PlayerId, RoomId)>
 }
 

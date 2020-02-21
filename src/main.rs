@@ -34,6 +34,7 @@ mod world;
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;
 pub use self::roomid::RoomId;
+pub use self::util::Result;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
@@ -48,21 +49,21 @@ use crate::world::World;
 
 
 
-fn main() {
+fn main() -> Result<()>{
 	
 	let mut servers: Vec<Box<dyn Server>> = Vec::new();
 
 	let addr = Path::new("\0rustifarm");
-	let unixserver = UnixServer::new(&addr).expect("binding unix server failed");
+	let unixserver = UnixServer::new(&addr)?;
 	servers.push(Box::new(unixserver));
 	
-	let addr = "127.0.0.1:1234".parse().unwrap();
-	let inetserver = TcpServer::new(&addr).expect("binding inet server failed");
+	let addr = "127.0.0.1:1234".parse()?;
+	let inetserver = TcpServer::new(&addr)?;
 	servers.push(Box::new(inetserver));
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/")).unwrap());
+	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/"))?);
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
 
@@ -80,10 +81,10 @@ fn main() {
 					let _ = world.control_player(player, control);
 				}
 				Action::Join(player) => {
-					world.add_player(&player).unwrap();
+					world.add_player(&player)?;
 				}
 				Action::Leave(player) => {
-					world.remove_player(&player).unwrap();
+					world.remove_player(&player)?;
 				}
 			}
 		}

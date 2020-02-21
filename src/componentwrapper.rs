@@ -2,14 +2,14 @@
 use std::collections::HashMap;
 use specs::Builder;
 
-use crate::PlayerId;
-use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise};
+use crate::{PlayerId, RoomId};
+use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit};
 use crate::parameter::{Parameter, ParameterType};
 
 
 
 macro_rules! components {
-	($($comp: ident ($($paramname: ident : $paramtype: ident),*) {$creation: expr});*) => {
+	($($comp: ident ($($paramname: ident : $paramtype: ident),*) {$creation: expr});*;) => {
 	
 		#[derive(Clone)]
 		pub enum ComponentWrapper{
@@ -96,7 +96,8 @@ components!(
 	Item (ent: Template, name: String) {Item{ent, name}};
 	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}};
 	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};
-	Serialise (template: Template) {Serialise{template}}
+	Serialise (template: Template) {Serialise{template}};
+	RoomExit (destination: String) {RoomExit{destination: RoomId::from_str(&destination)}};
 	
 );
 

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde_json::Value;
 use crate::Pos;
 use crate::template::Template;
+use crate::{Result, aerr};
 
 pub struct RoomTemplate {
 	pub size: (i64, i64),
@@ -12,7 +13,7 @@ pub struct RoomTemplate {
 
 impl RoomTemplate {
 
-	pub fn from_json(jsonroom: &Value) -> Result<RoomTemplate, &'static str>{
+	pub fn from_json(jsonroom: &Value) -> Result<RoomTemplate>{
 		let size = (
 			jsonroom.get("width").ok_or("no with")?.as_i64().ok_or("with not a number")?,
 			jsonroom.get("height").ok_or("no height")?.as_i64().ok_or("height not a number")?
@@ -24,10 +25,10 @@ impl RoomTemplate {
 			let mut templates: Vec<Template> = Vec::new();
 			if value.is_array() {
 				for template in value.as_array().ok_or("weird")? {
-					templates.push(Template::from_json(template).ok_or("not a valid template")?);
+					templates.push(Template::from_json(template)?);
 				}
 			} else {
-				templates.push(Template::from_json(value).ok_or("not a valid template")?);
+				templates.push(Template::from_json(value)?);
 			}
 			mapping.insert(key.chars().next().ok_or("mapping key is empty string")?, templates);
 		}
@@ -35,9 +36,10 @@ impl RoomTemplate {
 		let mut field = Vec::new();
 		field.resize((size.0 * size.1) as usize, Vec::new());
 		let jsonfield: &Vec<Value> = jsonroom.get("field").ok_or("no field")?.as_array().ok_or("field not an array")?;
+		// todo: what if size doesn't match actual dimensions
 		for (y, row) in jsonfield.iter().enumerate() {
 			for (x, ch) in row.as_str().ok_or("field row not a string")?.chars().enumerate() {
-				field[x + y * (size.0 as usize)] = mapping.get(&ch).ok_or("char not found in mapping")?.clone();
+				field[x + y * (size.0 as usize)] = mapping.get(&ch).ok_or(aerr!("char not found in mapping"))?.clone();
 			}
 		}
 		Ok(RoomTemplate {

@@ -6,7 +6,9 @@ use crate::{
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,
-	components::{Visible, Player, Inventory, Health, Item}
+	components::{Visible, Player, Inventory, Health, Item},
+	Result,
+	aerr
 };
 
 #[derive(Debug, Clone)]
@@ -63,22 +65,22 @@ impl PlayerState {
 		})
 	}
 
-	pub fn from_json(val: &Value) -> Option<Self> {
-		let inventory = val.get("inventory")?;
+	pub fn from_json(val: &Value) -> Result<Self> {
+		let inventory = val.get("inventory").ok_or(aerr!("player json does not have inventory"))?;
 		let mut items = vec![];
-		for item in inventory.get("items")?.as_array()? {
+		for item in inventory.get("items").ok_or(aerr!("inventory does not have items"))?.as_array().ok_or(aerr!("inventory items not an array"))? {
 			items.push(Template::from_json(item)?);
 		}
-		Some(Self {
-			id: PlayerId{name: val.get("name")?.as_str()?.to_string()},
-			room: match val.get("roomname")? {
+		Ok(Self {
+			id: PlayerId{name: val.get("name").ok_or(aerr!("player json does not have name"))?.as_str().ok_or(aerr!("player name not a string"))?.to_string()},
+			room: match val.get("roomname").ok_or(aerr!("player json does not have room name"))? {
 				Value::String(name) => Some(RoomId::from_str(name)),
 				_ => None
 			},
 			inventory: items,
-			health: val.get("health")?.as_i64()?,
-			inventory_capacity: inventory.get("capacity")?.as_i64()? as usize,
-			maximum_health: val.get("maxhealth")?.as_i64()?
+			health: val.get("health").ok_or(aerr!("player json does not have health"))?.as_i64().ok_or(aerr!("player health not a number"))?,
+			inventory_capacity: inventory.get("capacity").ok_or(aerr!("inventory does no have capacity"))?.as_i64().ok_or(aerr!("inventory capacity not a number"))? as usize,
+			maximum_health: val.get("maxhealth").ok_or(aerr!("player json does not have maxhealth"))?.as_i64().ok_or(aerr!("maxhealh not a number"))?
 		})
 	}
 	

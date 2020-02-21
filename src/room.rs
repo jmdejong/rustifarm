@@ -20,7 +20,7 @@ use super::resources::{
 	NewEntities,
 	Spawn,
 	Players,
-	Emigrating
+	Emigration
 };
 use super::systems::{
 	moving::Move,
@@ -29,7 +29,8 @@ use super::systems::{
 	view::View,
 	remove::Remove,
 	create::Create,
-	take::Take
+	take::Take,
+	migrate::Migrate
 };
 use crate::components::{
 	Position,
@@ -63,7 +64,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		world.insert(Players::default());
 		world.insert(Spawn::default());
-		world.insert(Emigrating::default());
+		world.insert(Emigration::default());
 		world.register::<Serialise>();
 		
 		let mut dispatcher = DispatcherBuilder::new()
@@ -72,6 +73,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(Take, "take", &["controlinput"])
 			.with(Move, "move", &["registernew", "controlinput"])
 			.with(View::default(), "view", &["move"])
+			.with(Migrate, "migrate", &["view"])
 			.with(Create, "create", &["view", "controlinput"])
 			.with(Remove, "remove", &["view", "move"])
 			.build();
@@ -139,8 +141,10 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn remove_player(&mut self, id: &PlayerId) -> Result<PlayerState>{
 		let ent = self.world.fetch_mut::<Players>().entities.remove(id).ok_or(aerr!("failed to remove player"))?;
+		let state = self.save_player_ent(ent).ok_or(aerr!("failed to find player to remove"))?;
 		self.world.write_component::<Removed>().insert(ent, Removed)?;
-		self.save_player_ent(ent).ok_or(aerr!("failed to find player to remove"))
+		self.world.write_component::<Player>().remove(ent);
+		Ok(state)
 	}
 	
 	pub fn save(&self) -> SaveState {
@@ -202,8 +206,8 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn emigrate(&mut self) -> Vec<(PlayerId, RoomId)> {
-		let emigrants = self.world.remove::<Emigrating>().expect("World does not have Emigrating resource").emigrants;
-		self.world.insert(Emigrating::default());
+		let emigrants = self.world.remove::<Emigration>().expect("World does not have Emigrating resource").emigrants;
+		self.world.insert(Emigration::default());
 		emigrants
 	}
 }

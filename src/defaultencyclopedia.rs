@@ -96,6 +96,13 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				["Inventory", {"capacity": ["int", 3]}],
 				["Health", {"health": ["int", 9], "maxhealth": ["int", 10]}]
 			]
+		},
+		"portal": {
+			"arguments": [["destination", "string", null]],
+			"components": [
+				["RoomExit", {"destination": ["arg", "destination"]}],
+				"Floor"
+			]
 		}
 	})).unwrap()
 }

@@ -7,7 +7,7 @@ use specs::{
 	Component
 };
 
-use crate::{Pos, PlayerId};
+use crate::{Pos, PlayerId, RoomId};
 use crate::controls::Control;
 use crate::template::Template;
 
@@ -93,3 +93,7 @@ pub struct Serialise {
 	pub template: Template
 }
 
+#[derive(Component, Debug, Clone)]
+pub struct RoomExit {
+	pub destination: RoomId
+}

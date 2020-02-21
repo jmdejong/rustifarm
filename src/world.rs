@@ -38,21 +38,21 @@ impl <'a, 'b>World<'a, 'b> {
 		}
 	}
 	
-	fn get_room_mut(&mut self, id: &RoomId) -> Option<&mut Room<'a, 'b>> {
+	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
 		if !self.rooms.contains_key(id){
-			let template = self.template_loader.load_room(id.clone()).ok()?;
+			let template = self.template_loader.load_room(id.clone())?;
 			let mut room: Room = Room::create(id.clone(), &self.encyclopedia, &template);
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);
 			}
 			self.rooms.insert(id.clone(), room);
 		}
-		self.rooms.get_mut(id)
+		self.rooms.get_mut(id).ok_or(aerr!("can't get room after loading it"))
 	}
 	
 	fn add_loaded_player(&mut self, state: PlayerState) -> Result<()> {
 		let roomid = state.clone().room.unwrap_or(self.default_room.clone());
-		let room = self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?;
+		let room = self.get_room_mut(&roomid)?;
 		room.add_player(&state);
 		self.players.insert(state.id.clone(), roomid);
 		Ok(())
@@ -65,7 +65,7 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	fn discorporate_player(&mut self, playerid: &PlayerId) -> Result<PlayerState> {
 		let roomid = self.players.remove(playerid).ok_or(aerr!("player not found"))?;
-		let room = self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?;
+		let room = self.get_room_mut(&roomid)?;
 		room.remove_player(playerid)
 	}
 	
@@ -78,7 +78,7 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	pub fn control_player(&mut self, player: PlayerId, control: Control) -> Result<()>{
 		let roomid = self.players.get(&player).ok_or(aerr!("player not found"))?.clone();
-		Ok(self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?.control_player(player, control))
+		Ok(self.get_room_mut(&roomid)?.control_player(player, control))
 	}
 	
 	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId) -> Result<()> {
@@ -86,12 +86,18 @@ impl <'a, 'b>World<'a, 'b> {
 		state.room = Some(destination);
 		self.add_loaded_player(state)
 	}
-		
+	
 	
 	pub fn update(&mut self) {
-		let mut migrants = Vec::new();
+		self.migrate();
 		for room in self.rooms.values_mut() {
 			room.update();
+		}
+	}
+	
+	fn migrate(&mut self) {
+		let mut migrants = Vec::new();
+		for room in self.rooms.values_mut() {
 			migrants.append(&mut room.emigrate());
 		}
 		for (player, destination) in migrants {

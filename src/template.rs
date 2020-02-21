@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 use serde_json::{json, Value};
 use crate::parameter::Parameter;
+use crate::{Result, aerr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Template {
@@ -33,20 +34,20 @@ impl Template {
 		Self::new(name, HashMap::new())
 	}
 	
-	pub fn from_json(val: &Value) -> Option<Template> {
+	pub fn from_json(val: &Value) -> Result<Template> {
 		if val.is_string(){
-			return Some(Self::empty(val.as_str()?));
+			return Ok(Self::empty(val.as_str().ok_or(aerr!("json string is not a string?"))?));
 		}
-		let name = val.get("type")?.as_str()?.to_string();
+		let name = val.get("type").ok_or(aerr!("template doesn't have 'type'"))?.as_str().ok_or(aerr!("template type not a string"))?.to_string();
 		let mut args = Vec::new();
-		for arg in val.get("args").unwrap_or(&json!({})).as_array()? {
-			args.push(Parameter::guess_from_json(arg)?);
+		for arg in val.get("args").unwrap_or(&json!([])).as_array().ok_or(aerr!("template args not an array"))? {
+			args.push(Parameter::guess_from_json(arg).ok_or(aerr!("template arg not a parameter"))?);
 		}
 		let mut kwargs = HashMap::new();
-		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object()? {
-			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg)?);
+		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object().ok_or(aerr!("template kwargs not a json object"))? {
+			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg).ok_or(aerr!("template arg not a parameter"))?);
 		}
-		Some(Template {name, args, kwargs, save: true})
+		Ok(Template {name, args, kwargs, save: true})
 	}
 	
 	pub fn to_json(&self) -> Value {

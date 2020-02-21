@@ -23,7 +23,7 @@ impl Parameter {
 			ParameterType::String => Some(Self::String(val.as_str()?.to_string())),
 			ParameterType::Int => Some(Self::Int(val.as_i64()?)),
 			ParameterType::Float => Some(Self::Float(val.as_f64()?)),
-			ParameterType::Template => Some(Self::Template(Template::from_json(val)?))
+			ParameterType::Template => Some(Self::Template(Template::from_json(val).ok()?))
 		}
 	}
 	

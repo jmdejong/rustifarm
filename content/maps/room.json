@@ -1,6 +1,6 @@
 {
 	"width": 42,
-	"height": 22,
+	"height": 23,
 	"spawn": [5, 15],
 	"field": [
 		"     XXXXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXXX",
@@ -24,7 +24,8 @@
 		"X*,,,,.,,,,,,,,,,,~~~'''''''''''f''''f'''X",
 		"X,,,,,.,,,,,,,,,,,~~~'''''''''''ffffff'''X",
 		"X,,,,,.,,,,,,,,,,,~~~''''''''''''''''''''X",
-		"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX"
+		"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX",
+		"     %%%                                  "
 	],
 	"mapping": {
 		"#": "wall",
@@ -38,6 +39,7 @@
 		"f": ["grass", "fence"],
 		"X": "rock",
 		"*": ["grass", "pebble"],
+		"%": {"type": "portal", "kwargs": {"destination": "broom"}},
 		" ": []
 	}
 }
