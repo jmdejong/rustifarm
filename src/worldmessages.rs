@@ -1,8 +1,9 @@
 
 use serde_json::{Value, json};
 use serde::Serialize;
-use super::util::ToJson;
-use super::pos::Pos;
+use crate::util::ToJson;
+use crate::{Pos, Sprite};
+
 
 #[derive(Debug, Clone)]
 pub struct WorldMessage {
@@ -20,7 +21,7 @@ impl ToJson for WorldMessage {
 pub enum WorldUpdate {
 	Field(FieldMessage),
 	Pos(Pos),
-	Change(Vec<(Pos, Vec<String>)>),
+	Change(Vec<(Pos, Vec<Sprite>)>),
 	Inventory(Vec<String>),
 	Health(i64, i64)
 }
@@ -42,7 +43,7 @@ pub struct FieldMessage {
 	pub width: i64,
 	pub height: i64,
 	pub field: Vec<usize>,
-	pub mapping: Vec<Vec<String>>
+	pub mapping: Vec<Vec<Sprite>>
 }
 
 

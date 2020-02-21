@@ -7,7 +7,7 @@ use specs::{
 	Component
 };
 
-use crate::{Pos, PlayerId, RoomId};
+use crate::{Pos, PlayerId, RoomId, Sprite};
 use crate::controls::Control;
 use crate::template::Template;
 
@@ -28,7 +28,7 @@ impl Component for Position {
 
 #[derive(Debug, Clone)]
 pub struct Visible {
-	pub sprite: String,
+	pub sprite: Sprite,
 	pub height: f64
 }
 impl Component for Visible {

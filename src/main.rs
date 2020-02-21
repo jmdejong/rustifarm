@@ -30,11 +30,13 @@ mod roomid;
 mod persistence;
 mod worldloader;
 mod world;
+mod sprite;
 
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;
 pub use self::roomid::RoomId;
 pub use self::util::Result;
+pub use self::sprite::Sprite;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;

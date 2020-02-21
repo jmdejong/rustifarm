@@ -8,7 +8,8 @@ use crate::{
 	RoomId,
 	components::{Visible, Player, Inventory, Health, Item},
 	Result,
-	aerr
+	aerr,
+	Sprite
 };
 
 #[derive(Debug, Clone)]
@@ -86,7 +87,7 @@ impl PlayerState {
 	
 	pub fn construct(&self) -> PreEntity {
 		vec![
-			ComponentWrapper::Visible(Visible{sprite: "player".to_string(), height: 1.0}),
+			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.0}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map(

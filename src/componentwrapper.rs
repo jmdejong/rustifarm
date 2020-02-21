@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use specs::Builder;
 
-use crate::{PlayerId, RoomId};
+use crate::{PlayerId, RoomId, Sprite};
 use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit};
 use crate::parameter::{Parameter, ParameterType};
 
@@ -86,7 +86,7 @@ macro_rules! components {
 components!(
 	Visible (sprite: String, height: Float) {
 		Visible {
-			sprite,
+			sprite: Sprite{name: sprite},
 			height
 		}
 	};

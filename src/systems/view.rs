@@ -11,7 +11,7 @@ use specs::{
 	Entity
 };
 
-use crate::Pos;
+use crate::{Pos, Sprite};
 use crate::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
 use crate::resources::{Size, Output, Ground};
 use crate::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
@@ -51,7 +51,7 @@ impl <'a> System<'a> for View {
 		
 		
 		let has_changed: bool = !changed.is_empty();
-		let mut changes: Vec<(Pos, Vec<String>)> = Vec::new();
+		let mut changes: Vec<(Pos, Vec<Sprite>)> = Vec::new();
 		for pos in changed {
 			changes.push((pos, cell_sprites(ground.cells.get(&pos).unwrap_or(&HashSet::new()), &visible)));
 		}
@@ -87,20 +87,20 @@ impl <'a> System<'a> for View {
 	}
 }
 
-fn cell_sprites(entities: &HashSet<Entity>, visible: &ReadStorage<Visible>) -> Vec<String> {
+fn cell_sprites(entities: &HashSet<Entity>, visible: &ReadStorage<Visible>) -> Vec<Sprite> {
 	let mut visibles: Vec<&Visible> = entities.iter().filter_map(|ent| visible.get(*ent)).collect();
 	visibles.sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
 	visibles.iter().map(|vis| vis.sprite.clone()).collect()
 }
 
-fn draw_room(ground: &HashMap<Pos, HashSet<Entity>>, (width, height): (i64, i64), visible: &ReadStorage<Visible>) -> (Vec<usize>, Vec<Vec<String>>){
+fn draw_room(ground: &HashMap<Pos, HashSet<Entity>>, (width, height): (i64, i64), visible: &ReadStorage<Visible>) -> (Vec<usize>, Vec<Vec<Sprite>>){
 	
 	let size = width * height;
 	let mut values :Vec<usize> = Vec::with_capacity(size as usize);
-	let mut mapping: Vec<Vec<String>> = Vec::new();
+	let mut mapping: Vec<Vec<Sprite>> = Vec::new();
 	for y in 0..height {
 		for x in 0..width {
-			let sprites: Vec<String> = match ground.get(&Pos{x, y}) {
+			let sprites: Vec<Sprite> = match ground.get(&Pos{x, y}) {
 				Some(ents) => {cell_sprites(ents, visible)}
 				None => {vec![]}
 			};
