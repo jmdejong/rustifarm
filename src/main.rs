@@ -63,7 +63,8 @@ fn main() -> Result<()>{
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/"))?);
+	
+	let loader = WorldLoader::new(PathBuf::from_str(&(std::env::var("CARGO_MANIFEST_DIR").unwrap_or(".".to_string()).to_owned() + "/content/maps/"))?);
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
 
