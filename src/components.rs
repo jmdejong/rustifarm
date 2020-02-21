@@ -29,7 +29,8 @@ impl Component for Position {
 #[derive(Debug, Clone)]
 pub struct Visible {
 	pub sprite: Sprite,
-	pub height: f64
+	pub height: f64,
+	pub name: String
 }
 impl Component for Visible {
 	type Storage = FlaggedStorage<Self, VecStorage<Self>>;

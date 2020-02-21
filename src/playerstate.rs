@@ -87,7 +87,7 @@ impl PlayerState {
 	
 	pub fn construct(&self) -> PreEntity {
 		vec![
-			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.0}),
+			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.0, name: self.id.name.clone()}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map(

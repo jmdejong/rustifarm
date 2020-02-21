@@ -36,7 +36,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 						["string", "grass3"],
 						["string", "ground"]
 					]],
-					"height": ["float", 0.1]
+					"height": ["float", 0.1],
+					"name": ["string", "grass"]
 				}],
 				"Floor"
 			]
@@ -49,7 +50,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 						["string", "grass2"],
 						["string", "grass3"]
 					]],
-					"height": ["float", 0.1]
+					"height": ["float", 0.1],
+					"name": ["string", "grass"]
 				}],
 				"Floor"
 			]
@@ -95,7 +97,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"components": [
 				["Visible", {
 					"sprite": ["string", "player"],
-					"height": ["float", 1.0]
+					"height": ["float", 1.0],
+					"name": ["arg", "name"]
 				}],
 				["Player", {
 					"name": ["arg", "name"]

@@ -84,10 +84,11 @@ macro_rules! components {
 }
 
 components!(
-	Visible (sprite: String, height: Float) {
+	Visible (name: String, sprite: String, height: Float) {
 		Visible {
 			sprite: Sprite{name: sprite},
-			height
+			height,
+			name
 		}
 	};
 	Blocking () {Blocking};

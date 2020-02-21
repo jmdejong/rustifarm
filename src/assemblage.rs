@@ -74,8 +74,10 @@ impl Assemblage {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?
 		};
+		// visible component is so common that shortcuts are very helpful
 		if let Some(spritename) = val.get("sprite") {
 			let height = val.get("height").ok_or("defining a sprite requires also defining a height")?;
+			let name = val.get("name").unwrap_or(spritename);
 			assemblage.components.push((
 				ComponentType::Visible,
 				hashmap!(
@@ -84,6 +86,9 @@ impl Assemblage {
 					),
 					"height".to_string() => ComponentParameter::Constant(
 						Parameter::Float(height.as_f64().ok_or("height not a float")?)
+					),
+					"name".to_string() => ComponentParameter::Constant(
+						Parameter::String(name.as_str().ok_or("name not a string")?.to_string())
 					)
 				)
 			));
