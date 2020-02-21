@@ -80,10 +80,10 @@ fn main() {
 					let _ = world.control_player(player, control);
 				}
 				Action::Join(player) => {
-					world.add_player(player).unwrap();
+					world.add_player(&player).unwrap();
 				}
 				Action::Leave(player) => {
-					world.remove_player(player).unwrap();
+					world.remove_player(&player).unwrap();
 				}
 			}
 		}

@@ -19,7 +19,8 @@ use super::resources::{
 	Input,
 	NewEntities,
 	Spawn,
-	Players
+	Players,
+	Emigrating
 };
 use super::systems::{
 	moving::Move,
@@ -62,6 +63,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		world.insert(Players::default());
 		world.insert(Spawn::default());
+		world.insert(Emigrating::default());
 		world.register::<Serialise>();
 		
 		let mut dispatcher = DispatcherBuilder::new()
@@ -135,8 +137,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Players>().entities.insert(state.id.clone(), ent);
 	}
 	
-	pub fn remove_player(&mut self, id: PlayerId) -> Result<PlayerState>{
-		let ent = self.world.fetch_mut::<Players>().entities.remove(&id).ok_or(aerr!("failed to remove player"))?;
+	pub fn remove_player(&mut self, id: &PlayerId) -> Result<PlayerState>{
+		let ent = self.world.fetch_mut::<Players>().entities.remove(id).ok_or(aerr!("failed to remove player"))?;
 		self.world.write_component::<Removed>().insert(ent, Removed)?;
 		self.save_player_ent(ent).ok_or(aerr!("failed to find player to remove"))
 	}
@@ -197,6 +199,12 @@ impl <'a, 'b>Room<'a, 'b> {
 	fn create_entity(&mut self, template: Template, pos: Pos) -> Result<()>{
 		self.world.fetch_mut::<NewEntities>().create(pos, template)?;
 		Ok(())
+	}
+	
+	pub fn emigrate(&mut self) -> Vec<(PlayerId, RoomId)> {
+		let emigrants = self.world.remove::<Emigrating>().expect("World does not have Emigrating resource").emigrants;
+		self.world.insert(Emigrating::default());
+		emigrants
 	}
 }
 

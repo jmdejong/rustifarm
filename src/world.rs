@@ -50,31 +50,52 @@ impl <'a, 'b>World<'a, 'b> {
 		self.rooms.get_mut(id)
 	}
 	
-	pub fn add_player(&mut self, playerid: PlayerId) -> Result<()> {
-		let state = self.persistence.load_player(playerid.clone()).unwrap_or(PlayerState::new(playerid.clone()));
+	fn add_loaded_player(&mut self, state: PlayerState) -> Result<()> {
 		let roomid = state.clone().room.unwrap_or(self.default_room.clone());
 		let room = self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?;
 		room.add_player(&state);
-		self.players.insert(playerid, roomid);
+		self.players.insert(state.id.clone(), roomid);
 		Ok(())
 	}
 	
-	pub fn remove_player(&mut self, playerid: PlayerId) -> Result<()> {
-		let roomid = self.players.remove(&playerid).ok_or(aerr!("player not found"))?;
+	pub fn add_player(&mut self, playerid: &PlayerId) -> Result<()> {
+		let state = self.persistence.load_player(playerid.clone()).unwrap_or(PlayerState::new(playerid.clone()));
+		self.add_loaded_player(state)
+	}
+	
+	fn discorporate_player(&mut self, playerid: &PlayerId) -> Result<PlayerState> {
+		let roomid = self.players.remove(playerid).ok_or(aerr!("player not found"))?;
 		let room = self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?;
-		let player_state = room.remove_player(playerid.clone())?;
+		room.remove_player(playerid)
+	}
+	
+	pub fn remove_player(&mut self, playerid: &PlayerId) -> Result<()> {
+		let player_state = self.discorporate_player(playerid)?;
 		self.persistence.save_player(playerid.clone(), player_state)?;
 		Ok(())
 	}
+	
 	
 	pub fn control_player(&mut self, player: PlayerId, control: Control) -> Result<()>{
 		let roomid = self.players.get(&player).ok_or(aerr!("player not found"))?.clone();
 		Ok(self.get_room_mut(&roomid).ok_or(aerr!("room not found"))?.control_player(player, control))
 	}
 	
+	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId) -> Result<()> {
+		let mut state = self.discorporate_player(player)?;
+		state.room = Some(destination);
+		self.add_loaded_player(state)
+	}
+		
+	
 	pub fn update(&mut self) {
+		let mut migrants = Vec::new();
 		for room in self.rooms.values_mut() {
 			room.update();
+			migrants.append(&mut room.emigrate());
+		}
+		for (player, destination) in migrants {
+			self.migrate_player(&player, destination).unwrap();
 		}
 	}
 	

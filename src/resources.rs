@@ -2,14 +2,17 @@
 use std::collections::{HashMap, HashSet};
 use specs::Entity;
 
-use super::pos::Pos;
-use super::controls::Control;
-use super::worldmessages::WorldMessage;
-use crate::componentwrapper::PreEntity;
-use crate::encyclopedia::Encyclopedia;
-use crate::PlayerId;
-use crate::util::Result;
-use crate::template::Template;
+use crate::{
+	pos::Pos,
+	controls::Control,
+	worldmessages::WorldMessage,
+	componentwrapper::PreEntity,
+	encyclopedia::Encyclopedia,
+	PlayerId,
+	RoomId,
+	util::Result,
+	template::Template
+};
 
 
 #[derive(Default)]
@@ -61,3 +64,9 @@ impl NewEntities {
 pub struct Players {
 	pub entities: HashMap<PlayerId, Entity>
 }
+
+#[derive(Default)]
+pub struct Emigrating {
+	pub emigrants: Vec<(PlayerId, RoomId)>
+}
+
