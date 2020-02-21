@@ -109,14 +109,10 @@ impl <'a, 'b>World<'a, 'b> {
 		for room in self.rooms.values() {
 			if let Err(err) = self.persistence.save_room(room.id.clone(), room.save()) {
 				println!("{:?}",err);
-			} else {
-				println!("{}", room.save().to_json());
 			}
 			for (playerid, state) in room.save_players() {
 				if let Err(err) = self.persistence.save_player(playerid.clone(), state.clone()) {
 					println!("{:?}",err);
-				} else {
-					println!("{:?} {}", playerid, state.to_json());
 				}
 			}
 		}

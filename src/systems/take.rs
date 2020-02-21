@@ -44,17 +44,20 @@ impl <'a> System<'a> for Take {
 					ents.remove(&ent);
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
-							inventory.items.push(item.clone());
+							inventory.items.insert(0, item.clone());
 							if let Err(msg) = removed.insert(ent, Removed) {
 								println!("{:?}", msg);
 							}
+							break;
 						}
 					}
 				}
-				Control::Drop(_rank) => {
-					if let Some(item) = inventory.items.pop() {
-						let _ = new.create(position.pos, item.ent);
+				Control::Drop(rank) => {
+					if *rank >= inventory.items.len() {
+						return
 					}
+					let item = inventory.items.remove(*rank);
+					let _ = new.create(position.pos, item.ent);
 				}
 				_ => {}
 			}

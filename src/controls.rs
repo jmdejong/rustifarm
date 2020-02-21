@@ -42,24 +42,24 @@ impl Direction {
 #[derive(Debug, Clone)]
 pub enum Control {
 	Move(Direction),
-	Take(u64),
-	Drop(u64)
+	Take(Option<u64>),
+	Drop(usize)
 }
 
 
 impl Control {
 	pub fn from_json(val: &Value) -> Option<Control>{
-		if let Value::String(control_type) = &val[0] {
+		if let Value::String(control_type) = val.get(0)? {
 			match control_type.as_str() {
-				"move" => match Direction::from_json(&val[1]) {
+				"move" => match Direction::from_json(val.get(1)?) {
 					Some(dir) => Some(Control::Move(dir)),
 					None => None
 				},
-				"take" => Some(Control::Take(0)), /*match val[1].as_u64() {
+				"take" => Some(Control::Take(val.get(1)?.as_u64())), /*match val[1].as_u64() {
 					Some(rank) => Some(Control::Take(rank)),
 					_ => None
 				}*/
-				"drop" => Some(Control::Drop(0)),
+				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				_ => None
 			}
 		} else {None}
