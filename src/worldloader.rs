@@ -11,15 +11,13 @@ use crate::{
 
 
 pub struct WorldLoader {
-	pub directory: PathBuf,
-	pub default_room: RoomId
+	pub directory: PathBuf
 }
 
 impl WorldLoader {
-	pub fn new(path: PathBuf, default_room: RoomId) -> Self {
+	pub fn new(path: PathBuf) -> Self {
 		Self {
-			directory: path,
-			default_room
+			directory: path
 		}
 	}
 	

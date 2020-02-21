@@ -1,5 +1,4 @@
 
-use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
 use std::path::Path;
@@ -30,6 +29,7 @@ mod playerstate;
 mod roomid;
 mod persistence;
 mod worldloader;
+mod world;
 
 pub use self::pos::Pos;
 pub use self::playerid::PlayerId;
@@ -39,13 +39,12 @@ use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
 use self::server::tcpserver::TcpServer;
 use self::server::Server;
-use self::room::Room;
 use self::util::ToJson;
 use self::defaultencyclopedia::default_encyclopedia;
-use self::persistence::{FileStorage, PersistentStorage};
+use self::persistence::FileStorage;
 use crate::controls::Action;
-use crate::playerstate::PlayerState;
 use crate::worldloader::WorldLoader;
+use crate::world::World;
 
 
 
@@ -63,17 +62,11 @@ fn main() {
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/")).unwrap(), RoomId::from_str("room"));
-	let mut room = Room::new(RoomId::from_str("room"), default_encyclopedia());
-	room.load_from_template(&loader.load_room(room.id.clone()).unwrap());
+	let loader = WorldLoader::new(PathBuf::from_str(&(env!("CARGO_MANIFEST_DIR").to_owned() + "/content/maps/")).unwrap());
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
-	if let Ok(state) = storage.load_room(RoomId::from_str("room")) {
-		room.load_saved(&state);
-		println!("loaded saved state successfully");
-	} else {
-		println!("loading saved state failed");
-	}
+
+	let mut world = World::new(default_encyclopedia(), loader, Box::new(storage), RoomId::from_str("room"));
 	
 	println!("asciifarm started");
 	
@@ -81,41 +74,24 @@ fn main() {
 	let mut count = 0;
 	loop {
 		let actions = gameserver.update();
-		let mut inputs = HashMap::new();
 		for action in actions {
 			match action {
-				Action::Input(player, control) => {inputs.insert(player, control);}
+				Action::Input(player, control) => {
+					let _ = world.control_player(player, control);
+				}
 				Action::Join(player) => {
-					let state = match storage.load_player(player.clone()) {
-						Ok(state) => state,
-						Err(_) => PlayerState::new(player.clone())
-					};
-					room.add_player(&state);
+					world.add_player(player).unwrap();
 				}
 				Action::Leave(player) => {
-					if let Err(err) = storage.save_player(player.clone(), room.remove_player(player).unwrap()) {
-						println!("{:?}", err);
-					}
+					world.remove_player(player).unwrap();
 				}
 			}
 		}
-		room.set_input(inputs);
-		room.update();
+		world.update();
 		if count % 50 == 0 {
-			if let Err(err) = storage.save_room(room.id.clone(), room.save()) {
-				println!("{:?}",err);
-			} else {
-				println!("{}", room.save().to_json());
-			}
-			for (playerid, state) in room.save_players() {
-				if let Err(err) = storage.save_player(playerid.clone(), state.clone()) {
-					println!("{:?}",err);
-				} else {
-					println!("{:?} {}", playerid, state.to_json());
-				}
-			}
+			world.save();
 		}
-		let messages = room.view();
+		let messages = world.view();
 		for (player, message) in messages {
 			let _ = gameserver.send(&player, message.to_json());
 		}

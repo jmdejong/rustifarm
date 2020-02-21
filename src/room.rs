@@ -102,6 +102,13 @@ impl <'a, 'b>Room<'a, 'b> {
 		}
 	}
 	
+	
+	pub fn create(id: RoomId, encyclopedia: &Encyclopedia, template: &RoomTemplate) -> Room<'a, 'b> {
+		let mut room = Self::new(id, encyclopedia.clone());
+		room.load_from_template(template);
+		room
+	}
+	
 	pub fn view(&self) -> HashMap<PlayerId, WorldMessage> {
 		self.world.fetch::<Output>().output.clone()
 	}
@@ -111,8 +118,9 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.maintain();
 	}
 	
-	pub fn set_input(&mut self, actions: HashMap<PlayerId, Control>){
-		self.world.fetch_mut::<Input>().actions = actions;
+	
+	pub fn control_player(&mut self, player: PlayerId, control: Control){
+		self.world.fetch_mut::<Input>().actions.insert(player, control);
 	}
 	
 	pub fn add_player(&mut self, state: &PlayerState){

@@ -2,7 +2,7 @@
 use specs::{
 	ReadStorage,
 	WriteStorage,
-	Read,
+	Write,
 	Entities,
 	System,
 	Join
@@ -16,11 +16,11 @@ pub struct ControlInput;
 impl <'a> System<'a> for ControlInput {
 	type SystemData = (
 		Entities<'a>,
-		Read<'a, Input>,
+		Write<'a, Input>,
 		WriteStorage<'a, Controller>,
 		ReadStorage<'a, Player>
 	);
-	fn run(&mut self, (entities, input, mut controllers, players): Self::SystemData) {
+	fn run(&mut self, (entities, mut input, mut controllers, players): Self::SystemData) {
 		{
 			let mut ents = Vec::new();
 			for (ent, _controller) in (&*entities, &controllers).join() {
@@ -36,6 +36,7 @@ impl <'a> System<'a> for ControlInput {
 				let _ = controllers.insert(entity, Controller(control.clone()));
 			}
 		}
+		input.actions.clear();
 	}
 }
 
