@@ -1,7 +1,7 @@
 
 use serde::{Serialize, Serializer};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub struct Sprite {
 	pub name: String
 }

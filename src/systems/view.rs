@@ -14,7 +14,7 @@ use specs::{
 use crate::{Pos, Sprite};
 use crate::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
 use crate::resources::{Size, Output, Ground};
-use crate::worldmessages::{WorldMessage, WorldUpdate, FieldMessage};
+use crate::worldmessages::{WorldMessage, FieldMessage};
 
 
 #[derive(Default)]
@@ -55,34 +55,32 @@ impl <'a> System<'a> for View {
 		for pos in changed {
 			changes.push((pos, cell_sprites(ground.cells.get(&pos).unwrap_or(&HashSet::new()), &visible)));
 		}
-		let changed_msg = WorldUpdate::Change(changes);
-		
-		
 		output.output.clear();
 		
 		for (ent, player, pos) in (&entities, &players, &positions).join() {
-			let mut updates: Vec<WorldUpdate> = Vec::new();
+			let mut updates = WorldMessage::default();
 			if new.get(ent).is_some() {
 				let (values, mapping) = draw_room(&ground.cells, (size.width, size.height), &visible);
-				let field = WorldUpdate::Field(FieldMessage{
+				let field = FieldMessage{
 					width: size.width,
 					height: size.height,
 					field: values,
 					mapping
-				});
-				updates.push(field);
+				};
+				updates.field = Some(field);
 			} else if has_changed {
-				updates.push(changed_msg.clone());
+				updates.change = Some(changes.clone());
 			}
 			if let Some(inventory) = inventories.get(ent){
-				updates.push(WorldUpdate::Inventory(inventory.items.iter().map(|item| item.name.clone()).collect()));
+				updates.inventory = Some(inventory.items.iter().map(|item| item.name.clone()).collect());
 			}
 			if let Some(health) = healths.get(ent){
-				updates.push(WorldUpdate::Health(health.health, health.maxhealth));
+				updates.health = Some((health.health, health.maxhealth));
 			}
-			updates.push(WorldUpdate::Pos(pos.pos));
-			let message = WorldMessage{updates};
-			output.output.insert(player.id.clone(), message);
+			updates.pos = Some(pos.pos);
+			if !updates.is_empty() {
+				output.output.insert(player.id.clone(), updates);
+			}
 		}
 	}
 }

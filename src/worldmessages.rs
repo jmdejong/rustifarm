@@ -1,49 +1,94 @@
 
+use std::collections::HashMap;
 use serde_json::{Value, json};
 use serde::Serialize;
 use crate::util::ToJson;
-use crate::{Pos, Sprite};
+use crate::{Pos, Sprite, PlayerId};
 
+macro_rules! worldmessages {
+	($($name: ident, $typ: ident, $strname: expr);*;) => {
+	
+		#[derive(Debug, Clone, Default, PartialEq, Eq)]
+		pub struct WorldMessage {
+			$(
+				pub $name: Option<$typ>,
+			)*
+		}
 
-#[derive(Debug, Clone)]
-pub struct WorldMessage {
-	pub updates: Vec<WorldUpdate>
-}
+		impl WorldMessage {
+			
+			pub fn remove_old(&mut self, previous: &WorldMessage){
+				$(
+					if self.$name == previous.$name {
+						self.$name = None;
+					}
+				)*
+			}
+			
+			pub fn add(&mut self, other: &WorldMessage){
+				$(
+					if other.$name.is_some() {
+						self.$name = other.$name.clone();
+					}
+				)*
+			}
+			
+			pub fn is_empty(&self) -> bool {
+				true $( && self.$name.is_none())*
+			}
+		}
 
-impl ToJson for WorldMessage {
-	fn to_json(&self) -> Value {
-		let updates: Vec<Value> = self.updates.iter().map(|u| u.to_json()).collect();
-		json!(["world", updates])
-	}
-}
-
-#[derive(Debug, Clone)]
-pub enum WorldUpdate {
-	Field(FieldMessage),
-	Pos(Pos),
-	Change(Vec<(Pos, Vec<Sprite>)>),
-	Inventory(Vec<String>),
-	Health(i64, i64)
-}
-
-impl ToJson for WorldUpdate {
-	fn to_json(&self) -> Value {
-		match self {
-			WorldUpdate::Field(msg) => json!(["field", msg]),
-			WorldUpdate::Pos(pos) => json!(["playerpos", pos]),
-			WorldUpdate::Change(changes) => json!(["changecells", changes]),
-			WorldUpdate::Inventory(items) => json!(["inventory", items]),
-			WorldUpdate::Health(health, maxhealth) => json!(["health", [health, maxhealth]])
+		impl ToJson for WorldMessage {
+			fn to_json(&self) -> Value {
+				let mut updates: Vec<Value> = Vec::new();
+				$(
+					if let Some(update) = &self.$name {
+						updates.push(json!([$strname, update]));
+					}
+				)*
+				json!(["world", updates])
+			}
 		}
 	}
 }
 
-#[derive(Debug, Clone, Serialize)]
+worldmessages!(
+	field, FieldMessage, "field";
+	pos, Pos, "playerpos";
+	change, ChangeMessage, "changecells";
+	inventory, InventoryMessage, "inventory";
+	health, HealthMessage, "health";
+);
+
+
+pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
+pub type HealthMessage = (i64, i64);
+pub type InventoryMessage = Vec<String>;
+
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct FieldMessage {
 	pub width: i64,
 	pub height: i64,
 	pub field: Vec<usize>,
 	pub mapping: Vec<Vec<Sprite>>
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct MessageCache {
+	pub cache: HashMap<PlayerId, WorldMessage>
+}
+
+impl MessageCache {
+
+	pub fn trim(&mut self, player: &PlayerId, msg: &mut WorldMessage){
+		if let Some(cached) = self.cache.get_mut(player){
+			msg.remove_old(cached);
+			cached.add(&msg);
+		} else {
+			self.cache.insert(player.clone(), msg.clone());
+		}
+	}
 }
 
 

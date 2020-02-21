@@ -48,6 +48,7 @@ use self::persistence::FileStorage;
 use crate::controls::Action;
 use crate::worldloader::WorldLoader;
 use crate::world::World;
+use crate::worldmessages::MessageCache;
 
 
 
@@ -74,6 +75,7 @@ fn main() -> Result<()>{
 	
 	println!("asciifarm started");
 	
+	let mut message_cache = MessageCache::default();
 	
 	let mut count = 0;
 	loop {
@@ -96,7 +98,12 @@ fn main() -> Result<()>{
 			world.save();
 		}
 		let messages = world.view();
-		for (player, message) in messages {
+		for (player, mut message) in messages {
+			message_cache.trim(&player, &mut message);
+			if message.is_empty(){
+				continue;
+			}
+			println!("{}: {}", player.name, message.to_json());
 			let _ = gameserver.send(&player, message.to_json());
 		}
 		
