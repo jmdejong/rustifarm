@@ -1,6 +1,7 @@
 
 use serde_json::{Value, json};
 use crate::template::Template;
+use crate::components::item::ItemAction;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Parameter {
@@ -8,7 +9,8 @@ pub enum Parameter {
 	Int(i64),
 // 	Pos(Pos),
 	Float(f64),
-	Template(Template)
+	Template(Template),
+	Action(ItemAction)
 }
 
 impl Parameter {
@@ -23,7 +25,8 @@ impl Parameter {
 			ParameterType::String => Some(Self::String(val.as_str()?.to_string())),
 			ParameterType::Int => Some(Self::Int(val.as_i64()?)),
 			ParameterType::Float => Some(Self::Float(val.as_f64()?)),
-			ParameterType::Template => Some(Self::Template(Template::from_json(val).ok()?))
+			ParameterType::Template => Some(Self::Template(Template::from_json(val).ok()?)),
+			ParameterType::Action => Some(Self::Action(ItemAction::from_json(val)?))
 		}
 	}
 	
@@ -32,7 +35,8 @@ impl Parameter {
 			Self::String(_) => ParameterType::String,
 			Self::Int(_) => ParameterType::Int,
 			Self::Float(_) => ParameterType::Float,
-			Self::Template(_) => ParameterType::Template
+			Self::Template(_) => ParameterType::Template,
+			Self::Action(_) => ParameterType::Action
 		}
 	}
 	
@@ -58,7 +62,8 @@ impl Parameter {
 			Self::String(s) => json!(s),
 			Self::Int(i) => json!(i),
 			Self::Float(f) => json!(f),
-			Self::Template(t) => t.to_json()
+			Self::Template(t) => t.to_json(),
+			Self::Action(a) => a.to_json()
 		}
 	}
 }
@@ -68,7 +73,8 @@ pub enum ParameterType {
 	String,
 	Int,
 	Float,
-	Template
+	Template,
+	Action
 }
 
 impl ParameterType {
@@ -79,6 +85,7 @@ impl ParameterType {
 			"int" => Some(Self::Int),
 			"float" => Some(Self::Float),
 			"template" => Some(Self::Template),
+			"action" => Some(Self::Action),
 			_ => None
 		}
 	}

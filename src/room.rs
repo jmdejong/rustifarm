@@ -30,7 +30,8 @@ use super::systems::{
 	remove::Remove,
 	create::Create,
 	take::Take,
-	migrate::Migrate
+	migrate::Migrate,
+	useitem::Use
 };
 use crate::components::{
 	Position,
@@ -71,6 +72,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(RegisterNew::default(), "registernew", &[])
 			.with(ControlInput, "controlinput", &[])
 			.with(Take, "take", &["controlinput"])
+			.with(Use, "use", &["controlinput"])
 			.with(Move, "move", &["registernew", "controlinput"])
 			.with(View::default(), "view", &["move"])
 			.with(Migrate, "migrate", &["view"])
@@ -128,7 +130,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn add_player(&mut self, state: &PlayerState){
-		let pre_player = state.construct(&self.world.fetch::<Encyclopedia>());
+		let pre_player = state.construct(&self.world.fetch::<NewEntities>().encyclopedia);
 		let spawn = self.world.fetch::<Spawn>().pos;
 		let mut builder = self.world.create_entity();
 		let ent = builder.entity;

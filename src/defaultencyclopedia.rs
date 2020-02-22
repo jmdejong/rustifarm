@@ -80,14 +80,18 @@ pub fn default_encyclopedia() -> Encyclopedia {
 		},
 		"pebble": {
 			"components": [
-				["Item", {"ent": ["template", "pebble"], "name": ["string", "pebble"]}]
+				["Item", {
+					"ent": ["template", "pebble"],
+					"name": ["string", "pebble"],
+					"action": ["action", ["eat", 1]]
+				}]
 			],
 			"sprite": "pebble",
 			"height": 0.3
 		},
 		"stone": {
 			"components": [
-				["Item", {"ent": ["template", "stone"], "name": ["string", "stone"]}]
+				["Item", {"ent": ["template", "stone"], "name": ["string", "stone"], "action": ["action", ["build", "builtwall"]]}]
 			],
 			"sprite": "stone",
 			"height": 0.4
@@ -113,6 +117,15 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				["RoomExit", {"destination": ["arg", "destination"]}],
 				"Floor"
 			]
-		}
+		},
+		"builtwall": {
+			"arguments": [["health", "int", 100]],
+			"components": [
+				"Blocking",
+				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 100]}]
+			],
+			"sprite": "wall",
+			"height": 2
+		},
 	})).unwrap()
 }

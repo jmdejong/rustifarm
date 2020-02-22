@@ -6,7 +6,7 @@ use crate::{
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,
-	components::{Visible, Player, Inventory, Health, Item},
+	components::{Visible, Player, Inventory, Health},
 	Result,
 	aerr,
 	Sprite,

@@ -43,7 +43,8 @@ impl Direction {
 pub enum Control {
 	Move(Direction),
 	Take(Option<usize>),
-	Drop(usize)
+	Drop(usize),
+	Use(usize)
 }
 
 
@@ -57,6 +58,7 @@ impl Control {
 				},
 				"take" => Some(Control::Take(val.get(1)?.as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
+				"use" => Some(Control::Use(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				_ => None
 			}
 		} else {None}

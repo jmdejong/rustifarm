@@ -84,6 +84,14 @@ pub struct Health {
 	pub health: i64,
 	pub maxhealth: i64
 }
+impl Health {
+	pub fn heal(&mut self, amount: i64) {
+		self.health += amount;
+		if self.health > self.maxhealth {
+			self.health = self.maxhealth;
+		}
+	}
+}
 
 #[derive(Component, Debug, Clone)]
 pub struct Serialise {
