@@ -1,4 +1,8 @@
 
+pub mod item;
+
+pub use item::Item;
+
 use specs::{
 	DenseVecStorage,
 	VecStorage,
@@ -10,7 +14,6 @@ use specs::{
 use crate::{Pos, PlayerId, RoomId, Sprite};
 use crate::controls::Control;
 use crate::template::Template;
-
 
 #[derive(Debug, Clone)]
 pub struct Position{
@@ -74,13 +77,6 @@ pub struct Inventory {
 }
 impl Component for Inventory {
 	type Storage = FlaggedStorage<Self, HashMapStorage<Self>>;
-}
-
-
-#[derive(Component, Debug, Clone)]
-pub struct Item {
-	pub ent: Template,
-	pub name: String
 }
 
 #[derive(Component, Debug, Clone)]

@@ -9,7 +9,8 @@ use crate::{
 	components::{Visible, Player, Inventory, Health, Item},
 	Result,
 	aerr,
-	Sprite
+	Sprite,
+	Encyclopedia
 };
 
 #[derive(Debug, Clone)]
@@ -85,14 +86,20 @@ impl PlayerState {
 		})
 	}
 	
-	pub fn construct(&self) -> PreEntity {
+	pub fn construct(&self, encyclopedia: &Encyclopedia) -> PreEntity {
 		vec![
 			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.0, name: self.id.name.clone()}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
-				items: self.inventory.iter().map(
-					|template| Item{ent: template.clone(), name: template.name.clone()}
-				).collect(),
+				items: self.inventory.iter().map( |template| {
+					let item_ent = encyclopedia.construct(template).unwrap();
+					for component in item_ent {
+						if let ComponentWrapper::Item(item) = component {
+							return item;
+						}
+					}
+					panic!("Item in inventory does not have item component")
+				}).collect(),
 				capacity: self.inventory_capacity
 			}),
 			ComponentWrapper::Health(Health{health: self.health, maxhealth: self.maximum_health})

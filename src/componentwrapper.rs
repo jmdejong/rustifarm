@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use specs::Builder;
 
 use crate::{PlayerId, RoomId, Sprite};
-use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit};
+use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, item::ItemAction};
 use crate::parameter::{Parameter, ParameterType};
 
 
@@ -94,7 +94,7 @@ components!(
 	Blocking () {Blocking};
 	Floor () {Floor};
 	Player (name: String) {Player::new(PlayerId{name})};
-	Item (ent: Template, name: String) {Item{ent, name}};
+	Item (ent: Template, name: String) {Item{ent, name, action: ItemAction::None}};
 	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}};
 	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};
 	Serialise (template: Template) {Serialise{template}};

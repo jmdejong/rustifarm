@@ -128,7 +128,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn add_player(&mut self, state: &PlayerState){
-		let pre_player = state.construct();
+		let pre_player = state.construct(&self.world.fetch::<Encyclopedia>());
 		let spawn = self.world.fetch::<Spawn>().pos;
 		let mut builder = self.world.create_entity();
 		let ent = builder.entity;

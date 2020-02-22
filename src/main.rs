@@ -37,6 +37,8 @@ pub use self::playerid::PlayerId;
 pub use self::roomid::RoomId;
 pub use self::util::Result;
 pub use self::sprite::Sprite;
+pub use self::template::Template;
+pub use self::encyclopedia::Encyclopedia;
 
 use self::gameserver::GameServer;
 use self::server::unixserver::UnixServer;
