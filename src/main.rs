@@ -103,7 +103,6 @@ fn main() -> Result<()>{
 			if message.is_empty(){
 				continue;
 			}
-			println!("{}: {}", player.name, message.to_json());
 			let _ = gameserver.send(&player, message.to_json());
 		}
 		

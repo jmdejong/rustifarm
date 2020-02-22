@@ -42,7 +42,7 @@ impl Direction {
 #[derive(Debug, Clone)]
 pub enum Control {
 	Move(Direction),
-	Take(Option<u64>),
+	Take(Option<usize>),
 	Drop(usize)
 }
 
@@ -55,10 +55,7 @@ impl Control {
 					Some(dir) => Some(Control::Move(dir)),
 					None => None
 				},
-				"take" => Some(Control::Take(val.get(1)?.as_u64())), /*match val[1].as_u64() {
-					Some(rank) => Some(Control::Take(rank)),
-					_ => None
-				}*/
+				"take" => Some(Control::Take(val.get(1)?.as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				_ => None
 			}

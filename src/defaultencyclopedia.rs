@@ -83,7 +83,7 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				["Item", {"ent": ["template", "pebble"], "name": ["string", "pebble"]}]
 			],
 			"sprite": "pebble",
-			"height": 0.4
+			"height": 0.3
 		},
 		"stone": {
 			"components": [

@@ -1,5 +1,4 @@
 
-use std::collections::HashSet;
 
 use specs::{
 	Entities,
@@ -15,7 +14,8 @@ use crate::components::{
 	Position,
 	Removed,
 	Inventory,
-	Item
+	Item,
+	Visible
 };
 
 use crate::controls::{Control};
@@ -33,15 +33,21 @@ impl <'a> System<'a> for Take {
 		WriteStorage<'a, Removed>,
 		ReadStorage<'a, Item>,
 		WriteStorage<'a, Inventory>,
-		Write<'a, NewEntities>
+		Write<'a, NewEntities>,
+		ReadStorage<'a, Visible>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut removed, items, mut inventories, mut new): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut removed, items, mut inventories, mut new, visibles): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.0 {
-				Control::Take(_rank) if inventory.items.len() < inventory.capacity => {
-					let mut ents = ground.cells.get(&position.pos).unwrap_or(&HashSet::new()).clone();
-					ents.remove(&ent);
+				Control::Take(rank) if inventory.items.len() < inventory.capacity => {
+					let mut ents = ground.by_height(&position.pos, &visibles, &ent);
+					if let Some(idx) = rank {
+						if *idx >= ents.len() {
+							return
+						}
+						ents = vec!(ents[*idx]);
+					}
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
 							inventory.items.insert(0, item.clone());

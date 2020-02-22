@@ -58,13 +58,14 @@ worldmessages!(
 	change, ChangeMessage, "changecells";
 	inventory, InventoryMessage, "inventory";
 	health, HealthMessage, "health";
+	ground, GroundMessage, "ground";
 );
 
 
 pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
 pub type HealthMessage = (i64, i64);
 pub type InventoryMessage = Vec<String>;
-
+pub type GroundMessage = Vec<String>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct FieldMessage {
