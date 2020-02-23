@@ -127,5 +127,10 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"sprite": "wall",
 			"height": 2
 		},
+		"spiketrap": {
+			"components": [["Trap", {"damage": ["int", 8]}]],
+			"sprite": "spikes",
+			"height": 0.8
+		}
 	})).unwrap()
 }

@@ -4,7 +4,6 @@ use specs::{
 	Write,
 	WriteStorage,
 	System,
-	Join,
 	Entities,
 	LazyUpdate,
 	Builder
@@ -25,15 +24,7 @@ impl <'a> System<'a> for Create {
 	);
 	
 	fn run(&mut self, (entities, mut new_entities, updater, mut new): Self::SystemData) {
-		{
-			let mut ents = Vec::new();
-			for (ent, _new) in (&entities, &new).join() {
-				ents.push(ent);
-			}
-			for ent in ents {
-				new.remove(ent);
-			}
-		}
+		new.clear();
 		for (pos, preentity) in &new_entities.to_build {
 			let mut builder = updater.create_entity(&entities);
 			for comp in preentity {

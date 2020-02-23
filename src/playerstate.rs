@@ -41,8 +41,8 @@ impl PlayerState {
 			pos: RoomPos::Unknown,
 			inventory: Vec::new(),
 			inventory_capacity: 10,
-			health: 9,
-			maximum_health: 10
+			health: 25,
+			maximum_health: 50
 		}
 	}
 

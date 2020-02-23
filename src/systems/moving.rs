@@ -18,7 +18,8 @@ use crate::{
 		Blocking,
 		Position,
 		Floor,
-		Moved
+		Moved,
+		Entered
 	},
 	controls::{
 		Control
@@ -40,19 +41,13 @@ impl <'a> System<'a> for Move {
 		ReadStorage<'a, Blocking>,
 		Write<'a, Ground>,
 		ReadStorage<'a, Floor>,
-		WriteStorage<'a, Moved>
+		WriteStorage<'a, Moved>,
+		WriteStorage<'a, Entered>
 	);
 	
-	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved): Self::SystemData) {
-		{
-			let mut ents = Vec::new();
-			for (ent, _moved) in (&*entities, &moved).join() {
-				ents.push(ent);
-			}
-			for ent in ents {
-				moved.remove(ent);
-			}
-		}
+	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved, mut entered): Self::SystemData) {
+		moved.clear();
+		entered.clear();
 		for (ent, controller, mut pos) in (&entities, &controllers, &mut positions.restrict_mut()).join(){
 			match &controller.0 {
 				Control::Move(direction) => {
@@ -74,6 +69,9 @@ impl <'a> System<'a> for Move {
 						ground.cells.get_mut(&pos_mut.pos).unwrap().remove(&ent);
 						pos_mut.pos = newpos;
 						ground.cells.entry(newpos).or_insert_with(HashSet::new).insert(ent);
+						for ent in ground.cells.get(&newpos).unwrap() {
+							let _ = entered.insert(*ent, Entered);
+						}
 					}
 				}
 				_ => {}

@@ -21,15 +21,7 @@ impl <'a> System<'a> for ControlInput {
 		ReadStorage<'a, Player>
 	);
 	fn run(&mut self, (entities, mut input, mut controllers, players): Self::SystemData) {
-		{
-			let mut ents = Vec::new();
-			for (ent, _controller) in (&*entities, &controllers).join() {
-				ents.push(ent);
-			}
-			for ent in ents {
-				controllers.remove(ent);
-			}
-		}
+		controllers.clear();
 	
 		for (player, entity) in (&players, &entities).join() {
 			if let Some(control) = input.actions.get(&player.id){

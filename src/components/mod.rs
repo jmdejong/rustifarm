@@ -8,6 +8,7 @@ use specs::{
 	VecStorage,
 	HashMapStorage,
 	FlaggedStorage,
+	NullStorage,
 	Component
 };
 
@@ -49,24 +50,28 @@ impl Component for Visible {
 #[derive(Component, Debug)]
 pub struct Controller(pub Control);
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
 pub struct Blocking;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
 pub struct Floor;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
 pub struct New;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
 pub struct Removed;
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
 pub struct Moved {
 	pub from: Pos
 }
 
-#[derive(Component, Debug, Clone)]
+#[derive(Default, Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Player {
 	pub id: PlayerId
@@ -115,3 +120,15 @@ pub struct RoomExit {
 pub struct Attacked {
 	pub attacks: Vec<Attack>
 }
+
+
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
+pub struct Entered;
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Trap{
+	pub attack: Attack
+}
+
