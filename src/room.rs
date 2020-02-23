@@ -34,7 +34,8 @@ use crate::{
 		Migrate,
 		Use,
 		Attacking,
-		Trapping
+		Trapping,
+		Fight
 	},
 	components::{
 		Position,
@@ -83,7 +84,8 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(Use, "use", &["controlinput"])
 			.with(Move, "move", &["registernew", "controlinput"])
 			.with(Trapping, "trapping", &["move"])
-			.with(Attacking, "attacking", &["use", "trapping"])
+			.with(Fight, "fight", &["move", "controlinput"])
+			.with(Attacking, "attacking", &["use", "trapping", "fight"])
 			.with(View::default(), "view", &["move", "attacking"])
 			.with(Migrate, "migrate", &["view"])
 			.with(Create, "create", &["view", "controlinput"])

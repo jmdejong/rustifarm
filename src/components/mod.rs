@@ -9,7 +9,9 @@ use specs::{
 	HashMapStorage,
 	FlaggedStorage,
 	NullStorage,
-	Component
+	Component,
+	Entity,
+	WriteStorage
 };
 
 use crate::{
@@ -121,14 +123,33 @@ pub struct Attacked {
 	pub attacks: Vec<Attack>
 }
 
+pub fn add_attack(attacked: &mut WriteStorage<Attacked> , ent: Entity, attack: Attack) {
+	attacked
+		.entry(ent)
+		.unwrap()
+		.or_insert_with(Attacked::default)
+		.attacks
+		.push(attack);
+}
+
 
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
 pub struct Entered;
 
+#[derive(Default, Component, Debug, Clone)]
+#[storage(NullStorage)]
+pub struct Dying;
+
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
-pub struct Trap{
+pub struct Trap {
+	pub attack: Attack
+}
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Fighter {
 	pub attack: Attack
 }
 

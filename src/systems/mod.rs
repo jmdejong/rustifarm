@@ -10,6 +10,7 @@ mod migrate;
 mod useitem;
 mod attacking;
 mod trapping;
+mod fight;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -22,5 +23,6 @@ pub use self::{
 	migrate::Migrate,
 	useitem::Use,
 	attacking::Attacking,
-	trapping::Trapping
+	trapping::Trapping,
+	fight::Fight
 };

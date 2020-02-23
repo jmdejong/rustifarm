@@ -6,7 +6,8 @@ use crate::{
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,
-	components::{Visible, Player, Inventory, Health},
+	components::{Visible, Player, Inventory, Health, Fighter},
+	attack::Attack,
 	Result,
 	aerr,
 	Sprite,
@@ -100,7 +101,7 @@ impl PlayerState {
 	
 	pub fn construct(&self, encyclopedia: &Encyclopedia) -> PreEntity {
 		vec![
-			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.0, name: self.id.name.clone()}),
+			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.2, name: self.id.name.clone()}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map( |template| {
@@ -114,7 +115,8 @@ impl PlayerState {
 				}).collect(),
 				capacity: self.inventory_capacity
 			}),
-			ComponentWrapper::Health(Health{health: self.health, maxhealth: self.maximum_health})
+			ComponentWrapper::Health(Health{health: self.health, maxhealth: self.maximum_health}),
+			ComponentWrapper::Fighter(Fighter{attack: Attack::new(5)})
 		]
 	}
 }

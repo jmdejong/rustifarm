@@ -44,7 +44,8 @@ pub enum Control {
 	Move(Direction),
 	Take(Option<usize>),
 	Drop(usize),
-	Use(usize)
+	Use(usize),
+	Attack(Vec<Direction>)
 }
 
 
@@ -59,6 +60,13 @@ impl Control {
 				"take" => Some(Control::Take(val.get(1)?.as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				"use" => Some(Control::Use(val.get(1)?.as_u64().unwrap_or(0) as usize)),
+				"attack" => Some(Control::Attack({
+					let mut directions = Vec::new();
+					for dir in val.get(1)?.as_array()? {
+						directions.push(Direction::from_json(dir)?);
+					}
+					directions
+				})),
 				_ => None
 			}
 		} else {None}

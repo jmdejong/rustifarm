@@ -8,7 +8,7 @@ use crate::{
 	Sprite,
 	playerstate::RoomPos,
 	attack::Attack,
-	components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, Trap},
+	components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, Trap, Fighter},
 	parameter::{Parameter, ParameterType}
 };
 
@@ -115,7 +115,7 @@ components!(
 		}
 	};
 	Trap (damage: Int) {Trap{attack: Attack::new(damage)}};
-	
+	Fighter (damage: Int) {Fighter{attack: Attack::new(damage)}};
 );
 
 

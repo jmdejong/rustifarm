@@ -131,6 +131,12 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"components": [["Trap", {"damage": ["int", 8]}]],
 			"sprite": "spikes",
 			"height": 0.8
+		},
+		"dummy": {
+			"arguments": [["health", "int", 20]],
+			"sprite": "dummy",
+			"height": 1,
+			"components": [["Health", {"health": ["arg", "health"], "maxhealth": ["int", 20]}]]
 		}
 	})).unwrap()
 }
