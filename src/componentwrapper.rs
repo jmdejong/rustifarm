@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use specs::Builder;
 
-use crate::{PlayerId, RoomId, Sprite};
+use crate::{PlayerId, RoomId, Sprite, playerstate::RoomPos};
 use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit};
 use crate::parameter::{Parameter, ParameterType};
 
@@ -98,7 +98,16 @@ components!(
 	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}};
 	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};
 	Serialise (template: Template) {Serialise{template}};
-	RoomExit (destination: String) {RoomExit{destination: RoomId::from_str(&destination)}};
+	RoomExit (destination: String, dest_pos: String) {
+		RoomExit {
+			destination: RoomId::from_str(&destination),
+			dest_pos: if dest_pos.is_empty() {
+					RoomPos::Unknown
+				} else {
+					RoomPos::Name(dest_pos)
+				}
+		}
+	};
 	
 );
 

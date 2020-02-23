@@ -10,17 +10,26 @@ use crate::{
 	Result,
 	aerr,
 	Sprite,
-	Encyclopedia
+	Encyclopedia,
+	Pos
 };
 
 #[derive(Debug, Clone)]
 pub struct PlayerState {
 	pub id: PlayerId,
 	pub room: Option<RoomId>,
+	pub pos: RoomPos,
 	pub inventory_capacity: usize,
 	pub inventory: Vec<Template>,
 	pub health: i64,
 	pub maximum_health: i64
+}
+
+#[derive(Debug, Clone)]
+pub enum RoomPos {
+	Pos(Pos),
+	Name(String),
+	Unknown
 }
 
 impl PlayerState {
@@ -29,6 +38,7 @@ impl PlayerState {
 		Self{
 			id,
 			room: None,
+			pos: RoomPos::Unknown,
 			inventory: Vec::new(),
 			inventory_capacity: 10,
 			health: 9,
@@ -40,6 +50,7 @@ impl PlayerState {
 		Self {
 			id,
 			room: Some(room),
+			pos: RoomPos::Unknown,
 			inventory,
 			health,
 			inventory_capacity,
@@ -79,6 +90,7 @@ impl PlayerState {
 				Value::String(name) => Some(RoomId::from_str(name)),
 				_ => None
 			},
+			pos: RoomPos::Unknown,
 			inventory: items,
 			health: val.get("health").ok_or(aerr!("player json does not have health"))?.as_i64().ok_or(aerr!("player health not a number"))?,
 			inventory_capacity: inventory.get("capacity").ok_or(aerr!("inventory does no have capacity"))?.as_i64().ok_or(aerr!("inventory capacity not a number"))? as usize,

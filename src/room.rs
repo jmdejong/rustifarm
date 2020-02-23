@@ -46,7 +46,7 @@ use crate::encyclopedia::Encyclopedia;
 use crate::roomtemplate::RoomTemplate;
 use crate::savestate::SaveState;
 use crate::template::Template;
-use crate::playerstate::PlayerState;
+use crate::playerstate::{PlayerState, RoomPos};
 use crate::{Pos, PlayerId, RoomId, aerr};
 use crate::util::Result;
 
@@ -55,7 +55,8 @@ use crate::util::Result;
 pub struct Room<'a, 'b> {
 	world: World,
 	dispatcher: Dispatcher<'a, 'b>,
-	pub id: RoomId
+	pub id: RoomId,
+	places: HashMap<String, Pos>
 }
 
 impl <'a, 'b>Room<'a, 'b> {
@@ -86,7 +87,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		Room {
 			world,
 			dispatcher,
-			id
+			id,
+			places: HashMap::new()
 		}
 	}
 	
@@ -105,6 +107,9 @@ impl <'a, 'b>Room<'a, 'b> {
 			for template in templates {
 				let _ = self.create_entity(template.clone().unsaved(), Pos{x, y});
 			}
+		}
+		for (name, place) in &template.places {
+			self.places.insert(name.clone(), *place);
 		}
 	}
 	
@@ -131,7 +136,11 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	pub fn add_player(&mut self, state: &PlayerState){
 		let pre_player = state.construct(&self.world.fetch::<NewEntities>().encyclopedia);
-		let spawn = self.world.fetch::<Spawn>().pos;
+		let spawn = match &state.pos {
+			RoomPos::Unknown => self.world.fetch::<Spawn>().pos,
+			RoomPos::Pos(pos) => *pos,
+			RoomPos::Name(name) => *self.places.get(name).unwrap()
+		};
 		let mut builder = self.world.create_entity();
 		let ent = builder.entity;
 		for comp in pre_player {
@@ -207,7 +216,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		Ok(())
 	}
 	
-	pub fn emigrate(&mut self) -> Vec<(PlayerId, RoomId)> {
+	pub fn emigrate(&mut self) -> Vec<(PlayerId, RoomId, RoomPos)> {
 		let emigrants = self.world.remove::<Emigration>().expect("World does not have Emigrating resource").emigrants;
 		self.world.insert(Emigration::default());
 		emigrants

@@ -12,7 +12,8 @@ use crate::{
 	RoomId,
 	util::Result,
 	template::Template,
-	components::Visible
+	components::Visible,
+	playerstate::RoomPos
 };
 
 
@@ -87,6 +88,6 @@ pub struct Players {
 
 #[derive(Default)]
 pub struct Emigration {
-	pub emigrants: Vec<(PlayerId, RoomId)>
+	pub emigrants: Vec<(PlayerId, RoomId, RoomPos)>
 }
 

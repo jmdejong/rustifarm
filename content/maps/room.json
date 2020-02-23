@@ -40,7 +40,7 @@
 		"X": "rock",
 		"*": ["grass", "pebble"],
 		"o": ["grass", "stone"],
-		"%": {"type": "portal", "kwargs": {"destination": "broom"}},
+		"%": {"type": "portal", "kwargs": {"destination": "broom", "dest_pos": "northentry"}},
 		" ": []
 	}
 }

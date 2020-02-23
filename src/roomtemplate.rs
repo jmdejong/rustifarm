@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use serde_json::Value;
+use serde_json::{json, Value};
 use crate::Pos;
 use crate::template::Template;
 use crate::{Result, aerr};
@@ -8,7 +8,8 @@ use crate::{Result, aerr};
 pub struct RoomTemplate {
 	pub size: (i64, i64),
 	pub spawn: Pos,
-	pub field: Vec<Vec<Template>>
+	pub field: Vec<Vec<Template>>,
+	pub places: HashMap<String, Pos>
 }
 
 impl RoomTemplate {
@@ -42,10 +43,17 @@ impl RoomTemplate {
 				field[x + y * (size.0 as usize)] = mapping.get(&ch).ok_or(aerr!("char not found in mapping"))?.clone();
 			}
 		}
+		
+		let mut places = HashMap::new();
+		for (name, jsonpos) in jsonroom.get("places").unwrap_or(&json!({})).as_object().ok_or("places not an object")? {
+			places.insert(name.to_string(), Pos::from_json(jsonpos).ok_or("pos of places invalid")?);
+		}
+		
 		Ok(RoomTemplate {
 			size,
 			spawn,
-			field
+			field,
+			places
 		})
 	}
 }

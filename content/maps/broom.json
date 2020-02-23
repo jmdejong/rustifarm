@@ -1,7 +1,10 @@
 {
 	"width": 42,
 	"height": 23,
-	"spawn": [5, 5],
+	"spawn": [5, 15],
+	"places": {
+		"northentry": [6, 1]
+	},
 	"field": [
 		"     %%%                                  ",
 		"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX",

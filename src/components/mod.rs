@@ -11,9 +11,15 @@ use specs::{
 	Component
 };
 
-use crate::{Pos, PlayerId, RoomId, Sprite};
-use crate::controls::Control;
-use crate::template::Template;
+use crate::{
+	Pos,
+	PlayerId,
+	RoomId,
+	Sprite,
+	controls::Control,
+	template::Template,
+	playerstate::RoomPos
+};
 
 #[derive(Debug, Clone)]
 pub struct Position{
@@ -100,5 +106,6 @@ pub struct Serialise {
 
 #[derive(Component, Debug, Clone)]
 pub struct RoomExit {
-	pub destination: RoomId
+	pub destination: RoomId,
+	pub dest_pos: RoomPos
 }

@@ -112,9 +112,9 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			]
 		},
 		"portal": {
-			"arguments": [["destination", "string", null]],
+			"arguments": [["destination", "string", null], ["dest_pos", "string", ""]],
 			"components": [
-				["RoomExit", {"destination": ["arg", "destination"]}],
+				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "dest_pos"]}],
 				"Floor"
 			]
 		},

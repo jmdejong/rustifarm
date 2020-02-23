@@ -7,12 +7,12 @@ use crate::{
 	room::Room,
 	worldloader::WorldLoader,
 	persistence::PersistentStorage,
-	playerstate::PlayerState,
+	playerstate::{PlayerState, RoomPos},
 	encyclopedia::Encyclopedia,
 	controls::Control,
 	util::Result,
 	aerr,
-	worldmessages::WorldMessage
+	worldmessages::WorldMessage,
 };
 
 pub struct World<'a, 'b> {
@@ -81,9 +81,10 @@ impl <'a, 'b>World<'a, 'b> {
 		Ok(self.get_room_mut(&roomid)?.control_player(player, control))
 	}
 	
-	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId) -> Result<()> {
+	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId, roompos: RoomPos) -> Result<()> {
 		let mut state = self.discorporate_player(player)?;
 		state.room = Some(destination);
+		state.pos = roompos;
 		self.add_loaded_player(state)
 	}
 	
@@ -100,8 +101,8 @@ impl <'a, 'b>World<'a, 'b> {
 		for room in self.rooms.values_mut() {
 			migrants.append(&mut room.emigrate());
 		}
-		for (player, destination) in migrants {
-			self.migrate_player(&player, destination).unwrap();
+		for (player, destination, roompos) in migrants {
+			self.migrate_player(&player, destination, roompos).unwrap();
 		}
 	}
 	
