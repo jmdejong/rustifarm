@@ -8,6 +8,7 @@ mod create;
 mod take;
 mod migrate;
 mod useitem;
+mod attacking;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -18,5 +19,6 @@ pub use self::{
 	create::Create,
 	take::Take,
 	migrate::Migrate,
-	useitem::Use
+	useitem::Use,
+	attacking::Attacking
 };

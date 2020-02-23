@@ -18,7 +18,8 @@ use crate::{
 	Sprite,
 	controls::Control,
 	Template,
-	playerstate::RoomPos
+	playerstate::RoomPos,
+	attack::Attack
 };
 
 #[derive(Debug, Clone)]
@@ -108,4 +109,9 @@ pub struct Serialise {
 pub struct RoomExit {
 	pub destination: RoomId,
 	pub dest_pos: RoomPos
+}
+
+#[derive(Component, Debug, Clone, Default)]
+pub struct Attacked {
+	pub attacks: Vec<Attack>
 }

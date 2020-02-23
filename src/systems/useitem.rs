@@ -1,6 +1,7 @@
 
 
 use specs::{
+	Entities,
 	ReadStorage,
 	WriteStorage,
 	System,
@@ -8,30 +9,33 @@ use specs::{
 	Write
 };
 
-use crate::components::{
-	Controller,
-	Position,
-	Inventory,
-	Health
+use crate::{
+	components::{
+		Controller,
+		Position,
+		Inventory,
+		Attacked
+	},
+	resources::{NewEntities},
+	components::item::ItemAction::{None, Build, Eat},
+	controls::Control,
+	attack::Attack
 };
-
-use crate::resources::{NewEntities};
-use crate::components::item::ItemAction::{None, Build, Eat};
-use crate::controls::Control;
 
 
 pub struct Use;
 impl <'a> System<'a> for Use {
 	type SystemData = (
+		Entities<'a>,
 		ReadStorage<'a, Controller>,
 		WriteStorage<'a, Position>,
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, Health>
+		WriteStorage<'a, Attacked>
 	);
 	
-	fn run(&mut self, (controllers, positions, mut inventories, mut new, mut healths): Self::SystemData) {
-		for (controller, position, inventory, maybe_health) in (&controllers, &positions, &mut inventories, (&mut healths).maybe()).join(){
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked): Self::SystemData) {
+		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.0 {
 				Control::Use(rank) => {
 					if let Some(item) = inventory.items.get(*rank) {
@@ -41,9 +45,12 @@ impl <'a> System<'a> for Use {
 								inventory.items.remove(*rank);
 							}
 							Eat(health_diff) => {
-								if let Some(health) = maybe_health {
-									health.heal(*health_diff);
-								}
+								attacked
+									.entry(ent)
+									.unwrap()
+									.or_insert_with(Attacked::default)
+									.attacks
+									.push(Attack::new(-*health_diff));
 								inventory.items.remove(*rank);
 							}
 							None => {}
