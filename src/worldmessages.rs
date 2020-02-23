@@ -2,7 +2,6 @@
 use std::collections::HashMap;
 use serde_json::{Value, json};
 use serde::Serialize;
-use crate::util::ToJson;
 use crate::{
 	Pos,
 	Sprite,
@@ -40,10 +39,8 @@ macro_rules! worldmessages {
 			pub fn is_empty(&self) -> bool {
 				true $( && self.$name.is_none())*
 			}
-		}
-
-		impl ToJson for WorldMessage {
-			fn to_json(&self) -> Value {
+			
+			pub fn to_json(&self) -> Value {
 				let mut updates: Vec<Value> = Vec::new();
 				$(
 					if let Some(update) = &self.$name {

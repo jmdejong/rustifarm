@@ -2,16 +2,10 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::cmp::{min, max};
-use serde_json::Value;
 
 pub fn clamp<T: Ord>(val: T, lower: T, upper: T) -> T{
 	max(min(val, upper), lower)
 }
-
-pub trait ToJson {
-	fn to_json(&self) -> Value;
-}
-
 
 pub type AnyError = Box<dyn Error + 'static>;
 pub type Result<T> = std::result::Result<T, AnyError>;

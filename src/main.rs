@@ -47,7 +47,6 @@ use self::{
 	server::unixserver::UnixServer,
 	server::tcpserver::TcpServer,
 	server::Server,
-	util::ToJson,
 	defaultencyclopedia::default_encyclopedia,
 	persistence::FileStorage,
 	controls::Action,

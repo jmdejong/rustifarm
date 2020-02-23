@@ -1,9 +1,9 @@
 
 
 use std::ops::Add;
-use serde_json::{Value, json};
+use serde_json::Value;
 use serde::{Serialize, Serializer, ser::SerializeTuple};
-use crate::util::{clamp, ToJson};
+use crate::util::clamp;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Default)]
 pub struct Pos {
@@ -57,8 +57,3 @@ impl Add<Pos> for Pos {
 	}
 }
 
-impl ToJson for Pos {
-	fn to_json(&self) -> Value {
-		json!([self.x, self.y])
-	}
-}
