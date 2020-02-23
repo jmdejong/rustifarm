@@ -12,7 +12,7 @@ use crate::{
 	RoomId,
 	Result,
 	Template,
-	components::Visible,
+	components::{Visible, Removed},
 	playerstate::RoomPos
 };
 
@@ -43,8 +43,14 @@ pub struct Ground {
 	pub cells: HashMap<Pos, HashSet<Entity>>
 }
 impl Ground {
-	pub fn components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>) -> Vec<&'a C> {
-		self.cells.get(&pos).unwrap_or(&HashSet::new()).iter().filter_map(|e| component_type.get(*e)).collect()
+	pub fn components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>, removals: &'a ReadStorage<Removed>) -> Vec<&'a C> {
+		self.cells
+			.get(&pos)
+			.unwrap_or(&HashSet::new())
+			.iter()
+			.filter(|e| !removals.contains(**e))
+			.filter_map(|e| component_type.get(*e))
+			.collect()
 	}
 	
 	pub fn by_height(&self, pos: &Pos, visibles: &ReadStorage<Visible>, ignore: &Entity) -> Vec<Entity> {
