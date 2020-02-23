@@ -5,9 +5,11 @@ use std::io;
 
 use serde_json::{Value, json};
 
-use super::controls::{Control, Action};
-use super::server::Server;
-use crate::PlayerId;
+use crate::{
+	controls::{Control, Action},
+	server::Server,
+	PlayerId
+};
 
 
 #[derive(Debug)]

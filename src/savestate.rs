@@ -1,9 +1,12 @@
 
 use std::collections::HashMap;
 use serde_json::{json, Value};
-use crate::Pos;
-use crate::template::Template;
-use crate::{Result, aerr};
+use crate::{
+	Pos,
+	Template,
+	Result,
+	aerr
+};
 
 pub struct SaveState {
 	pub changes: HashMap<Pos, Vec<Template>>

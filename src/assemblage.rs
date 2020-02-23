@@ -1,12 +1,14 @@
 
 use std::collections::HashMap;
 use serde_json::{Value, json};
-use super::componentparameter::ComponentParameter;
-use super::parameter::{Parameter, ParameterType};
-use super::componentwrapper::{ComponentWrapper, ComponentType};
-use super::components::Serialise;
-use crate::hashmap;
-use crate::template::Template;
+use crate::{
+	componentparameter::ComponentParameter,
+	parameter::{Parameter, ParameterType},
+	componentwrapper::{ComponentWrapper, ComponentType},
+	components::Serialise,
+	hashmap,
+	Template
+};
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
 

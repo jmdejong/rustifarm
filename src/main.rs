@@ -32,25 +32,29 @@ mod worldloader;
 mod world;
 mod sprite;
 
-pub use self::pos::Pos;
-pub use self::playerid::PlayerId;
-pub use self::roomid::RoomId;
-pub use self::util::Result;
-pub use self::sprite::Sprite;
-pub use self::template::Template;
-pub use self::encyclopedia::Encyclopedia;
+pub use self::{
+	pos::Pos,
+	playerid::PlayerId,
+	roomid::RoomId,
+	util::Result,
+	sprite::Sprite,
+	template::Template,
+	encyclopedia::Encyclopedia
+};
 
-use self::gameserver::GameServer;
-use self::server::unixserver::UnixServer;
-use self::server::tcpserver::TcpServer;
-use self::server::Server;
-use self::util::ToJson;
-use self::defaultencyclopedia::default_encyclopedia;
-use self::persistence::FileStorage;
-use crate::controls::Action;
-use crate::worldloader::WorldLoader;
-use crate::world::World;
-use crate::worldmessages::MessageCache;
+use self::{
+	gameserver::GameServer,
+	server::unixserver::UnixServer,
+	server::tcpserver::TcpServer,
+	server::Server,
+	util::ToJson,
+	defaultencyclopedia::default_encyclopedia,
+	persistence::FileStorage,
+	controls::Action,
+	worldloader::WorldLoader,
+	world::World,
+	worldmessages::MessageCache
+};
 
 
 

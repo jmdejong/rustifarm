@@ -1,9 +1,11 @@
 
 use std::collections::HashMap;
 use serde_json::Value;
-use crate::assemblage::Assemblage;
-use crate::componentwrapper::PreEntity;
-use crate::template::Template;
+use crate::{
+	assemblage::Assemblage,
+	componentwrapper::PreEntity,
+	Template
+};
 
 #[derive(Default, Clone)]
 pub struct Encyclopedia {

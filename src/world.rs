@@ -8,9 +8,9 @@ use crate::{
 	worldloader::WorldLoader,
 	persistence::PersistentStorage,
 	playerstate::{PlayerState, RoomPos},
-	encyclopedia::Encyclopedia,
+	Encyclopedia,
 	controls::Control,
-	util::Result,
+	Result,
 	aerr,
 	worldmessages::WorldMessage,
 };

@@ -11,25 +11,23 @@ use specs::{
 	Write
 };
 
-use crate::pos::Pos;
-
-use crate::components::{
-	Controller,
-	Blocking,
-	Position,
-	Floor,
-	Moved
+use crate::{
+	Pos,
+	components::{
+		Controller,
+		Blocking,
+		Position,
+		Floor,
+		Moved
+	},
+	controls::{
+		Control
+	},
+	resources::{
+		Size,
+		Ground
+	},
 };
-
-use crate::controls::{
-	Control
-};
-
-use crate::resources::{
-	Size,
-	Ground
-};
-
 
 
 pub struct Move;

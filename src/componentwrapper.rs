@@ -2,9 +2,14 @@
 use std::collections::HashMap;
 use specs::Builder;
 
-use crate::{PlayerId, RoomId, Sprite, playerstate::RoomPos};
-use crate::components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit};
-use crate::parameter::{Parameter, ParameterType};
+use crate::{
+	PlayerId,
+	RoomId,
+	Sprite,
+	playerstate::RoomPos,
+	components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit},
+	parameter::{Parameter, ParameterType}
+};
 
 
 

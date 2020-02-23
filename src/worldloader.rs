@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::{
 	RoomId,
 	roomtemplate::RoomTemplate,
-	util::Result
+	Result
 };
 
 

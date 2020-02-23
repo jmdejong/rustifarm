@@ -3,7 +3,7 @@
 use std::ops::Add;
 use serde_json::{Value, json};
 use serde::{Serialize, Serializer, ser::SerializeTuple};
-use super::util::{clamp, ToJson};
+use crate::util::{clamp, ToJson};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Default)]
 pub struct Pos {

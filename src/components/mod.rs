@@ -17,7 +17,7 @@ use crate::{
 	RoomId,
 	Sprite,
 	controls::Control,
-	template::Template,
+	Template,
 	playerstate::RoomPos
 };
 

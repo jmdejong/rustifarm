@@ -1,6 +1,6 @@
 
-use crate::encyclopedia::Encyclopedia;
 use serde_json::json;
+use crate::Encyclopedia;
 
 pub fn default_encyclopedia() -> Encyclopedia {
 	Encyclopedia::from_json(json!({

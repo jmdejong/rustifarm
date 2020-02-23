@@ -3,7 +3,11 @@ use std::collections::HashMap;
 use serde_json::{Value, json};
 use serde::Serialize;
 use crate::util::ToJson;
-use crate::{Pos, Sprite, PlayerId};
+use crate::{
+	Pos,
+	Sprite,
+	PlayerId
+};
 
 macro_rules! worldmessages {
 	($($name: ident, $typ: ident, $strname: expr);*;) => {

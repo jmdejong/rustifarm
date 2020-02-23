@@ -1,10 +1,22 @@
 
-pub mod controlinput;
-pub mod registernew;
-pub mod moving;
-pub mod view;
-pub mod remove;
-pub mod create;
-pub mod take;
-pub mod migrate;
-pub mod useitem;
+mod controlinput;
+mod registernew;
+mod moving;
+mod view;
+mod remove;
+mod create;
+mod take;
+mod migrate;
+mod useitem;
+
+pub use self::{
+	controlinput::ControlInput,
+	registernew::RegisterNew,
+	moving::Move,
+	view::View,
+	remove::Remove,
+	create::Create,
+	take::Take,
+	migrate::Migrate,
+	useitem::Use
+};

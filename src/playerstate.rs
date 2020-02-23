@@ -1,8 +1,8 @@
 
 
 use serde_json::{Value, json};
-use crate::template::Template;
 use crate::{
+	Template,
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,

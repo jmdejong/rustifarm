@@ -10,11 +10,13 @@ use specs::{
 	Entities
 };
 
-use crate::{Pos, Sprite};
-use crate::components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health};
-use crate::resources::{Size, Output, Ground};
-use crate::worldmessages::{WorldMessage, FieldMessage};
-
+use crate::{
+	Pos,
+	Sprite,
+	components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health},
+	resources::{Size, Output, Ground},
+	worldmessages::{WorldMessage, FieldMessage}
+};
 
 #[derive(Default)]
 pub struct View;

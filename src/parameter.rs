@@ -1,6 +1,6 @@
 
 use serde_json::{Value, json};
-use crate::template::Template;
+use crate::Template;
 use crate::components::item::ItemAction;
 
 #[derive(Debug, PartialEq, Clone)]

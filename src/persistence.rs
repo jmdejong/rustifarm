@@ -9,7 +9,7 @@ use crate::{
 	RoomId,
 	savestate::SaveState,
 	playerstate::PlayerState,
-	util::Result
+	Result
 };
 
 pub trait PersistentStorage {

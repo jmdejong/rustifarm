@@ -3,15 +3,15 @@ use std::collections::{HashMap, HashSet};
 use specs::{Entity, ReadStorage, Component};
 
 use crate::{
-	pos::Pos,
+	Pos,
 	controls::Control,
 	worldmessages::WorldMessage,
 	componentwrapper::PreEntity,
-	encyclopedia::Encyclopedia,
+	Encyclopedia,
 	PlayerId,
 	RoomId,
-	util::Result,
-	template::Template,
+	Result,
+	Template,
 	components::Visible,
 	playerstate::RoomPos
 };

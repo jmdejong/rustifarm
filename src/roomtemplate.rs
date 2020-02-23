@@ -1,9 +1,12 @@
 
 use std::collections::HashMap;
 use serde_json::{json, Value};
-use crate::Pos;
-use crate::template::Template;
-use crate::{Result, aerr};
+use crate::{
+	Pos,
+	Template,
+	Result,
+	aerr
+};
 
 pub struct RoomTemplate {
 	pub size: (i64, i64),

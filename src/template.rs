@@ -2,8 +2,11 @@
 
 use std::collections::HashMap;
 use serde_json::{json, Value};
-use crate::parameter::Parameter;
-use crate::{Result, aerr};
+use crate::{
+	parameter::Parameter,
+	Result,
+	aerr
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Template {
