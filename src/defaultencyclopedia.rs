@@ -137,6 +137,11 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"sprite": "dummy",
 			"height": 1,
 			"components": [["Health", {"health": ["arg", "health"], "maxhealth": ["int", 20]}]]
+		},
+		"wound": {
+			"sprite": "wound",
+			"height": 0.25,
+			"components": [["Volatile", {"delay": ["int", 4]}]]
 		}
 	})).unwrap()
 }

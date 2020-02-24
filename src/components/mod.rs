@@ -162,3 +162,12 @@ pub struct Healing {
 	pub next_heal: Option<i64>
 }
 
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Volatile {
+	pub delay: i64,
+	pub end_time: Option<i64>
+}
+
+

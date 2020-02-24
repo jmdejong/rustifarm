@@ -37,7 +37,8 @@ use crate::{
 		Attacking,
 		Trapping,
 		Fight,
-		Heal
+		Heal,
+		Volate
 	},
 	components::{
 		Position,
@@ -80,6 +81,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.register::<Serialise>();
 		
 		let mut dispatcher = DispatcherBuilder::new()
+			.with(Volate, "volate", &[])
 			.with(RegisterNew::default(), "registernew", &[])
 			.with(ControlInput, "controlinput", &["registernew"])
 			.with(Take, "take", &["controlinput"])
@@ -89,7 +91,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(Fight, "fight", &["move", "controlinput"])
 			.with(Heal, "heal", &["registernew"])
 			.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
-			.with(View::default(), "view", &["move", "attacking"])
+			.with(View::default(), "view", &["move", "attacking", "volate"])
 			.with(Migrate, "migrate", &["view"])
 			.with(Create, "create", &["view", "controlinput"])
 			.with(Remove, "remove", &["view", "move"])

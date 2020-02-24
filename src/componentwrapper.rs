@@ -8,7 +8,7 @@ use crate::{
 	Sprite,
 	playerstate::RoomPos,
 	attack::Attack,
-	components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, Trap, Fighter, Healing},
+	components::{Visible, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, Trap, Fighter, Healing, Volatile},
 	parameter::{Parameter, ParameterType}
 };
 
@@ -117,6 +117,7 @@ components!(
 	Trap (damage: Int) {Trap{attack: Attack::new(damage)}};
 	Fighter (damage: Int) {Fighter{attack: Attack::new(damage)}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
+	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 );
 
 

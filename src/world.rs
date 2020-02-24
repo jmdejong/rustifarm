@@ -57,15 +57,19 @@ impl <'a, 'b>World<'a, 'b> {
 	}
 	
 	fn add_loaded_player(&mut self, state: PlayerState) -> Result<()> {
-		let roomid = state.clone().room.unwrap_or(self.default_room.clone());
+		let roomid = state.clone().room.unwrap_or_else(|| self.default_room.clone());
 		let room = self.get_room_mut(&roomid)?;
 		room.add_player(&state);
-		self.players.insert(state.id.clone(), roomid);
+		self.players.insert(state.id, roomid);
 		Ok(())
 	}
 	
 	pub fn add_player(&mut self, playerid: &PlayerId) -> Result<()> {
-		let state = self.persistence.load_player(playerid.clone()).unwrap_or(PlayerState::new(playerid.clone()));
+		let state = self.persistence
+			.load_player(playerid.clone())
+			.unwrap_or_else(|_err| // todo: what if player exists but can't be loaded for another reason?
+				PlayerState::new(playerid.clone())
+			);
 		self.add_loaded_player(state)
 	}
 	
@@ -84,7 +88,8 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	pub fn control_player(&mut self, player: PlayerId, control: Control) -> Result<()>{
 		let roomid = self.players.get(&player).ok_or(aerr!("player not found"))?.clone();
-		Ok(self.get_room_mut(&roomid)?.control_player(player, control))
+		self.get_room_mut(&roomid)?.control_player(player, control);
+		Ok(())
 	}
 	
 	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId, roompos: RoomPos) -> Result<()> {
