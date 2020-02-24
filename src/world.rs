@@ -47,6 +47,10 @@ impl <'a, 'b>World<'a, 'b> {
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);
 			}
+		let last_time = self.timestamp - 1;
+			if room.get_time() < last_time {
+				room.update(last_time);
+			}
 			self.rooms.insert(id.clone(), room);
 		}
 		self.rooms.get_mut(id).ok_or(aerr!("can't get room after loading it"))

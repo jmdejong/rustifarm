@@ -236,6 +236,10 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.insert(Emigration::default());
 		emigrants
 	}
+	
+	pub fn get_time(&self) -> i64 {
+		self.world.fetch::<TimeStamp>().time
+	}
 }
 
 
