@@ -123,15 +123,16 @@ pub struct Attacked {
 	pub attacks: Vec<Attack>
 }
 
-pub fn add_attack(attacked: &mut WriteStorage<Attacked> , ent: Entity, attack: Attack) {
-	attacked
-		.entry(ent)
-		.unwrap()
-		.or_insert_with(Attacked::default)
-		.attacks
-		.push(attack);
+impl Attacked {
+	pub fn add_attack(attacked: &mut WriteStorage<Attacked> , ent: Entity, attack: Attack) {
+		attacked
+			.entry(ent)
+			.unwrap()
+			.or_insert_with(Attacked::default)
+			.attacks
+			.push(attack);
+	}
 }
-
 
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
@@ -151,5 +152,13 @@ pub struct Trap {
 #[storage(HashMapStorage)]
 pub struct Fighter {
 	pub attack: Attack
+}
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Healing {
+	pub delay: i64,
+	pub health: i64,
+	pub next_heal: Option<i64>
 }
 

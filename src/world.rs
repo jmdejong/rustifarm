@@ -21,7 +21,8 @@ pub struct World<'a, 'b> {
 	default_room: RoomId,
 	players: HashMap<PlayerId, RoomId>,
 	rooms: HashMap<RoomId, Room<'a, 'b>>,
-	encyclopedia: Encyclopedia
+	encyclopedia: Encyclopedia,
+	timestamp: i64
 }
 
 
@@ -34,7 +35,8 @@ impl <'a, 'b>World<'a, 'b> {
 			default_room,
 			encyclopedia,
 			players: HashMap::new(),
-			rooms: HashMap::new()
+			rooms: HashMap::new(),
+			timestamp: 0
 		}
 	}
 	
@@ -92,8 +94,9 @@ impl <'a, 'b>World<'a, 'b> {
 	pub fn update(&mut self) {
 		self.migrate();
 		for room in self.rooms.values_mut() {
-			room.update();
+			room.update(self.timestamp);
 		}
+		self.timestamp += 1;
 	}
 	
 	fn migrate(&mut self) {

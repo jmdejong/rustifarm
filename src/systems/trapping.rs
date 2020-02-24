@@ -9,7 +9,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, Attacked, add_attack, Moved, Entered, Trap, Position},
+	components::{Health, Attacked, Moved, Entered, Trap, Position},
 	resources::Ground
 };
 
@@ -31,7 +31,7 @@ impl <'a> System<'a> for Trapping {
 		for (entity, _entered, trap, position) in (&entities, &entereds, &traps, &positions).join() {
 			for ent in ground.cells.get(&position.pos).unwrap(){
 				if ent != &entity && moves.contains(*ent) && healths.contains(*ent) {
-					add_attack(&mut victims, *ent, trap.attack.clone());
+					Attacked::add_attack(&mut victims, *ent, trap.attack.clone());
 				}
 			}
 		}

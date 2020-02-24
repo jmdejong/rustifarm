@@ -13,7 +13,6 @@ use crate::components::{
 	Controller,
 	Position,
 	Attacked,
-	add_attack,
 	Fighter,
 	Health
 };
@@ -42,7 +41,7 @@ impl <'a> System<'a> for Fight {
 					for direction in directions {
 						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
 							if healths.contains(*ent) && *ent != entity {
-								add_attack(&mut attacked, *ent, fighter.attack.clone());
+								Attacked::add_attack(&mut attacked, *ent, fighter.attack.clone());
 								break;
 							}
 						}

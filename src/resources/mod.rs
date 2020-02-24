@@ -1,18 +1,19 @@
 
-use std::collections::{HashMap, HashSet};
-use specs::{Entity, ReadStorage, Component};
+mod ground;
+mod newentities;
+
+pub use ground::Ground;
+pub use newentities::NewEntities;
+
+use std::collections::{HashMap};
+use specs::{Entity};
 
 use crate::{
 	Pos,
 	controls::Control,
 	worldmessages::WorldMessage,
-	componentwrapper::PreEntity,
-	Encyclopedia,
 	PlayerId,
 	RoomId,
-	Result,
-	Template,
-	components::{Visible, Removed},
 	playerstate::RoomPos
 };
 
@@ -38,54 +39,6 @@ pub struct Spawn {
 	pub pos: Pos
 }
 
-#[derive(Default)]
-pub struct Ground {
-	pub cells: HashMap<Pos, HashSet<Entity>>
-}
-impl Ground {
-	pub fn components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>, removals: &'a ReadStorage<Removed>) -> Vec<&'a C> {
-		self.cells
-			.get(&pos)
-			.unwrap_or(&HashSet::new())
-			.iter()
-			.filter(|e| !removals.contains(**e))
-			.filter_map(|e| component_type.get(*e))
-			.collect()
-	}
-	
-	pub fn by_height(&self, pos: &Pos, visibles: &ReadStorage<Visible>, ignore: &Entity) -> Vec<Entity> {
-		let mut entities: Vec<Entity> = self.cells
-			.get(&pos).unwrap_or(&HashSet::new())
-			.iter()
-			.cloned()
-			.filter(|e| e != ignore && visibles.contains(*e))
-			.collect();
-		entities.sort_by(|a, b|
-			visibles.get(*b).unwrap().height.partial_cmp(&visibles.get(*a).unwrap().height).unwrap()
-		);
-		entities
-	}
-}
-
-
-#[derive(Default)]
-pub struct NewEntities {
-	pub to_build: Vec<(Pos, PreEntity)>,
-	pub encyclopedia: Encyclopedia
-}
-impl NewEntities {
-	pub fn new(encyclopedia: Encyclopedia) -> Self {
-		Self{
-			to_build: Vec::new(),
-			encyclopedia
-		}
-	}
-	pub fn create(&mut self, pos: Pos, template: Template) -> Result<()> {
-		let components = self.encyclopedia.construct(&template)?;
-		self.to_build.push((pos, components));
-		Ok(())
-	}
-}
 
 #[derive(Default)]
 pub struct Players {
@@ -97,3 +50,7 @@ pub struct Emigration {
 	pub emigrants: Vec<(PlayerId, RoomId, RoomPos)>
 }
 
+#[derive(Default)]
+pub struct TimeStamp {
+	pub time: i64
+}

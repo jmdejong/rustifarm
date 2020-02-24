@@ -11,6 +11,7 @@ mod useitem;
 mod attacking;
 mod trapping;
 mod fight;
+mod heal;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -24,5 +25,6 @@ pub use self::{
 	useitem::Use,
 	attacking::Attacking,
 	trapping::Trapping,
-	fight::Fight
+	fight::Fight,
+	heal::Heal
 };

@@ -14,8 +14,7 @@ use crate::{
 		Controller,
 		Position,
 		Inventory,
-		Attacked,
-		add_attack
+		Attacked
 	},
 	resources::{NewEntities},
 	components::item::ItemAction::{None, Build, Eat},
@@ -46,7 +45,7 @@ impl <'a> System<'a> for Use {
 								inventory.items.remove(*rank);
 							}
 							Eat(health_diff) => {
-								add_attack(&mut attacked, ent, Attack::new(-*health_diff));
+								Attacked::add_attack(&mut attacked, ent, Attack::new(-*health_diff));
 								inventory.items.remove(*rank);
 							}
 							None => {}

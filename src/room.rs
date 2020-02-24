@@ -21,7 +21,8 @@ use crate::{
 		NewEntities,
 		Spawn,
 		Players,
-		Emigration
+		Emigration,
+		TimeStamp
 	},
 	systems::{
 		Move,
@@ -35,7 +36,8 @@ use crate::{
 		Use,
 		Attacking,
 		Trapping,
-		Fight
+		Fight,
+		Heal
 	},
 	components::{
 		Position,
@@ -79,13 +81,14 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(RegisterNew::default(), "registernew", &[])
-			.with(ControlInput, "controlinput", &[])
+			.with(ControlInput, "controlinput", &["registernew"])
 			.with(Take, "take", &["controlinput"])
 			.with(Use, "use", &["controlinput"])
 			.with(Move, "move", &["registernew", "controlinput"])
 			.with(Trapping, "trapping", &["move"])
 			.with(Fight, "fight", &["move", "controlinput"])
-			.with(Attacking, "attacking", &["use", "trapping", "fight"])
+			.with(Heal, "heal", &["registernew"])
+			.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
 			.with(View::default(), "view", &["move", "attacking"])
 			.with(Migrate, "migrate", &["view"])
 			.with(Create, "create", &["view", "controlinput"])
@@ -135,7 +138,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch::<Output>().output.clone()
 	}
 	
-	pub fn update(&mut self) {
+	pub fn update(&mut self, timestamp: i64) {
+		self.world.fetch_mut::<TimeStamp>().time = timestamp;
 		self.dispatcher.dispatch(&self.world);
 		self.world.maintain();
 	}
