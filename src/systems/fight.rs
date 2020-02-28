@@ -14,7 +14,8 @@ use crate::components::{
 	Position,
 	Attacked,
 	Fighter,
-	Health
+	Health,
+	ControlCooldown
 };
 
 use crate::controls::{Control};
@@ -31,17 +32,19 @@ impl <'a> System<'a> for Fight {
 		Read<'a, Ground>,
 		WriteStorage<'a, Attacked>,
 		ReadStorage<'a, Fighter>,
-		ReadStorage<'a, Health>
+		ReadStorage<'a, Health>,
+		WriteStorage<'a, ControlCooldown>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns): Self::SystemData) {
 		for (entity, controller, position, fighter) in (&entities, &controllers, &positions, &fighters).join(){
-			match &controller.0 {
+			match &controller.control {
 				Control::Attack(directions) => {
 					for direction in directions {
 						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
 							if healths.contains(*ent) && *ent != entity {
 								Attacked::add_attack(&mut attacked, *ent, fighter.attack.clone());
+								cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();
 								break;
 							}
 						}

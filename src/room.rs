@@ -38,7 +38,8 @@ use crate::{
 		Trapping,
 		Fight,
 		Heal,
-		Volate
+		Volate,
+		UpdateCooldowns
 	},
 	components::{
 		Position,
@@ -83,7 +84,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		let mut dispatcher = DispatcherBuilder::new()
 			.with(Volate, "volate", &[])
 			.with(RegisterNew::default(), "registernew", &[])
-			.with(ControlInput, "controlinput", &["registernew"])
+			.with(UpdateCooldowns, "cool_down", &["registernew"])
+			.with(ControlInput, "controlinput", &["cool_down"])
 			.with(Take, "take", &["controlinput"])
 			.with(Use, "use", &["controlinput"])
 			.with(Move, "move", &["registernew", "controlinput"])

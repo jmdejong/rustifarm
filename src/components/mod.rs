@@ -50,7 +50,14 @@ impl Component for Visible {
 }
 
 #[derive(Component, Debug)]
-pub struct Controller(pub Control);
+pub struct Controller {
+	pub control: Control
+}
+
+#[derive(Default, Component, Debug, Clone)]
+pub struct Movable {
+	pub cooldown: i64
+}
 
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
@@ -151,7 +158,8 @@ pub struct Trap {
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Fighter {
-	pub attack: Attack
+	pub attack: Attack,
+	pub cooldown: i64
 }
 
 #[derive(Component, Debug, Clone)]
@@ -168,6 +176,12 @@ pub struct Healing {
 pub struct Volatile {
 	pub delay: i64,
 	pub end_time: Option<i64>
+}
+
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct ControlCooldown {
+	pub amount: i64
 }
 
 

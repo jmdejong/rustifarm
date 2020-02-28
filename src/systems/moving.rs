@@ -19,7 +19,9 @@ use crate::{
 		Position,
 		Floor,
 		Moved,
-		Entered
+		Entered,
+		Movable,
+		ControlCooldown
 	},
 	controls::{
 		Control
@@ -42,14 +44,16 @@ impl <'a> System<'a> for Move {
 		Write<'a, Ground>,
 		ReadStorage<'a, Floor>,
 		WriteStorage<'a, Moved>,
-		WriteStorage<'a, Entered>
+		WriteStorage<'a, Entered>,
+		ReadStorage<'a, Movable>,
+		WriteStorage<'a, ControlCooldown>
 	);
 	
-	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved, mut entered): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved, mut entered, movables, mut cooldowns): Self::SystemData) {
 		moved.clear();
 		entered.clear();
-		for (ent, controller, mut pos) in (&entities, &controllers, &mut positions.restrict_mut()).join(){
-			match &controller.0 {
+		for (ent, controller, mut pos, movable) in (&entities, &controllers, &mut positions.restrict_mut(), &movables).join(){
+			match &controller.control {
 				Control::Move(direction) => {
 					let newpos = (pos.get_unchecked().pos + direction.to_position()).clamp(Pos::new(0, 0), Pos::new(size.width - 1, size.height - 1));
 					let mut blocked = false;
@@ -72,6 +76,7 @@ impl <'a> System<'a> for Move {
 						for ent in ground.cells.get(&newpos).unwrap() {
 							let _ = entered.insert(*ent, Entered);
 						}
+						cooldowns.insert(ent, ControlCooldown{amount: movable.cooldown}).unwrap();
 					}
 				}
 				_ => {}

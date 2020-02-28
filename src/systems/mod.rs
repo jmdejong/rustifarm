@@ -13,6 +13,7 @@ mod trapping;
 mod fight;
 mod heal;
 mod volate;
+mod updatecooldowns;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -28,5 +29,6 @@ pub use self::{
 	trapping::Trapping,
 	fight::Fight,
 	heal::Heal,
-	volate::Volate
+	volate::Volate,
+	updatecooldowns::UpdateCooldowns
 };

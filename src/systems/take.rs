@@ -39,7 +39,7 @@ impl <'a> System<'a> for Take {
 	
 	fn run(&mut self, (entities, controllers, positions, ground, mut removed, items, mut inventories, mut new, visibles): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
-			match &controller.0 {
+			match &controller.control {
 				Control::Take(rank) if inventory.items.len() < inventory.capacity => {
 					let mut ents = ground.by_height(&position.pos, &visibles, &ent);
 					if let Some(idx) = rank {

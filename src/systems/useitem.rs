@@ -36,7 +36,7 @@ impl <'a> System<'a> for Use {
 	
 	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
-			match &controller.0 {
+			match &controller.control {
 				Control::Use(rank) => {
 					if let Some(item) = inventory.items.get(*rank) {
 						match &item.action {
