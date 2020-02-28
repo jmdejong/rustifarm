@@ -22,7 +22,8 @@ use crate::{
 	controls::Control,
 	Template,
 	playerstate::RoomPos,
-	attack::Attack
+	attack::Attack,
+	Timestamp
 };
 
 #[derive(Debug, Clone)]
@@ -167,7 +168,7 @@ pub struct Fighter {
 pub struct Healing {
 	pub delay: i64,
 	pub health: i64,
-	pub next_heal: Option<i64>
+	pub next_heal: Option<Timestamp>
 }
 
 
@@ -175,7 +176,7 @@ pub struct Healing {
 #[storage(HashMapStorage)]
 pub struct Volatile {
 	pub delay: i64,
-	pub end_time: Option<i64>
+	pub end_time: Option<Timestamp>
 }
 
 #[derive(Component, Debug, Clone)]

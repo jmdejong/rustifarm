@@ -13,6 +13,7 @@ use crate::{
 	Result,
 	aerr,
 	worldmessages::WorldMessage,
+	Timestamp
 };
 
 pub struct World<'a, 'b> {
@@ -22,7 +23,7 @@ pub struct World<'a, 'b> {
 	players: HashMap<PlayerId, RoomId>,
 	rooms: HashMap<RoomId, Room<'a, 'b>>,
 	encyclopedia: Encyclopedia,
-	timestamp: i64
+	time: Timestamp
 }
 
 
@@ -36,7 +37,7 @@ impl <'a, 'b>World<'a, 'b> {
 			encyclopedia,
 			players: HashMap::new(),
 			rooms: HashMap::new(),
-			timestamp: 0
+			time: Timestamp(0)
 		}
 	}
 	
@@ -47,7 +48,7 @@ impl <'a, 'b>World<'a, 'b> {
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);
 			}
-		let last_time = self.timestamp - 1;
+		let last_time = self.time - 1;
 			if room.get_time() < last_time {
 				room.update(last_time);
 			}
@@ -103,9 +104,9 @@ impl <'a, 'b>World<'a, 'b> {
 	pub fn update(&mut self) {
 		self.migrate();
 		for room in self.rooms.values_mut() {
-			room.update(self.timestamp);
+			room.update(self.time);
 		}
-		self.timestamp += 1;
+		self.time.0 += 1;
 	}
 	
 	fn migrate(&mut self) {

@@ -34,6 +34,7 @@ mod worldloader;
 mod world;
 mod sprite;
 mod attack;
+mod timestamp;
 
 pub use self::{
 	pos::Pos,
@@ -42,7 +43,8 @@ pub use self::{
 	util::Result,
 	sprite::Sprite,
 	template::Template,
-	encyclopedia::Encyclopedia
+	encyclopedia::Encyclopedia,
+	timestamp::Timestamp
 };
 
 use self::{

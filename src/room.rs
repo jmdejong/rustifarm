@@ -59,7 +59,8 @@ use crate::{
 	PlayerId,
 	RoomId,
 	aerr,
-	Result
+	Result,
+	Timestamp
 };
 
 
@@ -142,7 +143,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch::<Output>().output.clone()
 	}
 	
-	pub fn update(&mut self, timestamp: i64) {
+	pub fn update(&mut self, timestamp: Timestamp) {
 		self.world.fetch_mut::<TimeStamp>().time = timestamp;
 		self.dispatcher.dispatch(&self.world);
 		self.world.maintain();
@@ -241,7 +242,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		emigrants
 	}
 	
-	pub fn get_time(&self) -> i64 {
+	pub fn get_time(&self) -> Timestamp {
 		self.world.fetch::<TimeStamp>().time
 	}
 }

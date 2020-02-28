@@ -4,12 +4,13 @@ use serde_json::Value;
 use crate::{
 	assemblage::Assemblage,
 	componentwrapper::PreEntity,
-	Template
+	Template,
+	template::EntityType
 };
 
 #[derive(Default, Clone)]
 pub struct Encyclopedia {
-	items: HashMap<String, Assemblage>
+	items: HashMap<EntityType, Assemblage>
 }
 
 impl Encyclopedia {
@@ -17,7 +18,7 @@ impl Encyclopedia {
 	pub fn from_json(val: Value) -> Result<Encyclopedia, &'static str> {
 		let mut items = HashMap::new();
 		for (k, v) in val.as_object().ok_or("encyclopedia not a json object")?.into_iter() {
-			items.insert(k.clone(), Assemblage::from_json(v)?);
+			items.insert(EntityType(k.clone()), Assemblage::from_json(v)?);
 		}
 		Ok(Encyclopedia{items})
 	}

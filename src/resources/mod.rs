@@ -14,7 +14,8 @@ use crate::{
 	worldmessages::WorldMessage,
 	PlayerId,
 	RoomId,
-	playerstate::RoomPos
+	playerstate::RoomPos,
+	Timestamp
 };
 
 
@@ -52,5 +53,5 @@ pub struct Emigration {
 
 #[derive(Default)]
 pub struct TimeStamp {
-	pub time: i64
+	pub time: Timestamp
 }
