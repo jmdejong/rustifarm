@@ -4,6 +4,8 @@ use std::time::Duration;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 mod server;
 mod gameserver;
@@ -79,12 +81,23 @@ fn main() -> Result<()>{
 
 	let mut world = World::new(default_encyclopedia(), loader, Box::new(storage), RoomId::from_str("room"));
 	
-	println!("asciifarm started");
-	
 	let mut message_cache = MessageCache::default();
 	
+	// close handler
+	// todo: don't let the closing wait on sleep (using a timer thread or recv_timeout)
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+	ctrlc::set_handler(move || {
+		println!("shutting down");
+		r.store(false, Ordering::SeqCst);
+	}).expect("can't set close handler");
+	
+	
+	println!("asciifarm started");
+	
+	
 	let mut count = 0;
-	loop {
+	while running.load(Ordering::SeqCst) {
 		let actions = gameserver.update();
 		for action in actions {
 			match action {
@@ -109,13 +122,16 @@ fn main() -> Result<()>{
 			if message.is_empty(){
 				continue;
 			}
-			//println!("c {}", message.to_json());
 			let _ = gameserver.send(&player, message.to_json());
 		}
 		
 		count += 1;
 		sleep(Duration::from_millis(100));
 	}
+	println!("saving world");
+	world.save();
+	println!("world saved");
+	Ok(())
 }
 
 
