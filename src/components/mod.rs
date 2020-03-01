@@ -1,7 +1,12 @@
 
 pub mod item;
+pub mod messages;
 
 pub use item::Item;
+pub use messages::{
+	AttackMessage,
+	AttackInbox
+};
 
 use specs::{
 	DenseVecStorage,
@@ -9,9 +14,7 @@ use specs::{
 	HashMapStorage,
 	FlaggedStorage,
 	NullStorage,
-	Component,
-	Entity,
-	WriteStorage
+	Component
 };
 
 use crate::{
@@ -22,7 +25,6 @@ use crate::{
 	controls::Control,
 	Template,
 	playerstate::RoomPos,
-	attack::Attack,
 	Timestamp
 };
 
@@ -126,22 +128,6 @@ pub struct RoomExit {
 	pub dest_pos: RoomPos
 }
 
-#[derive(Component, Debug, Clone, Default)]
-pub struct Attacked {
-	pub attacks: Vec<Attack>
-}
-
-impl Attacked {
-	pub fn add_attack(attacked: &mut WriteStorage<Attacked> , ent: Entity, attack: Attack) {
-		attacked
-			.entry(ent)
-			.unwrap()
-			.or_insert_with(Attacked::default)
-			.attacks
-			.push(attack);
-	}
-}
-
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
 pub struct Entered;
@@ -153,13 +139,13 @@ pub struct Dying;
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Trap {
-	pub attack: Attack
+	pub attack: AttackMessage
 }
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Fighter {
-	pub attack: Attack,
+	pub attack: AttackMessage,
 	pub cooldown: i64
 }
 

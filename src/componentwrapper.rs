@@ -7,8 +7,23 @@ use crate::{
 	RoomId,
 	Sprite,
 	playerstate::RoomPos,
-	attack::Attack,
-	components::{Visible, Movable, Blocking, Player, Floor, Item, Inventory, Health, Serialise, RoomExit, Trap, Fighter, Healing, Volatile},
+	components::{
+		Visible,
+		Movable,
+		Blocking,
+		Player,
+		Floor,
+		Item,
+		Inventory,
+		Health,
+		Serialise,
+		RoomExit,
+		Trap,
+		Fighter,
+		Healing,
+		Volatile,
+		AttackMessage
+	},
 	parameter::{Parameter, ParameterType}
 };
 
@@ -115,8 +130,8 @@ components!(
 				}
 		}
 	};
-	Trap (damage: Int) {Trap{attack: Attack::new(damage)}};
-	Fighter (damage: Int, cooldown: Int) {Fighter{attack: Attack::new(damage), cooldown}};
+	Trap (damage: Int) {Trap{attack: AttackMessage::new(damage)}};
+	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackMessage::new(damage), cooldown}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 );

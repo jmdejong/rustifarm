@@ -33,7 +33,6 @@ mod persistence;
 mod worldloader;
 mod world;
 mod sprite;
-mod attack;
 mod timestamp;
 
 pub use self::{

@@ -9,7 +9,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, Attacked, Moved, Entered, Trap, Position},
+	components::{Health, AttackInbox, Moved, Entered, Trap, Position},
 	resources::Ground
 };
 
@@ -18,7 +18,7 @@ pub struct Trapping;
 impl <'a> System<'a> for Trapping {
 	type SystemData = (
 		Entities<'a>,
-		WriteStorage<'a, Attacked>,
+		WriteStorage<'a, AttackInbox>,
 		ReadStorage<'a, Health>,
 		ReadStorage<'a, Moved>,
 		ReadStorage<'a, Entered>,
@@ -31,7 +31,7 @@ impl <'a> System<'a> for Trapping {
 		for (entity, _entered, trap, position) in (&entities, &entereds, &traps, &positions).join() {
 			for ent in ground.cells.get(&position.pos).unwrap(){
 				if ent != &entity && moves.contains(*ent) && healths.contains(*ent) {
-					Attacked::add_attack(&mut victims, *ent, trap.attack.clone());
+					AttackInbox::add_message(&mut victims, *ent, trap.attack.clone());
 				}
 			}
 		}

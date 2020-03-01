@@ -14,12 +14,12 @@ use crate::{
 		Controller,
 		Position,
 		Inventory,
-		Attacked
+		AttackInbox,
+		AttackMessage
 	},
 	resources::{NewEntities},
 	components::item::ItemAction::{None, Build, Eat},
 	controls::Control,
-	attack::Attack
 };
 
 
@@ -31,7 +31,7 @@ impl <'a> System<'a> for Use {
 		WriteStorage<'a, Position>,
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, Attacked>
+		WriteStorage<'a, AttackInbox>
 	);
 	
 	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked): Self::SystemData) {
@@ -45,7 +45,7 @@ impl <'a> System<'a> for Use {
 								inventory.items.remove(*rank);
 							}
 							Eat(health_diff) => {
-								Attacked::add_attack(&mut attacked, ent, Attack::new(-*health_diff));
+								AttackInbox::add_message(&mut attacked, ent, AttackMessage::new(-*health_diff));
 								inventory.items.remove(*rank);
 							}
 							None => {}

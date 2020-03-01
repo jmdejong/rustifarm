@@ -12,7 +12,7 @@ use specs::{
 use crate::components::{
 	Controller,
 	Position,
-	Attacked,
+	AttackInbox,
 	Fighter,
 	Health,
 	ControlCooldown
@@ -30,7 +30,7 @@ impl <'a> System<'a> for Fight {
 		ReadStorage<'a, Controller>,
 		WriteStorage<'a, Position>,
 		Read<'a, Ground>,
-		WriteStorage<'a, Attacked>,
+		WriteStorage<'a, AttackInbox>,
 		ReadStorage<'a, Fighter>,
 		ReadStorage<'a, Health>,
 		WriteStorage<'a, ControlCooldown>
@@ -43,7 +43,7 @@ impl <'a> System<'a> for Fight {
 					for direction in directions {
 						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
 							if healths.contains(*ent) && *ent != entity {
-								Attacked::add_attack(&mut attacked, *ent, fighter.attack.clone());
+								AttackInbox::add_message(&mut attacked, *ent, fighter.attack.clone());
 								cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();
 								break;
 							}

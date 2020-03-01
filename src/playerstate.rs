@@ -6,8 +6,7 @@ use crate::{
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,
-	components::{Visible, Player, Inventory, Health, Fighter, Healing, Movable},
-	attack::Attack,
+	components::{Visible, Player, Inventory, Health, Fighter, Healing, Movable, AttackMessage},
 	Result,
 	aerr,
 	Sprite,
@@ -116,7 +115,7 @@ impl PlayerState {
 				capacity: self.inventory_capacity
 			}),
 			ComponentWrapper::Health(Health{health: self.health, maxhealth: self.maximum_health}),
-			ComponentWrapper::Fighter(Fighter{attack: Attack::new(5), cooldown: 8}),
+			ComponentWrapper::Fighter(Fighter{attack: AttackMessage::new(5), cooldown: 8}),
 			ComponentWrapper::Healing(Healing{delay: 50, health: 1, next_heal: None}),
 			ComponentWrapper::Movable(Movable{cooldown: 2})
 		]
