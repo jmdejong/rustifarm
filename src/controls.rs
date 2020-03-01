@@ -1,6 +1,7 @@
 
 
 use serde_json::Value;
+use specs::Entity;
 use crate::{PlayerId, Pos};
 
 #[derive(Debug, Clone)]
@@ -45,7 +46,8 @@ pub enum Control {
 	Take(Option<usize>),
 	Drop(usize),
 	Use(usize),
-	Attack(Vec<Direction>)
+	Attack(Vec<Direction>),
+	AttackTarget(Entity)
 }
 
 

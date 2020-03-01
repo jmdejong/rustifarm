@@ -22,7 +22,8 @@ use crate::{
 		Fighter,
 		Healing,
 		Volatile,
-		AttackMessage
+		AttackMessage,
+		Autofight
 	},
 	parameter::{Parameter, ParameterType}
 };
@@ -134,6 +135,7 @@ components!(
 	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackMessage::new(damage), cooldown}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
+	Autofight () {Autofight::default()};
 );
 
 

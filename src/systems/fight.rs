@@ -15,7 +15,8 @@ use crate::components::{
 	AttackInbox,
 	Fighter,
 	Health,
-	ControlCooldown
+	ControlCooldown,
+	Autofight
 };
 
 use crate::controls::{Control};
@@ -33,24 +34,33 @@ impl <'a> System<'a> for Fight {
 		WriteStorage<'a, AttackInbox>,
 		ReadStorage<'a, Fighter>,
 		ReadStorage<'a, Health>,
-		WriteStorage<'a, ControlCooldown>
+		WriteStorage<'a, ControlCooldown>,
+		WriteStorage<'a, Autofight>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns, mut autofighters): Self::SystemData) {
 		for (entity, controller, position, fighter) in (&entities, &controllers, &positions, &fighters).join(){
+			let mut target = None;
 			match &controller.control {
 				Control::Attack(directions) => {
 					'targets: for direction in directions {
 						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
 							if healths.contains(*ent) && *ent != entity {
-								AttackInbox::add_message(&mut attacked, *ent, fighter.attack.clone());
-								cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();
+								target = Some(*ent);
 								break 'targets;
 							}
 						}
 					}
 				}
+				Control::AttackTarget(t) => {target = Some(*t);}
 				_ => {}
+			}
+			if let Some(ent) = target {
+				AttackInbox::add_message(&mut attacked, ent, fighter.attack.clone());
+				cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();
+				if let Some(autofighter) = autofighters.get_mut(entity){
+					autofighter.target = Some(ent);
+				}
 			}
 		}
 	}

@@ -14,7 +14,8 @@ use specs::{
 	HashMapStorage,
 	FlaggedStorage,
 	NullStorage,
-	Component
+	Component,
+	Entity
 };
 
 use crate::{
@@ -169,6 +170,13 @@ pub struct Volatile {
 #[storage(HashMapStorage)]
 pub struct ControlCooldown {
 	pub amount: i64
+}
+
+
+#[derive(Component, Debug, Clone, Default)]
+#[storage(HashMapStorage)]
+pub struct Autofight {
+	pub target: Option<Entity>
 }
 
 
