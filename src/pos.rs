@@ -1,6 +1,6 @@
 
 
-use std::ops::Add;
+use std::ops::{Add, Sub};
 use serde_json::Value;
 use serde::{Serialize, Serializer, ser::SerializeTuple};
 use crate::util::clamp;
@@ -31,6 +31,11 @@ impl Pos {
 			y: val.get(1)?.as_i64()?
 		})
 	}
+	
+	pub fn distance_to(&self, other: Pos) -> i64 {
+		let d = other - *self;
+		d.x.abs() + d.y.abs()
+	}
 }
 
 
@@ -53,6 +58,17 @@ impl Add<Pos> for Pos {
 		Pos {
 			x: self.x + other.x,
 			y: self.y + other.y
+		}
+	}
+}
+
+impl Sub<Pos> for Pos {
+	type Output = Pos;
+
+	fn sub(self, other: Pos) -> Pos {
+		Pos {
+			x: self.x - other.x,
+			y: self.y - other.y
 		}
 	}
 }

@@ -52,7 +52,17 @@ impl <'a> System<'a> for Fight {
 						}
 					}
 				}
-				Control::AttackTarget(t) => {target = Some(*t);}
+				Control::AttackTarget(t) => {
+					if *t == entity { // don't knock yourself out
+						if let Some(autofighter) = autofighters.get_mut(entity){
+							autofighter.target = None;
+						}
+					} else if let Some(target_position) = positions.get(*t){
+						if position.pos.distance_to(target_position.pos) <= fighter.range {
+							target = Some(*t);
+						}
+					}
+				}
 				_ => {}
 			}
 			if let Some(ent) = target {

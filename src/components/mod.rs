@@ -147,7 +147,8 @@ pub struct Trap {
 #[storage(HashMapStorage)]
 pub struct Fighter {
 	pub attack: AttackMessage,
-	pub cooldown: i64
+	pub cooldown: i64,
+	pub range: i64
 }
 
 #[derive(Component, Debug, Clone)]
@@ -178,5 +179,20 @@ pub struct ControlCooldown {
 pub struct Autofight {
 	pub target: Option<Entity>
 }
+
+#[derive(Component, Debug, Clone, Default)]
+#[storage(HashMapStorage)]
+pub struct MonsterAI {
+	pub move_chance: f64,
+	pub homesickness: f64,
+	pub view_distance: i64
+}
+
+#[derive(Component, Debug, Clone, Default)]
+#[storage(HashMapStorage)]
+pub struct Home {
+	pub home: Pos
+}
+
 
 

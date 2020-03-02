@@ -142,6 +142,20 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"sprite": "wound",
 			"height": 0.25,
 			"components": [["Volatile", {"delay": ["int", 4]}]]
+		},
+		"rat": {
+			"sprite": "rat",
+			"height": 1,
+			"components": [
+				["MonsterAI", {
+					"view_distance": ["int", 3],
+					"move_chance": ["float", 0.08],
+					"homesickness": ["float", 0.1]
+				}],
+				["Health", {"health": ["int", 8], "maxhealth": ["int", 8]}],
+				["Fighter", {"damage": ["int", 2], "cooldown": ["int", 6]}],
+				["Movable", {"cooldown": ["int", 3]}]
+			]
 		}
 	})).unwrap()
 }

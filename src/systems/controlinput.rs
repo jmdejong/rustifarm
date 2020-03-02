@@ -26,7 +26,6 @@ impl <'a> System<'a> for ControlInput {
 		WriteStorage<'a, Autofight>
 	);
 	fn run(&mut self, (entities, mut input, mut controllers, players, cooldowns, mut autofighters): Self::SystemData) {
-		controllers.clear();
 	
 		for (player, entity, ()) in (&players, &entities, !&cooldowns).join() {
 			if let Some(control) = input.actions.remove(&player.id){

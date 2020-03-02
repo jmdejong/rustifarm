@@ -39,7 +39,8 @@ use crate::{
 		Fight,
 		Heal,
 		Volate,
-		UpdateCooldowns
+		UpdateCooldowns,
+		ControlAI
 	},
 	components::{
 		Position,
@@ -87,16 +88,17 @@ impl <'a, 'b>Room<'a, 'b> {
 			.with(RegisterNew::default(), "registernew", &[])
 			.with(UpdateCooldowns, "cool_down", &["registernew"])
 			.with(ControlInput, "controlinput", &["cool_down"])
-			.with(Take, "take", &["controlinput"])
-			.with(Use, "use", &["controlinput"])
-			.with(Move, "move", &["registernew", "controlinput"])
+			.with(ControlAI, "controlai", &["cool_down"])
+			.with(Take, "take", &["controlinput", "controlai"])
+			.with(Use, "use", &["controlinput", "controlai"])
+			.with(Move, "move", &["controlinput", "controlai"])
 			.with(Trapping, "trapping", &["move"])
-			.with(Fight, "fight", &["move", "controlinput"])
+			.with(Fight, "fight", &["move"])
 			.with(Heal, "heal", &["registernew"])
 			.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
 			.with(View::default(), "view", &["move", "attacking", "volate"])
 			.with(Migrate, "migrate", &["view"])
-			.with(Create, "create", &["view", "controlinput"])
+			.with(Create, "create", &["view"])
 			.with(Remove, "remove", &["view", "move"])
 			.build();
 		

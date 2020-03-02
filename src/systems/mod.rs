@@ -14,6 +14,7 @@ mod fight;
 mod heal;
 mod volate;
 mod updatecooldowns;
+mod controlai;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -30,5 +31,6 @@ pub use self::{
 	fight::Fight,
 	heal::Heal,
 	volate::Volate,
-	updatecooldowns::UpdateCooldowns
+	updatecooldowns::UpdateCooldowns,
+	controlai::ControlAI
 };

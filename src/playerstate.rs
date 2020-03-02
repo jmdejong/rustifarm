@@ -125,7 +125,7 @@ impl PlayerState {
 				capacity: self.inventory_capacity
 			}),
 			ComponentWrapper::Health(Health{health: self.health, maxhealth: self.maximum_health}),
-			ComponentWrapper::Fighter(Fighter{attack: AttackMessage::new(5), cooldown: 8}),
+			ComponentWrapper::Fighter(Fighter{attack: AttackMessage::new(5), cooldown: 8, range: 1}),
 			ComponentWrapper::Healing(Healing{delay: 50, health: 1, next_heal: None}),
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
 			ComponentWrapper::Autofight(Autofight::default())

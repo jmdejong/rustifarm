@@ -23,7 +23,8 @@ use crate::{
 		Healing,
 		Volatile,
 		AttackMessage,
-		Autofight
+		Autofight,
+		MonsterAI
 	},
 	parameter::{Parameter, ParameterType}
 };
@@ -132,10 +133,11 @@ components!(
 		}
 	};
 	Trap (damage: Int) {Trap{attack: AttackMessage::new(damage)}};
-	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackMessage::new(damage), cooldown}};
+	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackMessage::new(damage), cooldown, range: 1}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};
+	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int) {MonsterAI{move_chance, homesickness, view_distance}};
 );
 
 

@@ -4,7 +4,7 @@ use serde_json::Value;
 use specs::Entity;
 use crate::{PlayerId, Pos};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
 	North,
 	South,
