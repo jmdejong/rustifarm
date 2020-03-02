@@ -122,7 +122,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"arguments": [["health", "int", 100]],
 			"components": [
 				"Blocking",
-				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 100]}]
+				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 100]}],
+				"Mortal"
 			],
 			"sprite": "wall",
 			"height": 2
@@ -136,7 +137,10 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			"arguments": [["health", "int", 20]],
 			"sprite": "dummy",
 			"height": 1,
-			"components": [["Health", {"health": ["arg", "health"], "maxhealth": ["int", 20]}]]
+			"components": [
+				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 20]}],
+				"Mortal"
+			]
 		},
 		"wound": {
 			"sprite": "wound",
@@ -154,7 +158,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				}],
 				["Health", {"health": ["int", 8], "maxhealth": ["int", 8]}],
 				["Fighter", {"damage": ["int", 2], "cooldown": ["int", 6]}],
-				["Movable", {"cooldown": ["int", 3]}]
+				["Movable", {"cooldown": ["int", 3]}],
+				"Mortal"
 			]
 		}
 	})).unwrap()

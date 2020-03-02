@@ -135,7 +135,7 @@ pub struct Entered;
 
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
-pub struct Dying;
+pub struct Dead;
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
@@ -193,6 +193,9 @@ pub struct MonsterAI {
 pub struct Home {
 	pub home: Pos
 }
+
+#[derive(Component, Debug, Clone, Default)]
+pub struct Mortal;
 
 
 

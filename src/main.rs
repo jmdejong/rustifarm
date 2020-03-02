@@ -34,6 +34,7 @@ mod worldloader;
 mod world;
 mod sprite;
 mod timestamp;
+mod purgatory;
 
 pub use self::{
 	pos::Pos,

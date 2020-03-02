@@ -15,6 +15,7 @@ mod heal;
 mod volate;
 mod updatecooldowns;
 mod controlai;
+mod die;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -32,5 +33,6 @@ pub use self::{
 	heal::Heal,
 	volate::Volate,
 	updatecooldowns::UpdateCooldowns,
-	controlai::ControlAI
+	controlai::ControlAI,
+	die::Die
 };

@@ -8,6 +8,7 @@ use crate::{
 	aerr
 };
 
+#[derive(Debug, Clone)]
 pub struct RoomTemplate {
 	pub size: (i64, i64),
 	pub spawn: Pos,

@@ -24,24 +24,6 @@ use crate::{
 		Emigration,
 		TimeStamp
 	},
-	systems::{
-		Move,
-		RegisterNew,
-		ControlInput,
-		View,
-		Remove,
-		Create,
-		Take,
-		Migrate,
-		Use,
-		Attacking,
-		Trapping,
-		Fight,
-		Heal,
-		Volate,
-		UpdateCooldowns,
-		ControlAI
-	},
 	components::{
 		Position,
 		Serialise,
@@ -61,10 +43,49 @@ use crate::{
 	RoomId,
 	aerr,
 	Result,
-	Timestamp
+	Timestamp,
+	systems::{
+		Move,
+		RegisterNew,
+		ControlInput,
+		View,
+		Remove,
+		Create,
+		Take,
+		Migrate,
+		Use,
+		Attacking,
+		Trapping,
+		Fight,
+		Heal,
+		Volate,
+		UpdateCooldowns,
+		ControlAI,
+		Die
+	}
 };
 
-
+pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
+	DispatcherBuilder::new()
+		.with(Volate, "volate", &[])
+		.with(RegisterNew::default(), "registernew", &[])
+		.with(UpdateCooldowns, "cool_down", &["registernew"])
+		.with(ControlInput, "controlinput", &["cool_down"])
+		.with(ControlAI, "controlai", &["cool_down"])
+		.with(Take, "take", &["controlinput", "controlai"])
+		.with(Use, "use", &["controlinput", "controlai"])
+		.with(Move, "move", &["controlinput", "controlai"])
+		.with(Trapping, "trapping", &["move"])
+		.with(Fight, "fight", &["move"])
+		.with(Heal, "heal", &["registernew"])
+		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
+		.with(Die, "die", &["attacking"])
+		.with(View::default(), "view", &["move", "attacking", "volate", "die"])
+		.with(Migrate, "migrate", &["view"])
+		.with(Create, "create", &["view"])
+		.with(Remove, "remove", &["view", "move"])
+		.build()
+}
 
 pub struct Room<'a, 'b> {
 	world: World,
@@ -73,37 +94,28 @@ pub struct Room<'a, 'b> {
 	places: HashMap<String, Pos>
 }
 
+macro_rules! register_insert {
+	($world: expr, ($($comp: ident),*), ($($res: ident),*)) => {
+		$(
+			$world.register::<crate::components::$comp>();
+		)*
+		$(
+			$world.insert(crate::resources::$res::default());
+		)*
+	}
+}
+
+
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(id: RoomId, encyclopedia: Encyclopedia) -> Room<'a, 'b> {
+	pub fn new(id: RoomId, encyclopedia: Encyclopedia, dispatcher: Dispatcher<'a, 'b>) -> Room<'a, 'b> {
 		let mut world = World::new();
 		world.insert(NewEntities::new(encyclopedia));
-		world.insert(Players::default());
-		world.insert(Spawn::default());
-		world.insert(Emigration::default());
-		world.register::<Serialise>();
-		
-		let mut dispatcher = DispatcherBuilder::new()
-			.with(Volate, "volate", &[])
-			.with(RegisterNew::default(), "registernew", &[])
-			.with(UpdateCooldowns, "cool_down", &["registernew"])
-			.with(ControlInput, "controlinput", &["cool_down"])
-			.with(ControlAI, "controlai", &["cool_down"])
-			.with(Take, "take", &["controlinput", "controlai"])
-			.with(Use, "use", &["controlinput", "controlai"])
-			.with(Move, "move", &["controlinput", "controlai"])
-			.with(Trapping, "trapping", &["move"])
-			.with(Fight, "fight", &["move"])
-			.with(Heal, "heal", &["registernew"])
-			.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
-			.with(View::default(), "view", &["move", "attacking", "volate"])
-			.with(Migrate, "migrate", &["view"])
-			.with(Create, "create", &["view"])
-			.with(Remove, "remove", &["view", "move"])
-			.build();
-		
-		dispatcher.setup(&mut world);
-		
+		register_insert!(
+			world,
+			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item), 
+			(Ground, Input, Output, Size, Spawn, Players, Emigration, TimeStamp)
+		);	
 		
 		Room {
 			world,
@@ -136,7 +148,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	
 	
 	pub fn create(id: RoomId, encyclopedia: &Encyclopedia, template: &RoomTemplate) -> Room<'a, 'b> {
-		let mut room = Self::new(id, encyclopedia.clone());
+		let mut room = Self::new(id, encyclopedia.clone(), default_dispatcher());
 		room.load_from_template(template);
 		room
 	}
@@ -239,7 +251,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn emigrate(&mut self) -> Vec<(PlayerId, RoomId, RoomPos)> {
-		let emigrants = self.world.remove::<Emigration>().expect("World does not have Emigrating resource").emigrants;
+		let emigrants = self.world.remove::<Emigration>().expect("World does not have Emigration resource").emigrants;
 		self.world.insert(Emigration::default());
 		emigrants
 	}

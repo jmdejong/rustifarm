@@ -1,5 +1,6 @@
 
 use std::collections::HashMap;
+use crate::hashmap;
 
 use crate::{
 	PlayerId,
@@ -13,7 +14,8 @@ use crate::{
 	Result,
 	aerr,
 	worldmessages::WorldMessage,
-	Timestamp
+	Timestamp,
+	purgatory
 };
 
 pub struct World<'a, 'b> {
@@ -26,7 +28,6 @@ pub struct World<'a, 'b> {
 	time: Timestamp
 }
 
-
 impl <'a, 'b>World<'a, 'b> {
 	
 	pub fn new(encyclopedia: Encyclopedia, template_loader: WorldLoader, persistence: Box<dyn PersistentStorage>, default_room: RoomId) -> Self {
@@ -36,7 +37,7 @@ impl <'a, 'b>World<'a, 'b> {
 			default_room,
 			encyclopedia,
 			players: HashMap::new(),
-			rooms: HashMap::new(),
+			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory()),
 			time: Timestamp(0)
 		}
 	}
@@ -66,11 +67,14 @@ impl <'a, 'b>World<'a, 'b> {
 	}
 	
 	pub fn add_player(&mut self, playerid: &PlayerId) -> Result<()> {
-		let state = self.persistence
+		let mut state = self.persistence
 			.load_player(playerid.clone())
 			.unwrap_or_else(|_err| // todo: what if player exists but can't be loaded for another reason?
 				PlayerState::new(playerid.clone())
 			);
+		if state.room == Some(purgatory::purgatory_id()){
+			state.respawn();
+		}
 		self.add_loaded_player(state)
 	}
 	

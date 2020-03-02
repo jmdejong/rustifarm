@@ -108,6 +108,12 @@ impl PlayerState {
 		})
 	}
 	
+	pub fn respawn(&mut self) {
+		self.room = None;
+		self.pos = RoomPos::Unknown;
+		self.health = self.maximum_health;
+	}
+	
 	pub fn construct(&self, encyclopedia: &Encyclopedia) -> PreEntity {
 		vec![
 			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.2, name: self.id.name.clone()}),

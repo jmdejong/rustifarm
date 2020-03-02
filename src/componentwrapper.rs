@@ -24,7 +24,8 @@ use crate::{
 		Volatile,
 		AttackMessage,
 		Autofight,
-		MonsterAI
+		MonsterAI,
+		Mortal
 	},
 	parameter::{Parameter, ParameterType}
 };
@@ -138,6 +139,7 @@ components!(
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int) {MonsterAI{move_chance, homesickness, view_distance}};
+	Mortal () {Mortal};
 );
 
 
