@@ -111,6 +111,7 @@ fn main() -> Result<()>{
 				}
 				Action::Leave(player) => {
 					world.remove_player(&player)?;
+					message_cache.remove(&player);
 				}
 			}
 		}

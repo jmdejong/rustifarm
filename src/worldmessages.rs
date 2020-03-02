@@ -78,11 +78,11 @@ pub struct FieldMessage {
 
 #[derive(Debug, Clone, Default)]
 pub struct MessageCache {
-	pub cache: HashMap<PlayerId, WorldMessage>
+	cache: HashMap<PlayerId, WorldMessage>
 }
 
 impl MessageCache {
-
+	
 	pub fn trim(&mut self, player: &PlayerId, msg: &mut WorldMessage){
 		if let Some(cached) = self.cache.get_mut(player){
 			msg.remove_old(cached);
@@ -90,6 +90,10 @@ impl MessageCache {
 		} else {
 			self.cache.insert(player.clone(), msg.clone());
 		}
+	}
+	
+	pub fn remove(&mut self, player: &PlayerId){
+		self.cache.remove(player);
 	}
 }
 
