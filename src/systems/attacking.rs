@@ -9,7 +9,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, AttackInbox, Dead, Position},
+	components::{Health, AttackInbox, Dead, Position, Autofight},
 	resources::NewEntities,
 	Template,
 	util
@@ -24,9 +24,22 @@ impl <'a> System<'a> for Attacking {
 		WriteStorage<'a, Health>,
 		WriteStorage<'a, Dead>,
 		ReadStorage<'a, Position>,
-		Write<'a, NewEntities>
+		Write<'a, NewEntities>,
+		WriteStorage<'a, Autofight>
 	);
-	fn run(&mut self, (entities, mut attackeds, mut healths, mut deads, positions, mut new): Self::SystemData) {
+	fn run(&mut self, (entities, mut attackeds, mut healths, mut deads, positions, mut new, mut autofighters): Self::SystemData) {
+		
+		for (entity, attacked, autofighter) in (&entities, &attackeds, &mut autofighters).join() {
+			for attack in &attacked.messages {
+				if attack.damage > 0 {
+					if let Some(attacker) = attack.attacker {
+						if healths.contains(attacker) && attacker != entity {
+							autofighter.target = Some(attacker);
+						}
+					}
+				}
+			}
+		}
 		for (ent, health, attacked) in (&entities, &mut healths, &mut attackeds).join() {
 			let mut wounded = false;
 			for attack in attacked.messages.drain(..) {
