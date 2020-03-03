@@ -5,7 +5,8 @@ pub mod messages;
 pub use item::Item;
 pub use messages::{
 	AttackMessage,
-	AttackInbox
+	AttackInbox,
+	AttackType
 };
 
 use specs::{
@@ -140,13 +141,13 @@ pub struct Dead;
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Trap {
-	pub attack: AttackMessage
+	pub attack: AttackType
 }
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Fighter {
-	pub attack: AttackMessage,
+	pub attack: AttackType,
 	pub cooldown: i64,
 	pub range: i64
 }

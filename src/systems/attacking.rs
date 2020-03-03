@@ -1,4 +1,6 @@
 
+
+use rand::Rng;
 use specs::{
 	ReadStorage,
 	WriteStorage,
@@ -9,7 +11,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, AttackInbox, Dead, Position, Autofight},
+	components::{Health, AttackInbox, AttackType, Dead, Position, Autofight},
 	resources::NewEntities,
 	Template,
 	util
@@ -31,7 +33,7 @@ impl <'a> System<'a> for Attacking {
 		
 		for (entity, attacked, autofighter) in (&entities, &attackeds, &mut autofighters).join() {
 			for attack in &attacked.messages {
-				if attack.damage > 0 {
+				if attack.typ.is_hostile() {
 					if let Some(attacker) = attack.attacker {
 						if healths.contains(attacker) && attacker != entity {
 							autofighter.target = Some(attacker);
@@ -43,9 +45,17 @@ impl <'a> System<'a> for Attacking {
 		for (ent, health, attacked) in (&entities, &mut healths, &mut attackeds).join() {
 			let mut wounded = false;
 			for attack in attacked.messages.drain(..) {
-				health.health -= attack.damage;
-				if attack.damage > 0 {
-					wounded = true;
+				match attack.typ {
+					AttackType::Attack(strength) => {
+						let damage = rand::thread_rng().gen_range(0, strength+1);
+						health.health -= damage;
+						if damage > 0 {
+							wounded = true;
+						}
+					}
+					AttackType::Heal(healthdiff) => {
+						health.health += healthdiff;
+					}
 				}
 			}
 			health.health = util::clamp(health.health, 0, health.maxhealth);

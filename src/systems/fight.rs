@@ -13,6 +13,7 @@ use crate::components::{
 	Controller,
 	Position,
 	AttackInbox,
+	AttackMessage,
 	Fighter,
 	Health,
 	ControlCooldown,
@@ -63,9 +64,7 @@ impl <'a> System<'a> for Fight {
 				_ => {}
 			}
 			if let Some(ent) = target {
-				let mut attack = fighter.attack.clone();
-				attack.attacker = Some(entity);
-				AttackInbox::add_message(&mut attacked, ent, attack);
+				AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: fighter.attack.clone(), attacker: Some(entity)});
 				cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();
 				if let Some(autofighter) = autofighters.get_mut(entity){
 					autofighter.target = Some(ent);

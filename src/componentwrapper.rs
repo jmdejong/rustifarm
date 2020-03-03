@@ -9,7 +9,7 @@ use crate::{
 	Sprite,
 	playerstate::RoomPos,
 	components::{
-		AttackMessage,
+		AttackType,
 		Clan
 	},
 	parameter::{Parameter, ParameterType},
@@ -20,16 +20,13 @@ use crate::{
 
 macro_rules! components {
 	($($comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr);*;) => {
-	
 		#[derive(Clone)]
 		pub enum ComponentWrapper{
 			$(
 				$comp(crate::components::$comp),
 			)*
 		}
-
 		impl ComponentWrapper {
-
 			pub fn build<A: Builder>(&self, builder: A ) -> A {
 				match self.clone() {
 					$(
@@ -37,12 +34,9 @@ macro_rules! components {
 					)*
 				}
 			}
-			
 			pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Option<Self> {
-				
 				match comptype {
 					$(
-						
 						ComponentType::$comp => Some(Self::$comp({
 							use crate::components::$comp;
 							$(
@@ -57,16 +51,13 @@ macro_rules! components {
 				}
 			}
 		}
-		
 		#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 		pub enum ComponentType {
 			$(
 				$comp,
 			)*
 		}
-		
 		impl ComponentType {
-			
 			pub fn from_str(typename: &str) -> Option<ComponentType>{
 				match typename {
 					$(
@@ -75,7 +66,6 @@ macro_rules! components {
 					_ => None
 				}
 			}
-			
 			pub fn parameters(&self) -> HashMap<&str, ParameterType> {
 				match self {
 					$(
@@ -120,8 +110,8 @@ components!(
 				}
 		}
 	};
-	Trap (damage: Int) {Trap{attack: AttackMessage::new(damage)}};
-	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackMessage::new(damage), cooldown, range: 1}};
+	Trap (damage: Int) {Trap{attack: AttackType::Attack(damage)}};
+	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};

@@ -32,19 +32,26 @@ impl <M: Message> Inbox<M> {
 	}
 }
 
-#[derive(Debug, Clone)]
-pub struct AttackMessage {
-	pub damage: i64,
-	pub attacker: Option<Entity>
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AttackType {
+	Attack(i64),
+	Heal(i64)
 }
 
-impl AttackMessage {
-	pub fn new(damage: i64) -> Self {
-		Self {
-			damage,
-			attacker: None
+impl AttackType {
+	pub fn is_hostile(&self) -> bool {
+		match self {
+			Self::Attack(_) => true,
+			Self::Heal(_) => false
 		}
 	}
+}
+
+#[derive(Debug, Clone)]
+pub struct AttackMessage {
+	pub attacker: Option<Entity>,
+	pub typ: AttackType
 }
 
 impl Message for AttackMessage {}

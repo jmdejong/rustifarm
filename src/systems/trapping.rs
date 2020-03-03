@@ -9,7 +9,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, AttackInbox, Moved, Entered, Trap, Position},
+	components::{Health, AttackInbox, AttackMessage, Moved, Entered, Trap, Position},
 	resources::Ground
 };
 
@@ -31,7 +31,7 @@ impl <'a> System<'a> for Trapping {
 		for (entity, _entered, trap, position) in (&entities, &entereds, &traps, &positions).join() {
 			for ent in ground.cells.get(&position.pos).unwrap(){
 				if ent != &entity && moves.contains(*ent) && healths.contains(*ent) {
-					AttackInbox::add_message(&mut victims, *ent, trap.attack.clone());
+					AttackInbox::add_message(&mut victims, *ent, AttackMessage{typ: trap.attack.clone(), attacker: Some(entity)});
 				}
 			}
 		}

@@ -15,7 +15,8 @@ use crate::{
 		Position,
 		Inventory,
 		AttackInbox,
-		AttackMessage
+		AttackMessage,
+		AttackType
 	},
 	resources::{NewEntities},
 	components::item::ItemAction::{None, Build, Eat},
@@ -45,7 +46,7 @@ impl <'a> System<'a> for Use {
 								inventory.items.remove(*rank);
 							}
 							Eat(health_diff) => {
-								AttackInbox::add_message(&mut attacked, ent, AttackMessage::new(-*health_diff));
+								AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: AttackType::Heal(*health_diff), attacker: Option::None});
 								inventory.items.remove(*rank);
 							}
 							None => {}
