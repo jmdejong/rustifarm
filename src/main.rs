@@ -1,11 +1,10 @@
 
 use std::thread::sleep;
 use std::time::Duration;
-use std::path::Path;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::fs;
+use serde_json;
 
 mod server;
 mod gameserver;
@@ -26,7 +25,6 @@ mod template;
 mod roomtemplate;
 mod savestate;
 mod playerid;
-mod defaultencyclopedia;
 mod playerstate;
 mod roomid;
 mod persistence;
@@ -52,7 +50,6 @@ use self::{
 	server::unixserver::UnixServer,
 	server::tcpserver::TcpServer,
 	server::Server,
-	defaultencyclopedia::default_encyclopedia,
 	persistence::FileStorage,
 	controls::Action,
 	worldloader::WorldLoader,
@@ -76,12 +73,22 @@ fn main() -> Result<()>{
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	
-	let loader = WorldLoader::new(PathBuf::from_str(&(std::env::var("CARGO_MANIFEST_DIR").unwrap_or(".".to_string()) + "/content/maps/"))?);
+	let content_dir = PathBuf::new().join(std::env::var("CARGO_MANIFEST_DIR").unwrap_or(".".to_string())).join("content/");
+	let loader = WorldLoader::new(content_dir.join("maps"));
 	
 	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
+	
+	let encyclopedia = Encyclopedia::from_json(
+		serde_json::from_str(
+			&fs::read_to_string(
+				content_dir
+					.join("encyclopediae")
+					.join("default_encyclopedia.json")
+			)?
+		)?
+	)?;
 
-	let mut world = World::new(default_encyclopedia(), loader, Box::new(storage), RoomId::from_str("room"));
+	let mut world = World::new(encyclopedia, loader, Box::new(storage), RoomId::from_str("room"));
 	
 	let mut message_cache = MessageCache::default();
 	

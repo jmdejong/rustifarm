@@ -35,9 +35,9 @@ impl <'a, 'b>World<'a, 'b> {
 			template_loader,
 			persistence,
 			default_room,
-			encyclopedia,
+			encyclopedia: encyclopedia.clone(),
 			players: HashMap::new(),
-			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory()),
+			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia)),
 			time: Timestamp(1000000)
 		}
 	}
