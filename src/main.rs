@@ -36,7 +36,7 @@ mod sprite;
 mod timestamp;
 mod purgatory;
 
-pub use self::{
+use self::{
 	pos::Pos,
 	playerid::PlayerId,
 	roomid::RoomId,

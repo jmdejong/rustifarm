@@ -14,7 +14,8 @@ use crate::{
 	components::{
 		Position,
 		Spawner,
-		Clan
+		Clan,
+		Home
 	},
 	resources::{NewEntities, TimeStamp},
 	componentwrapper::ComponentWrapper
@@ -45,6 +46,7 @@ impl <'a> System<'a> for Spawn {
 						spawner.last_spawn = None;
 						let mut preent = new.encyclopedia.construct(&spawner.template).expect("unable to spawn entity from spawner");
 						preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
+						preent.push(ComponentWrapper::Home(Home{home: position.pos}));
 						new.to_build.push((position.pos, preent));
 					}
 				} else {

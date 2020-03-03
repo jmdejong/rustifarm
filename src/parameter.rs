@@ -1,7 +1,10 @@
 
 use serde_json::{Value, json};
-use crate::Template;
-use crate::components::item::ItemAction;
+use crate::{
+	Template,
+	components::item::ItemAction,
+	Pos
+};
 
 
 
@@ -62,7 +65,7 @@ macro_rules! parameters {
 parameters!(
 	String (String) string, v (v.as_str()?.to_string()) (json!(v));
 	Int (i64) int, v (v.as_i64()?) (json!(v));
-// 	Pos (Pos) pos, () ();
+	Pos (Pos) pos, v (Pos::from_json(v)?) (json!(v));
 	Float (f64) float, v (v.as_f64()?) (json!(v));
 	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
 	Action (ItemAction) action, v (ItemAction::from_json(v)?) (v.to_json());

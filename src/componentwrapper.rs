@@ -143,6 +143,7 @@ components!(
 		}
 	};
 	Clan (name: String) Clan{name};
+	Home (home: Pos) Home{home};
 );
 
 
