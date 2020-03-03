@@ -161,7 +161,8 @@ mod tests {
 			})).unwrap(),
 			Assemblage{
 				arguments: vec![],
-				components: vec![]
+				components: vec![],
+				save: true
 			}
 		);
 	}
@@ -174,8 +175,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1]
+						"sprite": ["arg", "sprite"],
+						"height": ["float", 0.1],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap();
@@ -184,7 +186,8 @@ mod tests {
 				components: vec![
 					(ComponentType::Visible, hashmap!(
 						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
-						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1))
+						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1)),
+						"name".to_string() => ComponentParameter::Constant(Parameter::String("grass".to_string()))
 					))
 				],
 				save: true
@@ -201,7 +204,8 @@ mod tests {
 				"components": [
 					["visible", { // no capital so invalid
 						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1]
+						"height": ["float", 0.1],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap_err();
@@ -219,7 +223,8 @@ mod tests {
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["string", "0.1"]
+						"height": ["string", "0.1"],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap_err();
@@ -235,7 +240,8 @@ mod tests {
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprits"],
-						"height": ["float", 0.1]
+						"height": ["float", 0.1],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap_err();
@@ -251,7 +257,8 @@ mod tests {
 				"components": [
 					["Visible", {
 						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1]
+						"height": ["float", 0.1],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap_err();
@@ -268,8 +275,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["A", "sprits"],
-						"height": ["float", 0.1]
+						"sprite": ["A", "sprite"],
+						"height": ["float", 0.1],
+						"name": ["string", "grass"]
 					}]
 				]
 			})).unwrap_err();
@@ -285,8 +293,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1]
+						"sprite": ["arg", "sprite"],
+						"height": ["float", 0.1],
+						"name": ["arg", "sprite"]
 					}]
 				]
 			})).unwrap();
@@ -295,7 +304,8 @@ mod tests {
 				components: vec![
 					(ComponentType::Visible, hashmap!(
 						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
-						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1))
+						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1)),
+						"name".to_string() => ComponentParameter::Argument("sprite".to_string())
 					))
 				],
 				save: true
