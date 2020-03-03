@@ -75,7 +75,16 @@ impl <'a, 'b>World<'a, 'b> {
 		if state.room == Some(purgatory::purgatory_id()){
 			state.respawn();
 		}
-		self.add_loaded_player(state)
+		
+		if let Err(_e) = self.add_loaded_player(state.clone()){
+			state.room = None;
+			state.pos = RoomPos::Unknown;
+			if let Err(_e) = self.add_loaded_player(state.clone()) {
+				state.room = Some(purgatory::purgatory_id());
+				self.add_loaded_player(state)?;
+			}
+		}
+		Ok(())
 	}
 	
 	fn discorporate_player(&mut self, playerid: &PlayerId) -> Result<PlayerState> {
@@ -99,9 +108,21 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	fn migrate_player(&mut self, player: &PlayerId, destination: RoomId, roompos: RoomPos) -> Result<()> {
 		let mut state = self.discorporate_player(player)?;
+		let old_room = state.room;
 		state.room = Some(destination);
 		state.pos = roompos;
-		self.add_loaded_player(state)
+		if let Err(_e) = self.add_loaded_player(state.clone()){
+			state.room = old_room;
+			state.pos = RoomPos::Unknown;
+			if let Err(_e) = self.add_loaded_player(state.clone()) {
+				state.room = None;
+				if let Err(_e) = self.add_loaded_player(state.clone()) {
+					state.room = Some(purgatory::purgatory_id());
+					self.add_loaded_player(state)?;
+				}
+			}
+		}
+		Ok(())
 	}
 	
 	
