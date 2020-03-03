@@ -1,6 +1,7 @@
 
 pub mod item;
 pub mod messages;
+pub mod faction;
 
 pub use item::Item;
 pub use messages::{
@@ -8,6 +9,7 @@ pub use messages::{
 	AttackInbox,
 	AttackType
 };
+pub use faction::Faction;
 
 use specs::{
 	DenseVecStorage,

@@ -11,7 +11,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Controller, ControlCooldown, Fighter, MonsterAI, Home, Health, Position},
+	components::{Controller, ControlCooldown, Fighter, MonsterAI, Home, Health, Position, Faction},
 	controls::{Control, Direction::{self, North, South, East, West}},
 	Pos
 };
@@ -27,9 +27,10 @@ impl <'a> System<'a> for ControlAI {
 		ReadStorage<'a, Fighter>,
 		ReadStorage<'a, Home>,
 		ReadStorage<'a, Health>,
-		ReadStorage<'a, Position>
+		ReadStorage<'a, Position>,
+		ReadStorage<'a, Faction>
 	);
-	fn run(&mut self, (entities, mut controllers, cooldowns, ais, fighters, homes, healths, positions): Self::SystemData) {
+	fn run(&mut self, (entities, mut controllers, cooldowns, ais, fighters, homes, healths, positions, factions): Self::SystemData) {
 	
 		for (entity, ai, position, ()) in (&entities, &ais, &positions, !&cooldowns).join() {
 			if let Some(fighter) = fighters.get(entity) {
@@ -37,7 +38,7 @@ impl <'a> System<'a> for ControlAI {
 				let mut closest = None;
 				let mut closest_position = None;
 				for (target, target_position, _) in (&entities, &positions, &healths).join() {
-					if target == entity {
+					if target == entity || !Faction::is_enemy_entity(&factions, entity, target) {
 						continue;
 					}
 					let distance = position.pos.distance_to(target_position.pos);

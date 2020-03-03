@@ -17,7 +17,8 @@ use crate::components::{
 	Fighter,
 	Health,
 	ControlCooldown,
-	Autofight
+	Autofight,
+	Faction
 };
 
 use crate::controls::{Control};
@@ -36,17 +37,18 @@ impl <'a> System<'a> for Fight {
 		ReadStorage<'a, Fighter>,
 		ReadStorage<'a, Health>,
 		WriteStorage<'a, ControlCooldown>,
-		WriteStorage<'a, Autofight>
+		WriteStorage<'a, Autofight>,
+		ReadStorage<'a, Faction>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns, mut autofighters): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns, mut autofighters, factions): Self::SystemData) {
 		for (entity, controller, position, fighter) in (&entities, &controllers, &positions, &fighters).join(){
 			let mut target = None;
 			match &controller.control {
 				Control::Attack(directions) => {
 					'targets: for direction in directions {
 						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
-							if healths.contains(*ent) && *ent != entity {
+							if healths.contains(*ent) && *ent != entity && Faction::is_enemy_entity(&factions, entity, *ent) {
 								target = Some(*ent);
 								break 'targets;
 							}

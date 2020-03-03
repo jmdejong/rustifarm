@@ -160,7 +160,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				["Health", {"health": ["int", 8], "maxhealth": ["int", 8]}],
 				["Fighter", {"damage": ["int", 2], "cooldown": ["int", 6]}],
 				["Movable", {"cooldown": ["int", 3]}],
-				"Mortal"
+				"Mortal",
+				["Faction", {"faction": ["string", "evil"]}]
 			]
 		},
 		"spawner": {

@@ -15,7 +15,8 @@ use crate::{
 		Healing,
 		Movable,
 		AttackType,
-		Autofight
+		Autofight,
+		Faction
 	},
 	Result,
 	aerr,
@@ -134,7 +135,8 @@ impl PlayerState {
 			ComponentWrapper::Fighter(Fighter{attack: AttackType::Attack(5), cooldown: 8, range: 1}),
 			ComponentWrapper::Healing(Healing{delay: 50, health: 1, next_heal: None}),
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
-			ComponentWrapper::Autofight(Autofight::default())
+			ComponentWrapper::Autofight(Autofight::default()),
+			ComponentWrapper::Faction(Faction::Good)
 		]
 	}
 }
