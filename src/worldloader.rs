@@ -25,7 +25,6 @@ impl WorldLoader {
 		let mut path = self.directory.clone();
 		let fname = id.to_string() + ".json";
 		path.push(fname);
-		println!("PATH: {:?}", path);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
 		let template = RoomTemplate::from_json(&json)?;

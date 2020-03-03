@@ -16,6 +16,7 @@ mod volate;
 mod updatecooldowns;
 mod controlai;
 mod die;
+mod spawn;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -34,5 +35,6 @@ pub use self::{
 	volate::Volate,
 	updatecooldowns::UpdateCooldowns,
 	controlai::ControlAI,
-	die::Die
+	die::Die,
+	spawn::Spawn
 };

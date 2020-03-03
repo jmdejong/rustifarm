@@ -43,7 +43,7 @@
 		"%": {"type": "portal", "kwargs": {"destination": "broom", "dest_pos": "northentry"}},
 		"^": ["grass", "spiketrap"],
 		"d": ["grass", "dummy"],
-		"r": ["grass", "rat"],
+		"r": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "rat", "save": false}, "amount": 3, "clan": "rats", "delay": 200}}],
 		" ": []
 	}
 }

@@ -1,6 +1,7 @@
 
 use std::collections::HashMap;
 use specs::Builder;
+use rand::Rng;
 
 use crate::{
 	PlayerId,
@@ -8,37 +9,22 @@ use crate::{
 	Sprite,
 	playerstate::RoomPos,
 	components::{
-		Visible,
-		Movable,
-		Blocking,
-		Player,
-		Floor,
-		Item,
-		Inventory,
-		Health,
-		Serialise,
-		RoomExit,
-		Trap,
-		Fighter,
-		Healing,
-		Volatile,
 		AttackMessage,
-		Autofight,
-		MonsterAI,
-		Mortal
+		Clan
 	},
-	parameter::{Parameter, ParameterType}
+	parameter::{Parameter, ParameterType},
+	Timestamp
 };
 
 
 
 macro_rules! components {
-	($($comp: ident ($($paramname: ident : $paramtype: ident),*) {$creation: expr});*;) => {
+	($($comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr);*;) => {
 	
 		#[derive(Clone)]
 		pub enum ComponentWrapper{
 			$(
-				$comp($comp),
+				$comp(crate::components::$comp),
 			)*
 		}
 
@@ -58,6 +44,7 @@ macro_rules! components {
 					$(
 						
 						ComponentType::$comp => Some(Self::$comp({
+							use crate::components::$comp;
 							$(
 								let $paramname = match parameters.remove(stringify!($paramname))? {
 									Parameter::$paramtype(p) => p,
@@ -140,6 +127,22 @@ components!(
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int) {MonsterAI{move_chance, homesickness, view_distance}};
 	Mortal () {Mortal};
+	Spawner (amount: Int, delay: Int, clan: String, template: Template) {
+		Spawner{
+			amount: amount as usize,
+			delay,
+			clan: Clan{name:
+				if clan == "" {
+					format!("$random({})", rand::thread_rng().gen::<u32>())
+				} else {
+					clan
+				}
+			},
+			template,
+			last_spawn: Timestamp(0)
+		}
+	};
+	Clan (name: String) Clan{name};
 );
 
 

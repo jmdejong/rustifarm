@@ -53,7 +53,8 @@ impl Template {
 		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object().ok_or(aerr!("template kwargs not a json object"))? {
 			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg).ok_or(aerr!("template arg not a parameter"))?);
 		}
-		Ok(Template {name, args, kwargs, save: true})
+		let save = val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("save not a bool"))?;
+		Ok(Template {name, args, kwargs, save})
 	}
 	
 	pub fn to_json(&self) -> Value {

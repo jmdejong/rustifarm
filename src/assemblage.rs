@@ -15,7 +15,8 @@ type ArgumentDef = (String, ParameterType, Option<Parameter>);
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
 	pub arguments: Vec<ArgumentDef>,
-	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>
+	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>,
+	pub save: bool
 }
 
 impl Assemblage {
@@ -74,7 +75,8 @@ impl Assemblage {
 	pub fn from_json(val: &Value) -> Result<Self, &'static str>{
 		let mut assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
-			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?
+			components: Self::parse_definition_components(val.get("components").ok_or("property 'components' not found")?)?,
+			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or("assemblage save not a bool")?
 		};
 		// visible component is so common that shortcuts are very helpful
 		if let Some(spritename) = val.get("sprite") {
@@ -134,7 +136,7 @@ impl Assemblage {
 			}
 			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or("failed to load component")?);
 		}
-		if template.save {
+		if template.save && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone()}));
 		}
 		Ok(components)
@@ -184,7 +186,8 @@ mod tests {
 						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
 						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1))
 					))
-				]
+				],
+				save: true
 			};
 		assert_eq!(result, constructed);
 	}
@@ -294,7 +297,8 @@ mod tests {
 						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
 						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1))
 					))
-				]
+				],
+				save: true
 			};
 		assert_eq!(result, constructed);
 	}

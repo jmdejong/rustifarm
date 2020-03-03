@@ -19,7 +19,7 @@ use crate::{
 		Output,
 		Input,
 		NewEntities,
-		Spawn,
+		Spawn as SpawnPosition,
 		Players,
 		Emigration,
 		TimeStamp
@@ -61,7 +61,8 @@ use crate::{
 		Volate,
 		UpdateCooldowns,
 		ControlAI,
-		Die
+		Die,
+		Spawn
 	}
 };
 
@@ -70,6 +71,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Volate, "volate", &[])
 		.with(RegisterNew::default(), "registernew", &[])
 		.with(UpdateCooldowns, "cool_down", &["registernew"])
+		.with(Spawn, "spawn", &["registernew"])
 		.with(ControlInput, "controlinput", &["cool_down"])
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Take, "take", &["controlinput", "controlai"])
@@ -82,7 +84,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Die, "die", &["attacking"])
 		.with(View::default(), "view", &["move", "attacking", "volate", "die"])
 		.with(Migrate, "migrate", &["view"])
-		.with(Create, "create", &["view"])
+		.with(Create, "create", &["view", "spawn"])
 		.with(Remove, "remove", &["view", "move"])
 		.build()
 }
@@ -113,7 +115,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item), 
+			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, TimeStamp)
 		);	
 		
@@ -131,14 +133,14 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Size>().width = width;
 		self.world.fetch_mut::<Size>().height = height;
 		
-		self.world.fetch_mut::<Spawn>().pos = template.spawn;
+		self.world.fetch_mut::<SpawnPosition>().pos = template.spawn;
 		
 		for (idx, templates) in template.field.iter().enumerate() {
 			let x = (idx as i64) % width;
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				let _ = self.create_entity(template.clone().unsaved(), Pos{x, y});
+				self.create_entity(template.clone().unsaved(), Pos{x, y}).unwrap();
 			}
 		}
 		for (name, place) in &template.places {
@@ -171,7 +173,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	pub fn add_player(&mut self, state: &PlayerState){
 		let pre_player = state.construct(&self.world.fetch::<NewEntities>().encyclopedia);
 		let spawn = match &state.pos {
-			RoomPos::Unknown => self.world.fetch::<Spawn>().pos,
+			RoomPos::Unknown => self.world.fetch::<SpawnPosition>().pos,
 			RoomPos::Pos(pos) => *pos,
 			RoomPos::Name(name) => *self.places.get(name).unwrap()
 		};
@@ -205,7 +207,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	pub fn load_saved(&mut self, state: &SaveState) {
 		for (pos, templates) in state.changes.iter() {
 			for template in templates {
-				let _ = self.create_entity(template.clone(), *pos);
+				self.create_entity(template.clone(), *pos).unwrap();
 			}
 		}
 	}

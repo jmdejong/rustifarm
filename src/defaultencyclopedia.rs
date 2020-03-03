@@ -145,7 +145,8 @@ pub fn default_encyclopedia() -> Encyclopedia {
 		"wound": {
 			"sprite": "wound",
 			"height": 0.25,
-			"components": [["Volatile", {"delay": ["int", 4]}]]
+			"components": [["Volatile", {"delay": ["int", 4]}]],
+			"save": false
 		},
 		"rat": {
 			"sprite": "rat",
@@ -160,6 +161,17 @@ pub fn default_encyclopedia() -> Encyclopedia {
 				["Fighter", {"damage": ["int", 2], "cooldown": ["int", 6]}],
 				["Movable", {"cooldown": ["int", 3]}],
 				"Mortal"
+			]
+		},
+		"spawner": {
+			"arguments": [["template", "template", null], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""]],
+			"components": [
+				["Spawner", {
+					"template": ["arg", "template"],
+					"amount": ["arg", "amount"],
+					"delay": ["arg", "delay"],
+					"clan": ["arg", "clan"]
+				}]
 			]
 		}
 	})).unwrap()

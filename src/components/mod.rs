@@ -197,5 +197,20 @@ pub struct Home {
 #[derive(Component, Debug, Clone, Default)]
 pub struct Mortal;
 
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Spawner {
+	pub amount: usize,
+	pub delay: i64,
+	pub clan: Clan,
+	pub template: Template,
+	pub last_spawn: Timestamp
+}
+
+#[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]
+#[storage(HashMapStorage)]
+pub struct Clan {
+	pub name: String,
+}
 
 
