@@ -204,7 +204,7 @@ pub struct Spawner {
 	pub delay: i64,
 	pub clan: Clan,
 	pub template: Template,
-	pub last_spawn: Timestamp
+	pub last_spawn: Option<Timestamp>
 }
 
 #[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]

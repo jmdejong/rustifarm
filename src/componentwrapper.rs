@@ -127,7 +127,7 @@ components!(
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int) {MonsterAI{move_chance, homesickness, view_distance}};
 	Mortal () {Mortal};
-	Spawner (amount: Int, delay: Int, clan: String, template: Template) {
+	Spawner (amount: Int, delay: Int, clan: String, template: Template, initial_spawn: Bool) {
 		Spawner{
 			amount: amount as usize,
 			delay,
@@ -139,7 +139,7 @@ components!(
 				}
 			},
 			template: template.unsaved(),
-			last_spawn: Timestamp(0)
+			last_spawn: if initial_spawn {Some(Timestamp(-delay))} else {None}
 		}
 	};
 	Clan (name: String) Clan{name};

@@ -164,13 +164,14 @@ pub fn default_encyclopedia() -> Encyclopedia {
 			]
 		},
 		"spawner": {
-			"arguments": [["template", "template", null], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""]],
+			"arguments": [["template", "template", null], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""], ["initial_spawn", "bool", true]],
 			"components": [
 				["Spawner", {
 					"template": ["arg", "template"],
 					"amount": ["arg", "amount"],
 					"delay": ["arg", "delay"],
-					"clan": ["arg", "clan"]
+					"clan": ["arg", "clan"],
+					"initial_spawn": ["arg", "initial_spawn"]
 				}]
 			]
 		}

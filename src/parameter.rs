@@ -10,7 +10,8 @@ pub enum Parameter {
 // 	Pos(Pos),
 	Float(f64),
 	Template(Template),
-	Action(ItemAction)
+	Action(ItemAction),
+	Bool(bool)
 }
 
 impl Parameter {
@@ -26,7 +27,8 @@ impl Parameter {
 			ParameterType::Int => Some(Self::Int(val.as_i64()?)),
 			ParameterType::Float => Some(Self::Float(val.as_f64()?)),
 			ParameterType::Template => Some(Self::Template(Template::from_json(val).ok()?)),
-			ParameterType::Action => Some(Self::Action(ItemAction::from_json(val)?))
+			ParameterType::Action => Some(Self::Action(ItemAction::from_json(val)?)),
+			ParameterType::Bool => Some(Self::Bool(val.as_bool()?))
 		}
 	}
 	
@@ -36,7 +38,8 @@ impl Parameter {
 			Self::Int(_) => ParameterType::Int,
 			Self::Float(_) => ParameterType::Float,
 			Self::Template(_) => ParameterType::Template,
-			Self::Action(_) => ParameterType::Action
+			Self::Action(_) => ParameterType::Action,
+			Self::Bool(_) => ParameterType::Bool
 		}
 	}
 	
@@ -48,6 +51,8 @@ impl Parameter {
 				ParameterType::Int
 			} else if val.is_f64() {
 				ParameterType::Float
+			} else if val.is_boolean(){
+				ParameterType::Bool
 			} else if val.is_object(){
 				ParameterType::Template
 			} else {
@@ -63,7 +68,8 @@ impl Parameter {
 			Self::Int(i) => json!(i),
 			Self::Float(f) => json!(f),
 			Self::Template(t) => t.to_json(),
-			Self::Action(a) => a.to_json()
+			Self::Action(a) => a.to_json(),
+			Self::Bool(b) => json!(b)
 		}
 	}
 }
@@ -74,7 +80,8 @@ pub enum ParameterType {
 	Int,
 	Float,
 	Template,
-	Action
+	Action,
+	Bool
 }
 
 impl ParameterType {
@@ -86,6 +93,7 @@ impl ParameterType {
 			"float" => Some(Self::Float),
 			"template" => Some(Self::Template),
 			"action" => Some(Self::Action),
+			"bool" => Some(Self::Bool),
 			_ => None
 		}
 	}

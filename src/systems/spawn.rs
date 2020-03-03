@@ -39,11 +39,17 @@ impl <'a> System<'a> for Spawn {
 			clan_nums.insert(clan, n+1);
 		}
 		for (spawner, position) in (&mut spawners, &positions).join() {
-			if time.time > spawner.last_spawn + spawner.delay && *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
-				spawner.last_spawn = time.time;
-				let mut preent = new.encyclopedia.construct(&spawner.template).expect("unable to spawn entity from spawner");
-				preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
-				new.to_build.push((position.pos, preent));
+			if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
+				if let Some(last_spawn) = spawner.last_spawn {
+					if time.time > last_spawn + spawner.delay {
+						spawner.last_spawn = None;
+						let mut preent = new.encyclopedia.construct(&spawner.template).expect("unable to spawn entity from spawner");
+						preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
+						new.to_build.push((position.pos, preent));
+					}
+				} else {
+					spawner.last_spawn = Some(time.time)
+				}
 			}
 		}
 	}
