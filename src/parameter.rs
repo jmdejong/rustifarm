@@ -3,44 +3,77 @@ use serde_json::{Value, json};
 use crate::Template;
 use crate::components::item::ItemAction;
 
-#[derive(Debug, PartialEq, Clone)]
-pub enum Parameter {
-	String(String),
-	Int(i64),
-// 	Pos(Pos),
-	Float(f64),
-	Template(Template),
-	Action(ItemAction),
-	Bool(bool)
+
+
+macro_rules! parameters {
+	($($name: ident ($typ: ident) $stringname: ident, $v: ident ($fromjson: expr) ($tojson: expr));*;) => {
+		#[derive(Debug, PartialEq, Clone)]
+		pub enum Parameter {
+			$(
+				$name($typ),
+			)*
+		}
+		impl Parameter {
+			pub fn from_typed_json(typ: ParameterType, val: &Value) -> Option<Parameter>{
+				match typ {
+					$(
+						ParameterType::$name => Some(Self::$name({
+							let $v = val;
+							$fromjson
+						})),
+					)*
+				}
+			}
+			pub fn paramtype(&self) -> ParameterType {
+				match self {
+					$(
+						Self::$name(_) => ParameterType::$name,
+					)*
+				}
+			}
+			pub fn to_json(&self) -> Value {
+				match self {
+					$(
+						Self::$name($v) => $tojson,
+					)*
+				}
+			}
+		}
+
+		#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+		pub enum ParameterType {
+			$(
+				$name,
+			)*
+		}
+		impl ParameterType {
+			pub fn from_str(typename: &str) -> Option<Self>{
+				match typename {
+					$(
+						stringify!($stringname) => Some(Self::$name),
+					)*
+					_ => None
+				}
+			}
+		}
+	}
 }
 
+parameters!(
+	String (String) string, v (v.as_str()?.to_string()) (json!(v));
+	Int (i64) int, v (v.as_i64()?) (json!(v));
+// 	Pos (Pos) pos, () ();
+	Float (f64) float, v (v.as_f64()?) (json!(v));
+	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
+	Action (ItemAction) action, v (ItemAction::from_json(v)?) (v.to_json());
+	Bool (bool) bool, v (v.as_bool()?) (json!(v));
+);
+
+
 impl Parameter {
-	
 	#[allow(dead_code)]
 	pub fn string(string: &str) -> Self {
 		Self::String(string.to_string())
-	}
-	
-	pub fn from_typed_json(typ: ParameterType, val: &Value) -> Option<Parameter>{
-		match typ {
-			ParameterType::String => Some(Self::String(val.as_str()?.to_string())),
-			ParameterType::Int => Some(Self::Int(val.as_i64()?)),
-			ParameterType::Float => Some(Self::Float(val.as_f64()?)),
-			ParameterType::Template => Some(Self::Template(Template::from_json(val).ok()?)),
-			ParameterType::Action => Some(Self::Action(ItemAction::from_json(val)?)),
-			ParameterType::Bool => Some(Self::Bool(val.as_bool()?))
-		}
-	}
-	
-	pub fn paramtype(&self) -> ParameterType {
-		match self {
-			Self::String(_) => ParameterType::String,
-			Self::Int(_) => ParameterType::Int,
-			Self::Float(_) => ParameterType::Float,
-			Self::Template(_) => ParameterType::Template,
-			Self::Action(_) => ParameterType::Action,
-			Self::Bool(_) => ParameterType::Bool
-		}
 	}
 	
 	pub fn guess_from_json(val: &Value) -> Option<Parameter> {
@@ -61,43 +94,9 @@ impl Parameter {
 			};
 		Self::from_typed_json(typ, val)
 	}
-	
-	pub fn to_json(&self) -> Value {
-		match self {
-			Self::String(s) => json!(s),
-			Self::Int(i) => json!(i),
-			Self::Float(f) => json!(f),
-			Self::Template(t) => t.to_json(),
-			Self::Action(a) => a.to_json(),
-			Self::Bool(b) => json!(b)
-		}
-	}
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ParameterType {
-	String,
-	Int,
-	Float,
-	Template,
-	Action,
-	Bool
-}
 
-impl ParameterType {
-	
-	pub fn from_str(typename: &str) -> Option<Self>{
-		match typename {
-			"string" => Some(Self::String),
-			"int" => Some(Self::Int),
-			"float" => Some(Self::Float),
-			"template" => Some(Self::Template),
-			"action" => Some(Self::Action),
-			"bool" => Some(Self::Bool),
-			_ => None
-		}
-	}
-}
 
 #[cfg(test)]
 mod tests {
