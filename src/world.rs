@@ -55,6 +55,7 @@ impl <'a, 'b>World<'a, 'b> {
 			}
 			self.rooms.insert(id.clone(), room);
 		}
+		// todo: log any that occurs (and still return it)
 		self.rooms.get_mut(id).ok_or(aerr!("can't get room after loading it"))
 	}
 	

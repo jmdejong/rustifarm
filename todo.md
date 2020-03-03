@@ -1,22 +1,16 @@
 
 # TODO
 
-- delays for moving/fighting
-- handle player death
-- log world events to player
 - interactions
-- spawners
 - growing/timers
+- save variable arguments (health etc)
+- safely write files
+- log failure in room loading
+- log world events to player
+- loot
 - room unloading
 - relative room locations
-- ai mobs
-- healing
 - equipment
-- autofight/autoretaliate
-- wounds
-- loot
 - shortcuts for defining items
 - improve error handling
-- don't crash immediately on invalid map files
-- safely write files
 
