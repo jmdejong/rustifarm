@@ -138,7 +138,7 @@ components!(
 					clan
 				}
 			},
-			template,
+			template: template.unsaved(),
 			last_spawn: Timestamp(0)
 		}
 	};

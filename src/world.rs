@@ -38,7 +38,7 @@ impl <'a, 'b>World<'a, 'b> {
 			encyclopedia,
 			players: HashMap::new(),
 			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory()),
-			time: Timestamp(0)
+			time: Timestamp(1000000)
 		}
 	}
 	
