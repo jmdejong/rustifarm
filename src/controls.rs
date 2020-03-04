@@ -62,7 +62,13 @@ impl Control {
 				},
 				"take" => Some(Control::Take(val.get(1)?.as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
-				"use" => Some(Control::Use(val.get(1)?.as_u64().unwrap_or(0) as usize)),
+				"use" => Some({
+					println!("use argument {:?}", val);
+					if val.get(1)?.as_str()? != "inventory" {
+						return None;
+					}
+					Control::Use(val.get(2)?.as_u64().unwrap_or(0) as usize)
+				}),
 				"attack" => Some(Control::Attack({
 					let mut directions = Vec::new();
 					for dir in val.get(1)?.as_array()? {

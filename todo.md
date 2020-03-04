@@ -1,13 +1,11 @@
 
 # TODO
 
-- interactions
-- growing/timers
 - save variable arguments (health etc)
+- timer resource
 - safely write files
 - log failure in room loading
 - log world events to player
-- loot
 - room unloading
 - relative room locations
 - equipment
