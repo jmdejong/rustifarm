@@ -9,7 +9,7 @@ use crate::{
 
 
 macro_rules! parameters {
-	($($name: ident ($typ: ident) $stringname: ident, $v: ident ($fromjson: expr) ($tojson: expr));*;) => {
+	($($name: ident ($typ: ty) $stringname: ident, $v: ident ($fromjson: expr) ($tojson: expr));*;) => {
 		#[derive(Debug, PartialEq, Clone)]
 		pub enum Parameter {
 			$(
@@ -70,6 +70,11 @@ parameters!(
 	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
 	Action (ItemAction) action, v (ItemAction::from_json(v)?) (v.to_json());
 	Bool (bool) bool, v (v.as_bool()?) (json!(v));
+	LootList (Vec<(Template, f64)>) lootlist, v 
+		(v.as_array()?.iter().map(|item| 
+				Some((Template::from_json(item.get(0)?).ok()?, item.get(1)?.as_f64()?))
+			).collect::<Option<Vec<(Template, f64)>>>()?)
+		({json!(v.iter().map(|(t, c)| (t.to_json(), *c)).collect::<Vec<(Value, f64)>>())});
 );
 
 
@@ -80,6 +85,13 @@ impl Parameter {
 	}
 	
 	pub fn guess_from_json(val: &Value) -> Option<Parameter> {
+		if let Some(arr) = val.as_array() {
+			if arr.len() == 2 && arr[0].is_string() {
+				let typestr = arr[0].as_str().unwrap();
+				let typ = ParameterType::from_str(typestr)?;
+				return Self::from_typed_json(typ, &arr[1]);
+			}
+		}
 		let typ = 
 			if val.is_string() {
 				ParameterType::String

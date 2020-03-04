@@ -105,14 +105,14 @@ impl PlayerState {
 			inventory: items,
 			health: val.get("health").ok_or(aerr!("player json does not have health"))?.as_i64().ok_or(aerr!("player health not a number"))?,
 			inventory_capacity: inventory.get("capacity").ok_or(aerr!("inventory does no have capacity"))?.as_i64().ok_or(aerr!("inventory capacity not a number"))? as usize,
-			maximum_health: val.get("maxhealth").ok_or(aerr!("player json does not have maxhealth"))?.as_i64().ok_or(aerr!("maxhealh not a number"))?
+			maximum_health: val.get("maxhealth").ok_or(aerr!("player json does not have maxhealth"))?.as_i64().ok_or(aerr!("maxhealth not a number"))?
 		})
 	}
 	
 	pub fn respawn(&mut self) {
 		self.room = None;
 		self.pos = RoomPos::Unknown;
-		self.health = self.maximum_health;
+		self.health = self.maximum_health / 2;
 	}
 	
 	pub fn construct(&self, encyclopedia: &Encyclopedia) -> PreEntity {

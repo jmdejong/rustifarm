@@ -231,4 +231,14 @@ impl Interactable {
 	}
 }
 
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Loot {
+	pub loot: Vec<(Template, f64)>
+}
+
+
+
+
+
 

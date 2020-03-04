@@ -185,7 +185,18 @@
 		"height": 0.5,
 		"components": [
 			["Interactable", {"action": ["string", "harvest"]}],
-			"Mortal"
+			"Mortal",
+			["Loot", {"loot": ["lootlist", [["radishseed", 0.92], ["radishseed", 0.20], ["radishes", 0.8], ["radishes", 0.4]]]}]
 		]
+	},
+	"radishseed": {
+		"sprite": "seed",
+		"height": 0.2,
+		"name": "radishseed"
+	},
+	"radishes": {
+		"sprite": "food",
+		"height": 0.3,
+		"name": "radishes"
 	}
 }

@@ -18,6 +18,7 @@ mod controlai;
 mod die;
 mod spawn;
 mod interact;
+mod droploot;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -38,5 +39,6 @@ pub use self::{
 	controlai::ControlAI,
 	die::Die,
 	spawn::Spawn,
-	interact::Interact
+	interact::Interact,
+	droploot::DropLoot
 };
