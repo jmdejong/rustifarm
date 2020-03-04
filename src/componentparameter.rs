@@ -4,14 +4,15 @@ use rand::Rng;
 use serde_json::Value;
 use crate::parameter::{Parameter, ParameterType};
 
-const MAX_NESTING: usize = 3;
+const MAX_NESTING: usize = 5;
 
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum ComponentParameter {
 	Constant(Parameter),
 	Argument(String),
-	Random(Vec<ComponentParameter>)
+	Random(Vec<ComponentParameter>),
+	Concat(Vec<ComponentParameter>)
 }
 
 impl ComponentParameter {
@@ -27,13 +28,24 @@ impl ComponentParameter {
 		match self {
 			Self::Constant(val) => {
 				Some(val.clone())
-			},
+			}
 			Self::Argument(argname) => {
 				Some(arguments.get(argname.as_str())?.clone())
 			}
 			Self::Random(options) => {
 				let r = rand::thread_rng().gen_range(0, options.len());
 				options[r].evaluate_(arguments, nesting + 1)
+			}
+			Self::Concat(options) => {
+				let mut string = String::new();
+				for option in options {
+					if let Parameter::String(s) = option.evaluate_(arguments, nesting+1)? {
+						string.push_str(&s);
+					} else {
+						return None;
+					}
+				}
+				Some(Parameter::String(string))
 			}
 		}
 	}
@@ -50,12 +62,20 @@ impl ComponentParameter {
 					Ok(Self::Argument(argname))
 				},
 				"random" => {
-					let optionvalues = paramvalue.as_array().ok_or("random argument not a a string")?;
+					let optionvalues = paramvalue.as_array().ok_or("random argument not an array")?;
 					let mut options = Vec::new();
 					for option in optionvalues {
 						options.push(Self::from_json(option)?)
 					}
 					Ok(Self::Random(options))
+				},
+				"concat" => {
+					let values = paramvalue.as_array().ok_or("concat argument not an array")?;
+					let mut options = Vec::new();
+					for option in values {
+						options.push(Self::from_json(option)?)
+					}
+					Ok(Self::Concat(options))
 				},
 				_ => Err("unknown compparam type")
 			}
@@ -74,7 +94,8 @@ impl ComponentParameter {
 					}
 				}
 				typ
-			}
+			},
+			Self::Concat(_s) => ParameterType::String
 		})
 	}
 }

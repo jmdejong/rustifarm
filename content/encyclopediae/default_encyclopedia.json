@@ -170,5 +170,13 @@
 				"initial_spawn": ["arg", "initial_spawn"]
 			}]
 		]
+	},
+	"letter": {
+		"arguments": [["char", "string", null]],
+		"components": [["Visible", {
+			"name": ["concat", [["string", "letter_"], ["arg", "char"]]],
+			"sprite": ["concat", [["string", "emptyletter-"], ["arg", "char"]]],
+			"height": ["float", 1.0]
+		}]]
 	}
 }
