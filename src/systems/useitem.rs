@@ -39,9 +39,7 @@ impl <'a> System<'a> for Use {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Use(rank) => {
-					println!("rank {:?}", rank);
 					if let Some(item) = inventory.items.get(*rank) {
-						println!("rank {:?}", item);
 						match &item.action {
 							Build(template) => {
 								new.create(position.pos, template.clone()).unwrap();

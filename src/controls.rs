@@ -1,6 +1,6 @@
 
 
-use serde_json::Value;
+use serde_json::{Value, json};
 use specs::Entity;
 use crate::{PlayerId, Pos};
 
@@ -60,14 +60,22 @@ impl Control {
 					Some(dir) => Some(Control::Move(dir)),
 					None => None
 				},
-				"take" => Some(Control::Take(val.get(1)?.as_u64().map(|idx| idx as usize))),
+				"take" => Some(Control::Take(val.get(1).unwrap_or(&json!(0)).as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				"use" => Some({
-					println!("use argument {:?}", val);
-					if val.get(1)?.as_str()? != "inventory" {
+					let arr = val.as_array()?;
+					let mut rank = 0;
+					if arr.len() == 3 {
+						if arr[1].as_str()? != "inventory" {
+							return None;
+						}
+						rank = arr[2].as_u64()?;
+					} else if arr.len() == 2 {
+						rank = arr[1].as_u64()?;
+					} else if arr.len() > 1 {
 						return None;
 					}
-					Control::Use(val.get(2)?.as_u64().unwrap_or(0) as usize)
+					Control::Use(rank as usize)
 				}),
 				"attack" => Some(Control::Attack({
 					let mut directions = Vec::new();

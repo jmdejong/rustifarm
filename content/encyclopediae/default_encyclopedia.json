@@ -224,7 +224,7 @@
 			["Item", {
 				"ent": ["template", "radishes"],
 				"name": ["string", "radishes"],
-				"action": ["action", ["eat", 1]]
+				"action": ["action", ["eat", 3]]
 			}]
 		]
 	}
