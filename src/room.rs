@@ -62,7 +62,8 @@ use crate::{
 		UpdateCooldowns,
 		ControlAI,
 		Die,
-		Spawn
+		Spawn,
+		Interact
 	}
 };
 
@@ -76,11 +77,12 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Take, "take", &["controlinput", "controlai"])
 		.with(Use, "use", &["controlinput", "controlai"])
+		.with(Interact, "interact", &["controlinput", "controlai"])
 		.with(Move, "move", &["controlinput", "controlai"])
 		.with(Trapping, "trapping", &["move"])
 		.with(Fight, "fight", &["move"])
 		.with(Heal, "heal", &["registernew"])
-		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal"])
+		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal", "interact"])
 		.with(Die, "die", &["attacking"])
 		.with(View::default(), "view", &["move", "attacking", "volate", "die"])
 		.with(Migrate, "migrate", &["view"])
@@ -115,7 +117,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction), 
+			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, TimeStamp)
 		);	
 		

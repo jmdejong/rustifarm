@@ -135,6 +135,7 @@ components!(
 	Clan (name: String) Clan{name};
 	Home (home: Pos) Home{home};
 	Faction (faction: String) {Faction::from_str(faction.as_str()).unwrap()};
+	Interactable (action: String) {Interactable::from_str(action.as_str()).unwrap()};
 );
 
 

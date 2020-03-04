@@ -178,5 +178,14 @@
 			"sprite": ["concat", [["string", "emptyletter-"], ["arg", "char"]]],
 			"height": ["float", 1.0]
 		}]]
+	},
+	"radishplant": {
+		"sprite": "smallplant",
+		"name": "radishplant",
+		"height": 0.5,
+		"components": [
+			["Interactable", {"action": ["string", "harvest"]}],
+			"Mortal"
+		]
 	}
 }

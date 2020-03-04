@@ -31,7 +31,7 @@ impl <'a> System<'a> for Fight {
 	type SystemData = (
 		Entities<'a>,
 		ReadStorage<'a, Controller>,
-		WriteStorage<'a, Position>,
+		ReadStorage<'a, Position>,
 		Read<'a, Ground>,
 		WriteStorage<'a, AttackInbox>,
 		ReadStorage<'a, Fighter>,
