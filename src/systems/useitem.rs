@@ -29,7 +29,7 @@ impl <'a> System<'a> for Use {
 	type SystemData = (
 		Entities<'a>,
 		ReadStorage<'a, Controller>,
-		WriteStorage<'a, Position>,
+		ReadStorage<'a, Position>,
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, AttackInbox>
@@ -42,7 +42,7 @@ impl <'a> System<'a> for Use {
 					if let Some(item) = inventory.items.get(*rank) {
 						match &item.action {
 							Build(template) => {
-								let _ = new.create(position.pos, template.clone());
+								new.create(position.pos, template.clone()).unwrap();
 								inventory.items.remove(*rank);
 							}
 							Eat(health_diff) => {

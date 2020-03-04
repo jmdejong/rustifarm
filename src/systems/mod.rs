@@ -19,6 +19,7 @@ mod die;
 mod spawn;
 mod interact;
 mod droploot;
+mod growth;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -40,5 +41,6 @@ pub use self::{
 	die::Die,
 	spawn::Spawn,
 	interact::Interact,
-	droploot::DropLoot
+	droploot::DropLoot,
+	growth::Growth
 };

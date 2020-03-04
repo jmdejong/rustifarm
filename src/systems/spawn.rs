@@ -17,7 +17,7 @@ use crate::{
 		Clan,
 		Home
 	},
-	resources::{NewEntities, TimeStamp},
+	resources::{NewEntities, Time},
 	componentwrapper::ComponentWrapper
 };
 
@@ -30,7 +30,7 @@ impl <'a> System<'a> for Spawn {
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Spawner>,
 		ReadStorage<'a, Clan>,
-		Read<'a, TimeStamp>
+		Read<'a, Time>
 	);
 	
 	fn run(&mut self, (positions, mut new, mut spawners, clans, time): Self::SystemData) {

@@ -2,7 +2,11 @@
 use std::collections::HashMap;
 use rand::Rng;
 use serde_json::Value;
-use crate::parameter::{Parameter, ParameterType};
+use crate::{
+	parameter::{Parameter, ParameterType},
+	Result,
+	aerr
+};
 
 const MAX_NESTING: usize = 5;
 
@@ -50,19 +54,21 @@ impl ComponentParameter {
 		}
 	}
 	
-	pub fn from_json(value: &Value) -> Result<Self, &'static str> {
-		let paramvalue = value.get(1).ok_or("index 1 not in component parameter")?;
-		let typename = value.get(0).ok_or("index 0 not in component parameter")?.as_str().ok_or("compparam type not a string")?;
+	pub fn from_json(value: &Value) -> Result<Self> {
+		let paramvalue = value.get(1).ok_or(aerr!("index 1 not in component parameter"))?;
+		let typename = value.get(0).ok_or(aerr!("index 0 not in component parameter"))?.as_str().ok_or(aerr!("compparam type not a string"))?;
 		if let Some(paramtype) = ParameterType::from_str(typename) {
-			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or("failed to parse parameter constant")?))
+			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or_else(||
+				aerr!(& format!("failed to parse parameter constant: {:?} {:?}", paramtype, paramvalue))
+			)?))
 		} else {
 			match typename {
 				"A" | "arg" => {
-					let argname = paramvalue.as_str().ok_or("argument parameter not a string")?.to_string();
+					let argname = paramvalue.as_str().ok_or(aerr!("argument parameter not a string"))?.to_string();
 					Ok(Self::Argument(argname))
 				},
 				"random" => {
-					let optionvalues = paramvalue.as_array().ok_or("random argument not an array")?;
+					let optionvalues = paramvalue.as_array().ok_or(aerr!("random argument not an array"))?;
 					let mut options = Vec::new();
 					for option in optionvalues {
 						options.push(Self::from_json(option)?)
@@ -70,27 +76,27 @@ impl ComponentParameter {
 					Ok(Self::Random(options))
 				},
 				"concat" => {
-					let values = paramvalue.as_array().ok_or("concat argument not an array")?;
+					let values = paramvalue.as_array().ok_or(aerr!("concat argument not an array"))?;
 					let mut options = Vec::new();
 					for option in values {
 						options.push(Self::from_json(option)?)
 					}
 					Ok(Self::Concat(options))
 				},
-				_ => Err("unknown compparam type")
+				_ => Err(aerr!("unknown compparam type"))
 			}
 		}
 	}
 	
-	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType, &'static str>{
+	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
-			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or("unknown argument name")?.1,
+			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or(aerr!("unknown argument name"))?.1,
 			Self::Random(options) => {
-				let typ: ParameterType = options.get(0).ok_or("random has no options")?.get_type(arguments)?;
+				let typ: ParameterType = options.get(0).ok_or(aerr!("random has no options"))?.get_type(arguments)?;
 				for param in options {
 					if param.get_type(arguments)? != typ {
-						return Err("inconsistent parameter types");
+						return Err(aerr!("inconsistent parameter types"));
 					}
 				}
 				typ

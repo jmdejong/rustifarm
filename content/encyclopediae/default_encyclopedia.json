@@ -78,7 +78,7 @@
 			["Item", {
 				"ent": ["template", "pebble"],
 				"name": ["string", "pebble"],
-				"action": ["action", ["eat", 1]]
+				"action": ["action", ["none", null]]
 			}]
 		],
 		"sprite": "pebble",
@@ -86,7 +86,11 @@
 	},
 	"stone": {
 		"components": [
-			["Item", {"ent": ["template", "stone"], "name": ["string", "stone"], "action": ["action", ["build", "builtwall"]]}]
+			["Item", {
+				"ent": ["template", "stone"],
+				"name": ["string", "stone"],
+				"action": ["action", ["build", "builtwall"]]
+			}]
 		],
 		"sprite": "stone",
 		"height": 0.4
@@ -192,11 +196,36 @@
 	"radishseed": {
 		"sprite": "seed",
 		"height": 0.2,
-		"name": "radishseed"
+		"name": "radishseed",
+		"components": [
+			["Item", {
+				"ent": ["template", "radishseed"],
+				"name": ["string", "radishseed"],
+				"action": ["action", ["build", "plantedradishseed"]]
+			}]
+		]
+	},
+	"plantedradishseed": {
+		"sprite": "seed",
+		"height": 0.05,
+		"name": "seed",
+		"components": [
+			["Grow", {
+				"delay": ["int", 200],
+				"into": ["template", "radishplant"]
+			}]
+		]
 	},
 	"radishes": {
 		"sprite": "food",
 		"height": 0.3,
-		"name": "radishes"
+		"name": "radishes",
+		"components": [
+			["Item", {
+				"ent": ["template", "radishes"],
+				"name": ["string", "radishes"],
+				"action": ["action", ["eat", 1]]
+			}]
+		]
 	}
 }

@@ -238,6 +238,14 @@ pub struct Loot {
 }
 
 
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Grow {
+	pub delay: i64,
+	pub target_time: Option<Timestamp>,
+	pub into: Template
+}
+
 
 
 

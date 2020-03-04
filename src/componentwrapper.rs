@@ -137,6 +137,7 @@ components!(
 	Faction (faction: String) {Faction::from_str(faction.as_str())?};
 	Interactable (action: String) {Interactable::from_str(action.as_str())?};
 	Loot (loot: LootList) {Loot{loot}};
+	Grow (delay: Int, into: Template) {Grow{delay, into, target_time: None}};
 );
 
 

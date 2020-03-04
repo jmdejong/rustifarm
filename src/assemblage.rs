@@ -7,7 +7,9 @@ use crate::{
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::Serialise,
 	hashmap,
-	Template
+	Template,
+	Result,
+	aerr
 };
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
@@ -22,34 +24,34 @@ pub struct Assemblage {
 impl Assemblage {
 
 
-	fn parse_definition_arguments(args: &Value) -> Result<Vec<ArgumentDef>, &'static str> {
+	fn parse_definition_arguments(args: &Value) -> Result<Vec<ArgumentDef>> {
 		let mut arguments: Vec<ArgumentDef> = Vec::new();
-		for arg in args.as_array().ok_or("arguments is not an array")? {
-			let tup = arg.as_array().ok_or("argument is not an array")?;
-			let key = tup.get(0).ok_or("argument has no name")?.as_str().ok_or("argument name is not a string")?.to_string();
-			let typ = ParameterType::from_str(tup.get(1).ok_or("argument has no type")?.as_str().ok_or("argument type not a string")?).ok_or("failed to parse argument type")?;
+		for arg in args.as_array().ok_or(aerr!("arguments is not an array"))? {
+			let tup = arg.as_array().ok_or(aerr!("argument is not an array"))?;
+			let key = tup.get(0).ok_or(aerr!("argument has no name"))?.as_str().ok_or(aerr!("argument name is not a string"))?.to_string();
+			let typ = ParameterType::from_str(tup.get(1).ok_or(aerr!("argument has no type"))?.as_str().ok_or(aerr!("argument type not a string"))?).ok_or(aerr!("failed to parse argument type"))?;
 			let def = tup.get(2).ok_or("argument has no default")?;
 			if def.is_null() {
 				arguments.push((key.clone(), typ, None));
 			} else {
-				arguments.push((key.clone(), typ, Some(Parameter::from_typed_json(typ, def).ok_or("invalid argument default")?)));
+				arguments.push((key.clone(), typ, Some(Parameter::from_typed_json(typ, def).ok_or(aerr!("invalid argument default"))?)));
 			}
 		}
 		Ok(arguments)
 	}
 	
-	fn parse_definition_components(comps: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>, &'static str> {
+	fn parse_definition_components(comps: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
 		let mut components = Vec::new();
-		for tup in comps.as_array().ok_or("components is not a json array")? {
+		for tup in comps.as_array().ok_or(aerr!("components is not a json array"))? {
 			if let Some(name) = tup.as_str() {
-				components.push((ComponentType::from_str(name).ok_or("not a valid componenttype")?, HashMap::new()));
+				components.push((ComponentType::from_str(name).ok_or(aerr!("not a valid componenttype"))?, HashMap::new()));
 			} else {
 				let comptype = ComponentType::from_str(tup
-					.get(0).ok_or("index 0 not in component")?
-					.as_str().ok_or("component name not a string")?
+					.get(0).ok_or(aerr!("index 0 not in component"))?
+					.as_str().ok_or(aerr!("component name not a string"))?
 				).ok_or("not a valid componenttype")?;
 				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
-				for (key, value) in tup.get(1).ok_or("index 1 not in component")?.as_object().ok_or("component parameters not a json object")? {
+				for (key, value) in tup.get(1).ok_or(aerr!("index 1 not in component"))?.as_object().ok_or(aerr!("component parameters not a json object"))? {
 					let param = ComponentParameter::from_json(value)?;
 					parameters.insert(key.clone(), param);
 				}
@@ -59,40 +61,40 @@ impl Assemblage {
 		Ok(components)
 	}
 	
-	fn validate(&self) -> Result<(), &'static str> {
+	fn validate(&self) -> Result<()> {
 		for (comptype, parameters) in &self.components {
 			for (paramname, paramtype) in comptype.parameters() {
-				let param = parameters.get(paramname).ok_or("missing parameter")?;
+				let param = parameters.get(paramname).ok_or(aerr!("missing parameter"))?;
 				let actualtype = param.get_type(&self.arguments)?;
 				if actualtype != paramtype {
-					return Err("parameter type incorrect");
+					return Err(aerr!("parameter type incorrect"));
 				}
 			}
 		}
 		Ok(())
 	}
 	
-	pub fn from_json(val: &Value) -> Result<Self, &'static str>{
+	pub fn from_json(val: &Value) -> Result<Self>{
 		let mut assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(val.get("components").unwrap_or(&json!([])))?,
-			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or("assemblage save not a bool")?
+			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?
 		};
 		// visible component is so common that shortcuts are very helpful
 		if let Some(spritename) = val.get("sprite") {
-			let height = val.get("height").ok_or("defining a sprite requires also defining a height")?;
+			let height = val.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?;
 			let name = val.get("name").unwrap_or(spritename);
 			assemblage.components.push((
 				ComponentType::Visible,
 				hashmap!(
 					"sprite".to_string() => ComponentParameter::Constant(
-						Parameter::String(spritename.as_str().ok_or("sprite not a string")?.to_string())
+						Parameter::String(spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string())
 					),
 					"height".to_string() => ComponentParameter::Constant(
-						Parameter::Float(height.as_f64().ok_or("height not a float")?)
+						Parameter::Float(height.as_f64().ok_or(aerr!("height not a float"))?)
 					),
 					"name".to_string() => ComponentParameter::Constant(
-						Parameter::String(name.as_str().ok_or("name not a string")?.to_string())
+						Parameter::String(name.as_str().ok_or(aerr!("name not a string"))?.to_string())
 					)
 				)
 			));
@@ -101,7 +103,7 @@ impl Assemblage {
 		Ok(assemblage)
 	}
 	
-	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>, &'static str> {
+	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
 		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
 			let value: Option<Parameter> = {
@@ -115,16 +117,16 @@ impl Assemblage {
 					None
 				}
 			};
-			let param = value.ok_or("argument has no value")?;
+			let param = value.ok_or(aerr!("argument has no value"))?;
 			if param.paramtype() != *typ {
-				return Err("argument has incorrect type");
+				return Err(aerr!("argument has incorrect type"));
 			}
 			arguments.insert(name, param);
 		}
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, template: &Template) -> Result<Vec<ComponentWrapper>, &'static str>{
+	pub fn instantiate(&self, template: &Template) -> Result<Vec<ComponentWrapper>>{
 		let args = &template.args;
 		let kwargs = &template.kwargs;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
@@ -132,9 +134,9 @@ impl Assemblage {
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {
-				compargs.insert(name.as_str(), param.evaluate(&arguments).ok_or("argument not found")?);
+				compargs.insert(name.as_str(), param.evaluate(&arguments).ok_or(aerr!("argument not found"))?);
 			}
-			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or("failed to load component")?);
+			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or(aerr!("failed to load component"))?);
 		}
 		if template.save && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone()}));

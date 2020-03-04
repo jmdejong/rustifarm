@@ -22,7 +22,7 @@ use crate::{
 		Spawn as SpawnPosition,
 		Players,
 		Emigration,
-		TimeStamp
+		Time
 	},
 	components::{
 		Position,
@@ -64,7 +64,8 @@ use crate::{
 		Die,
 		Spawn,
 		Interact,
-		DropLoot
+		DropLoot,
+		Growth
 	}
 };
 
@@ -72,6 +73,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 	DispatcherBuilder::new()
 		.with(Volate, "volate", &[])
 		.with(RegisterNew::default(), "registernew", &[])
+		.with(Growth, "growth", &["registernew"])
 		.with(UpdateCooldowns, "cool_down", &["registernew"])
 		.with(Spawn, "spawn", &["registernew"])
 		.with(ControlInput, "controlinput", &["cool_down"])
@@ -88,7 +90,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(DropLoot, "droploot", &["attacking"])
 		.with(View::default(), "view", &["move", "attacking", "volate", "die"])
 		.with(Migrate, "migrate", &["view"])
-		.with(Create, "create", &["view", "spawn", "droploot"])
+		.with(Create, "create", &["view", "spawn", "droploot", "growth"])
 		.with(Remove, "remove", &["view", "move", "droploot"])
 		.build()
 }
@@ -119,8 +121,8 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot), 
-			(Ground, Input, Output, Size, Spawn, Players, Emigration, TimeStamp)
+			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow), 
+			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		
 		Room {
@@ -164,7 +166,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn update(&mut self, timestamp: Timestamp) {
-		self.world.fetch_mut::<TimeStamp>().time = timestamp;
+		self.world.fetch_mut::<Time>().time = timestamp;
 		self.dispatcher.dispatch(&self.world);
 		self.world.maintain();
 	}
@@ -263,7 +265,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn get_time(&self) -> Timestamp {
-		self.world.fetch::<TimeStamp>().time
+		self.world.fetch::<Time>().time
 	}
 }
 

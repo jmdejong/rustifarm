@@ -52,6 +52,6 @@ pub struct Emigration {
 }
 
 #[derive(Default)]
-pub struct TimeStamp {
+pub struct Time {
 	pub time: Timestamp
 }

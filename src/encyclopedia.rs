@@ -5,7 +5,9 @@ use crate::{
 	assemblage::Assemblage,
 	componentwrapper::PreEntity,
 	Template,
-	template::EntityType
+	template::EntityType,
+	Result,
+	aerr
 };
 
 #[derive(Default, Clone)]
@@ -15,16 +17,16 @@ pub struct Encyclopedia {
 
 impl Encyclopedia {
 	
-	pub fn from_json(val: Value) -> Result<Encyclopedia, &'static str> {
+	pub fn from_json(val: Value) -> Result<Encyclopedia> {
 		let mut items = HashMap::new();
-		for (k, v) in val.as_object().ok_or("encyclopedia not a json object")?.into_iter() {
+		for (k, v) in val.as_object().ok_or(aerr!("encyclopedia not a json object"))?.into_iter() {
 			items.insert(EntityType(k.clone()), Assemblage::from_json(v)?);
 		}
 		Ok(Encyclopedia{items})
 	}
 	
-	pub fn construct(&self, template: &Template) -> Result<PreEntity, &'static str> {
-		let assemblage = self.items.get(&template.name).ok_or("unknown assemblage name")?;
+	pub fn construct(&self, template: &Template) -> Result<PreEntity> {
+		let assemblage = self.items.get(&template.name).ok_or(aerr!("unknown assemblage name"))?;
 		assemblage.instantiate(template)
 	}
 	

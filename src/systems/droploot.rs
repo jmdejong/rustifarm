@@ -3,7 +3,6 @@ use rand::Rng;
 
 use specs::{
 	ReadStorage,
-	WriteStorage,
 	System,
 	Join,
 	Write
@@ -22,7 +21,7 @@ use crate::{
 pub struct DropLoot;
 impl <'a> System<'a> for DropLoot{
 	type SystemData = (
-		WriteStorage<'a, Position>,
+		ReadStorage<'a, Position>,
 		Write<'a, NewEntities>,
 		ReadStorage<'a, Dead>,
 		ReadStorage<'a, Loot>

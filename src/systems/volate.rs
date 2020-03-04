@@ -9,7 +9,7 @@ use specs::{
 
 use crate::{
 	components::{Volatile, Removed},
-	resources::TimeStamp
+	resources::Time
 };
 
 pub struct Volate;
@@ -18,7 +18,7 @@ impl <'a> System<'a> for Volate {
 		Entities<'a>,
 		WriteStorage<'a, Volatile>,
 		WriteStorage<'a, Removed>,
-		Read<'a, TimeStamp>
+		Read<'a, Time>
 	);
 	fn run(&mut self, (entities, mut volatiles, mut removals, timestamp): Self::SystemData) {
 		for (ent, volatile) in (&entities, &mut volatiles).join() {
