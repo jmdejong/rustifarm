@@ -77,7 +77,7 @@
 		"pebble": {
 			"components": [
 				["Item", {
-					"ent": ["template", "pebble"],
+					"ent": ["self", null],
 					"name": ["string", "pebble"],
 					"action": ["action", ["none", null]]
 				}]
@@ -88,7 +88,7 @@
 		"stone": {
 			"components": [
 				["Item", {
-					"ent": ["template", "stone"],
+					"ent": ["self", null],
 					"name": ["string", "stone"],
 					"action": ["action", ["build", "builtwall"]]
 				}]
@@ -200,7 +200,7 @@
 			"name": "radishseed",
 			"components": [
 				["Item", {
-					"ent": ["template", "radishseed"],
+					"ent": ["self", null],
 					"name": ["string", "radishseed"],
 					"action": ["action", ["build", "plantedradishseed"]]
 				}]
@@ -223,7 +223,7 @@
 			"name": "radishes",
 			"components": [
 				["Item", {
-					"ent": ["template", "radishes"],
+					"ent": ["self", null],
 					"name": ["string", "radishes"],
 					"action": ["action", ["eat", 3]]
 				}]
@@ -234,7 +234,7 @@
 			"height": 0.5,
 			"components": [
 				["Item", {
-					"ent": ["template", "sword"],
+					"ent": ["self", null],
 					"name": ["string", "sword"],
 					"action": ["action", ["equip", {
 						"slot": "hand",

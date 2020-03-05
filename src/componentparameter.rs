@@ -4,6 +4,7 @@ use rand::Rng;
 use serde_json::Value;
 use crate::{
 	parameter::{Parameter, ParameterType},
+	Template,
 	Result,
 	aerr
 };
@@ -16,16 +17,18 @@ pub enum ComponentParameter {
 	Constant(Parameter),
 	Argument(String),
 	Random(Vec<ComponentParameter>),
-	Concat(Vec<ComponentParameter>)
+	Concat(Vec<ComponentParameter>),
+	TemplateSelf,
+	TemplateName
 }
 
 impl ComponentParameter {
 
-	pub fn evaluate(&self, arguments: &HashMap<&str, Parameter>) -> Option<Parameter> {
-		self.evaluate_(arguments, 0)
+	pub fn evaluate(&self, arguments: &HashMap<&str, Parameter>, template: &Template) -> Option<Parameter> {
+		self.evaluate_(arguments, template, 0)
 	}
 	
-	fn evaluate_(&self, arguments: &HashMap<&str, Parameter>, nesting: usize) -> Option<Parameter> {
+	fn evaluate_(&self, arguments: &HashMap<&str, Parameter>, template: &Template, nesting: usize) -> Option<Parameter> {
 		if nesting > MAX_NESTING {
 			return None;
 		}
@@ -38,12 +41,12 @@ impl ComponentParameter {
 			}
 			Self::Random(options) => {
 				let r = rand::thread_rng().gen_range(0, options.len());
-				options[r].evaluate_(arguments, nesting + 1)
+				options[r].evaluate_(arguments, template, nesting + 1)
 			}
 			Self::Concat(options) => {
 				let mut string = String::new();
 				for option in options {
-					if let Parameter::String(s) = option.evaluate_(arguments, nesting+1)? {
+					if let Parameter::String(s) = option.evaluate_(arguments, template, nesting+1)? {
 						string.push_str(&s);
 					} else {
 						return None;
@@ -51,6 +54,8 @@ impl ComponentParameter {
 				}
 				Some(Parameter::String(string))
 			}
+			Self::TemplateSelf => Some(Parameter::Template(template.clone())),
+			Self::TemplateName => Some(Parameter::String(template.name.0.clone()))
 		}
 	}
 	
@@ -83,6 +88,8 @@ impl ComponentParameter {
 					}
 					Ok(Self::Concat(options))
 				},
+				"self" => Ok(Self::TemplateSelf),
+				"name" => Ok(Self::TemplateName),
 				_ => Err(aerr!("unknown compparam type"))
 			}
 		}
@@ -101,7 +108,9 @@ impl ComponentParameter {
 				}
 				typ
 			},
-			Self::Concat(_s) => ParameterType::String
+			Self::Concat(_s) => ParameterType::String,
+			Self::TemplateSelf => ParameterType::Template,
+			Self::TemplateName => ParameterType::String
 		})
 	}
 }

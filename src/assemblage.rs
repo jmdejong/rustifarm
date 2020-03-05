@@ -134,7 +134,7 @@ impl Assemblage {
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {
-				compargs.insert(name.as_str(), param.evaluate(&arguments).ok_or(aerr!("argument not found"))?);
+				compargs.insert(name.as_str(), param.evaluate(&arguments, template).ok_or(aerr!("argument not found"))?);
 			}
 			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or(aerr!("failed to load component"))?);
 		}
