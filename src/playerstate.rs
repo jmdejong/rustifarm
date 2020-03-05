@@ -1,5 +1,5 @@
 
-
+use std::collections::HashMap;
 use serde_json::{Value, json};
 use crate::{
 	Template,
@@ -16,14 +16,24 @@ use crate::{
 		Movable,
 		AttackType,
 		Autofight,
-		Faction
+		Faction,
+		Equipment,
+		equipment::Slot
 	},
 	Result,
 	aerr,
 	Sprite,
 	Encyclopedia,
-	Pos
+	Pos,
+	hashmap
 };
+
+#[derive(Debug, Clone)]
+pub enum RoomPos {
+	Pos(Pos),
+	Name(String),
+	Unknown
+}
 
 #[derive(Debug, Clone)]
 pub struct PlayerState {
@@ -33,14 +43,8 @@ pub struct PlayerState {
 	pub inventory_capacity: usize,
 	pub inventory: Vec<Template>,
 	pub health: i64,
-	pub maximum_health: i64
-}
-
-#[derive(Debug, Clone)]
-pub enum RoomPos {
-	Pos(Pos),
-	Name(String),
-	Unknown
+	pub maximum_health: i64,
+	pub equipment: HashMap<Slot, Option<Template>>
 }
 
 impl PlayerState {
@@ -53,11 +57,12 @@ impl PlayerState {
 			inventory: Vec::new(),
 			inventory_capacity: 10,
 			health: 25,
-			maximum_health: 50
+			maximum_health: 50,
+			equipment: hashmap!(Slot::Hand => None, Slot::Body => None)
 		}
 	}
 
-	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<Template>, inventory_capacity: usize, health: i64, maximum_health: i64) -> Self {
+	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<Template>, inventory_capacity: usize, health: i64, maximum_health: i64, equipment: HashMap<Slot, Option<Template>>) -> Self {
 		Self {
 			id,
 			room: Some(room),
@@ -65,7 +70,8 @@ impl PlayerState {
 			inventory,
 			health,
 			inventory_capacity,
-			maximum_health
+			maximum_health,
+			equipment
 		}
 	}
 
@@ -105,7 +111,8 @@ impl PlayerState {
 			inventory: items,
 			health: val.get("health").ok_or(aerr!("player json does not have health"))?.as_i64().ok_or(aerr!("player health not a number"))?,
 			inventory_capacity: inventory.get("capacity").ok_or(aerr!("inventory does no have capacity"))?.as_i64().ok_or(aerr!("inventory capacity not a number"))? as usize,
-			maximum_health: val.get("maxhealth").ok_or(aerr!("player json does not have maxhealth"))?.as_i64().ok_or(aerr!("maxhealth not a number"))?
+			maximum_health: val.get("maxhealth").ok_or(aerr!("player json does not have maxhealth"))?.as_i64().ok_or(aerr!("maxhealth not a number"))?,
+			equipment: HashMap::new()
 		})
 	}
 	
@@ -136,7 +143,8 @@ impl PlayerState {
 			ComponentWrapper::Healing(Healing{delay: 50, health: 1, next_heal: None}),
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
 			ComponentWrapper::Autofight(Autofight::default()),
-			ComponentWrapper::Faction(Faction::Good)
+			ComponentWrapper::Faction(Faction::Good),
+			ComponentWrapper::Equipment(Equipment{equipment: hashmap!(Slot::Hand => None, Slot::Body => None)})
 		]
 	}
 }

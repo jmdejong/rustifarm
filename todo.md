@@ -6,9 +6,11 @@
 - safely write files
 - log failure in room loading
 - log world events to player
+- draw new entities
+- equipment
 - room unloading
 - relative room locations
-- equipment
 - shortcuts for defining items
 - improve error handling
+- doors
 

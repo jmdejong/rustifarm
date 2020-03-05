@@ -16,10 +16,11 @@ use crate::{
 		Inventory,
 		AttackInbox,
 		AttackMessage,
-		AttackType
+		AttackType,
+		Equipment
 	},
 	resources::{NewEntities},
-	components::item::ItemAction::{None, Build, Eat},
+	components::item::ItemAction::{None, Build, Eat, Equip},
 	controls::Control,
 };
 
@@ -32,10 +33,11 @@ impl <'a> System<'a> for Use {
 		ReadStorage<'a, Position>,
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, AttackInbox>
+		WriteStorage<'a, AttackInbox>,
+		WriteStorage<'a, Equipment>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, mut equipments): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Use(rank) => {
@@ -48,6 +50,13 @@ impl <'a> System<'a> for Use {
 							Eat(health_diff) => {
 								AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: AttackType::Heal(*health_diff), attacker: Option::None});
 								inventory.items.remove(*rank);
+							}
+							Equip(equippable) => {
+								if let Some(equipment) = equipments.get_mut(ent) {
+									if equipment.equipment.contains_key(&equippable.slot) {
+										equipment.equipment.insert(equippable.slot, Some(equippable.clone()));
+									}
+								}
 							}
 							None => {}
 						}

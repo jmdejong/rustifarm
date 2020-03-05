@@ -35,6 +35,7 @@ macro_rules! components {
 				}
 			}
 			pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Option<Self> {
+				#[allow(unused_imports, unreachable_code)]
 				match comptype {
 					$(
 						ComponentType::$comp => Some(Self::$comp({
@@ -97,7 +98,7 @@ components!(
 	Floor () {Floor};
 	Player (name: String) {Player::new(PlayerId{name})};
 	Item (ent: Template, name: String, action: Action) {Item{ent, name, action}};
-	Inventory (capacity: Int) {Inventory{items: Vec::new(), capacity: capacity as usize}};
+	Inventory () {panic!("inventory from parameters not implemented")};
 	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};
 	Serialise (template: Template) {Serialise{template}};
 	RoomExit (destination: String, dest_pos: String) {
@@ -138,6 +139,7 @@ components!(
 	Interactable (action: String) {Interactable::from_str(action.as_str())?};
 	Loot (loot: LootList) {Loot{loot}};
 	Grow (delay: Int, into: Template) {Grow{delay, into, target_time: None}};
+	Equipment () {panic!("equipment from parameters not implemented")};
 );
 
 

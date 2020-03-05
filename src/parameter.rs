@@ -141,12 +141,12 @@ mod tests {
 		assert_eq!(gfj!(-3.0), Parameter::Float(-3.0));
 		assert_eq!(gfj!(0.0), Parameter::Float(0.0));
 		assert_eq!(gfj!(-0.0), Parameter::Float(0.0));
+		assert_eq!(gfj!(true), Parameter::Bool(true));
 	}
 	
 	#[test]
 	fn guess_json_none() {
 		assert!(Parameter::guess_from_json(&json!([2, 5])).is_none());
-		assert!(Parameter::guess_from_json(&json!(true)).is_none());
 		assert!(Parameter::guess_from_json(&json!({"hello": "world"})).is_none());
 	}
 }

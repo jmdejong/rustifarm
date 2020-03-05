@@ -2,6 +2,8 @@
 pub mod item;
 pub mod messages;
 pub mod faction;
+pub mod interactable;
+pub mod equipment;
 
 pub use item::Item;
 pub use messages::{
@@ -10,6 +12,8 @@ pub use messages::{
 	AttackType
 };
 pub use faction::Faction;
+pub use interactable::Interactable;
+pub use equipment::Equipment;
 
 use specs::{
 	DenseVecStorage,
@@ -216,20 +220,6 @@ pub struct Clan {
 	pub name: String,
 }
 
-#[derive(Component, Debug, Clone, PartialEq, Eq)]
-#[storage(HashMapStorage)]
-pub enum Interactable {
-	Harvest
-}
-
-impl Interactable {
-	pub fn from_str(txt: &str) -> Option<Interactable> {
-		match txt {
-			"harvest" => Some(Interactable::Harvest),
-			_ => None
-		}
-	}
-}
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
@@ -245,8 +235,5 @@ pub struct Grow {
 	pub target_time: Option<Timestamp>,
 	pub into: Template
 }
-
-
-
 
 

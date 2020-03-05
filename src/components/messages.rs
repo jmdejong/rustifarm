@@ -1,4 +1,5 @@
 
+use std::collections::HashMap;
 use std::any::Any;
 use specs::{
 	Component,
@@ -6,6 +7,7 @@ use specs::{
 	Entity,
 	WriteStorage
 };
+use super::equipment::Stat;
 
 
 
@@ -44,6 +46,12 @@ impl AttackType {
 		match self {
 			Self::Attack(_) => true,
 			Self::Heal(_) => false
+		}
+	}
+	pub fn apply_bonuses(self, bonuses: &HashMap<Stat, i64>) -> AttackType {
+		match self {
+			Self::Attack(strength) => Self::Attack(strength + *bonuses.get(&Stat::Strength).unwrap_or(&0)),
+			Self::Heal(_) => self
 		}
 	}
 }

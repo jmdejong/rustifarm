@@ -31,7 +31,8 @@ use crate::{
 		Inventory,
 		Health,
 		New,
-		Removed
+		Removed,
+		Equipment
 	},
 	Encyclopedia,
 	roomtemplate::RoomTemplate,
@@ -121,7 +122,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow), 
+			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		
@@ -222,20 +223,22 @@ impl <'a, 'b>Room<'a, 'b> {
 		let players = self.world.read_component::<Player>();
 		let inventories = self.world.read_component::<Inventory>();
 		let healths = self.world.read_component::<Health>();
+		let equipments = self.world.read_component::<Equipment>();
 		let mut saved = HashMap::new();
-		for (player, inventory, health) in (&players, &inventories, &healths).join() {
+		for (player, inventory, health, equipment) in (&players, &inventories, &healths, &equipments).join() {
 			saved.insert(player.id.clone(), PlayerState::create(
 				player.id.clone(),
 				self.id.clone(),
 				inventory.items.iter().map(|item| item.ent.clone()).collect(),
 				inventory.capacity,
 				health.health,
-				health.maxhealth
+				health.maxhealth,
+				HashMap::new()
 			));
 		}
 		saved
 	}
-	
+	// todo: merge save_players and save_player_ent
 	fn save_player_ent(&self, ent: Entity) -> Option<PlayerState> {
 		let players = self.world.read_component::<Player>();
 		let player = players.get(ent)?;
@@ -243,13 +246,16 @@ impl <'a, 'b>Room<'a, 'b> {
 		let inventory = inventories.get(ent)?;
 		let healths = self.world.read_component::<Health>();
 		let health = healths.get(ent)?;
+		let equipments = self.world.read_component::<Equipment>();
+		let equipment = equipments.get(ent)?;
 		Some(PlayerState::create(
 			player.id.clone(),
 			self.id.clone(),
 			inventory.items.iter().map(|item| item.ent.clone()).collect(),
 			inventory.capacity,
 			health.health,
-			health.maxhealth
+			health.maxhealth,
+			HashMap::new()
 		))
 	}
 	

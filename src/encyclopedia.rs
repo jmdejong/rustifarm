@@ -19,7 +19,7 @@ impl Encyclopedia {
 	
 	pub fn from_json(val: Value) -> Result<Encyclopedia> {
 		let mut items = HashMap::new();
-		for (k, v) in val.as_object().ok_or(aerr!("encyclopedia not a json object"))?.into_iter() {
+		for (k, v) in val.get("assemblages").ok_or(aerr!("no assemblages in encyclopedia json"))?.as_object().ok_or(aerr!("encyclopedia not a json object"))?.into_iter() {
 			items.insert(EntityType(k.clone()), Assemblage::from_json(v)?);
 		}
 		Ok(Encyclopedia{items})

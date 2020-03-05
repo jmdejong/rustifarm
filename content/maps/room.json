@@ -23,7 +23,7 @@
 		"X,,*,,.,,,,,,,,,,,~~~''''''''''''''''f'''X",
 		"X*,,,,.,,,d,VVV,,,~~~'''''''''''f''''f'''X",
 		"X,,,,,.,,,,,VVV,,,~~~'''''''''''ffffff'''X",
-		"X,,,,,.,,,,,VVV,,,~~~''''''''''''''''''''X",
+		"X/,,,,.,,,,,VVV,,,~~~''''''''''''''''''''X",
 		"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX",
 		"     %%%                                  "
 	],
@@ -45,6 +45,7 @@
 		"d": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "dummy"}, "delay": 100}}],
 		"r": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "rat"}, "amount": 3, "clan": "rats", "delay": 200}}],
 		"V": ["grass", "radishplant"],
+		"/": ["grass", "sword"],
 		" ": []
 	}
 }
