@@ -1,5 +1,5 @@
 
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use std::fs;
 use std::env;
 use serde_json;
@@ -85,7 +85,7 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = state.to_json().to_string();
 		// todo: write to a temp file first
-		fs::write(path, text)?;
+		write_file_safe(path, text)?;
 		Ok(())
 	}
 	
@@ -97,8 +97,15 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = state.to_json().to_string();
 		// todo: write to a temp file first
-		fs::write(path, text)?;
+		write_file_safe(path, text)?;
 		Ok(())
 	}
+}
+
+fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> Result<()> {
+	let temppath = path.as_ref().with_file_name(format!("tempfile_{}.tmp", rand::random::<u64>()));
+	fs::write(&temppath, contents)?;
+	fs::rename(&temppath, path)?;
+	Ok(())
 }
 
