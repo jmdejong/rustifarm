@@ -238,7 +238,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		Some(PlayerState::create(
 			player.id.clone(),
 			self.id.clone(),
-			inventory.items.iter().map(|(item, _)| item.ent.clone()).collect(),
+			inventory.items.iter().map(|(item, e)| (item.ent.clone(), *e)).collect(),
 			inventory.capacity,
 			health.health,
 			health.maxhealth,

@@ -41,7 +41,7 @@ pub struct PlayerState {
 	pub room: Option<RoomId>,
 	pub pos: RoomPos,
 	pub inventory_capacity: usize,
-	pub inventory: Vec<Template>,
+	pub inventory: Vec<(Template, bool)>,
 	pub health: i64,
 	pub maximum_health: i64,
 	pub equipment: HashMap<Slot, Option<Template>>
@@ -62,7 +62,7 @@ impl PlayerState {
 		}
 	}
 
-	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<Template>, inventory_capacity: usize, health: i64, maximum_health: i64, equipment: HashMap<Slot, Option<Template>>) -> Self {
+	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<(Template, bool)>, inventory_capacity: usize, health: i64, maximum_health: i64, equipment: HashMap<Slot, Option<Template>>) -> Self {
 		Self {
 			id,
 			room: Some(room),
@@ -84,7 +84,7 @@ impl PlayerState {
 			},
 			"inventory": {
 				"capacity": self.inventory_capacity,
-				"items": self.inventory.iter().map(Template::to_json).collect::<Vec<Value>>()
+				"items": self.inventory.iter().map(|(item, e)| (Template::to_json(item), *e)).collect::<Vec<(Value, bool)>>()
 			},
 			"equipment": {
 				"hand": null,
@@ -99,7 +99,14 @@ impl PlayerState {
 		let inventory = val.get("inventory").ok_or(aerr!("player json does not have inventory"))?;
 		let mut items = vec![];
 		for item in inventory.get("items").ok_or(aerr!("inventory does not have items"))?.as_array().ok_or(aerr!("inventory items not an array"))? {
-			items.push(Template::from_json(item)?);
+			if item.is_array() {
+				items.push((
+					Template::from_json(item.get(0).ok_or(aerr!("invalid item"))?)?,
+					item.get(1).ok_or(aerr!("invalid item"))?.as_bool().ok_or(aerr!("invalid item"))?
+				));
+			} else {
+				items.push((Template::from_json(item)?, false));
+			}
 		}
 		Ok(Self {
 			id: PlayerId{name: val.get("name").ok_or(aerr!("player json does not have name"))?.as_str().ok_or(aerr!("player name not a string"))?.to_string()},
@@ -127,11 +134,11 @@ impl PlayerState {
 			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.2, name: self.id.name.clone()}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
-				items: self.inventory.iter().map( |template| {
+				items: self.inventory.iter().map( |(template, equippable)| {
 					let item_ent = encyclopedia.construct(template).unwrap();
 					for component in item_ent {
 						if let ComponentWrapper::Item(item) = component {
-							return (item, false);
+							return (item, *equippable);
 						}
 					}
 					panic!("Item in inventory does not have item component")
