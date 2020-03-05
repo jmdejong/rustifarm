@@ -11,7 +11,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Health, AttackInbox, AttackType, Dead, Position, Autofight, Equipment, equipment::Stat},
+	components::{Health, AttackInbox, AttackType, Dead, Position, Autofight},
 	resources::NewEntities,
 	Template,
 	util
@@ -27,10 +27,9 @@ impl <'a> System<'a> for Attacking {
 		WriteStorage<'a, Dead>,
 		ReadStorage<'a, Position>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, Autofight>,
-		ReadStorage<'a, Equipment>
+		WriteStorage<'a, Autofight>
 	);
-	fn run(&mut self, (entities, mut attackeds, mut healths, mut deads, positions, mut new, mut autofighters, equipments): Self::SystemData) {
+	fn run(&mut self, (entities, mut attackeds, mut healths, mut deads, positions, mut new, mut autofighters): Self::SystemData) {
 		
 		for (entity, attacked, autofighter) in (&entities, &attackeds, &mut autofighters).join() {
 			for attack in &attacked.messages {

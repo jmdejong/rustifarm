@@ -50,7 +50,7 @@ impl <'a> System<'a> for Take {
 					}
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
-							inventory.items.insert(0, item.clone());
+							inventory.items.insert(0, (item.clone(), false));
 							if let Err(msg) = removed.insert(ent, Removed) {
 								println!("{:?}", msg);
 							}
@@ -62,7 +62,7 @@ impl <'a> System<'a> for Take {
 					if *rank >= inventory.items.len() {
 						return
 					}
-					let item = inventory.items.remove(*rank);
+					let (item, _is_equipped) = inventory.items.remove(*rank);
 					let _ = new.create(position.pos, item.ent);
 				}
 				_ => {}

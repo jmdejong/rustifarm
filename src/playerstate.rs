@@ -131,7 +131,7 @@ impl PlayerState {
 					let item_ent = encyclopedia.construct(template).unwrap();
 					for component in item_ent {
 						if let ComponentWrapper::Item(item) = component {
-							return item;
+							return (item, false);
 						}
 					}
 					panic!("Item in inventory does not have item component")
@@ -144,7 +144,7 @@ impl PlayerState {
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
 			ComponentWrapper::Autofight(Autofight::default()),
 			ComponentWrapper::Faction(Faction::Good),
-			ComponentWrapper::Equipment(Equipment{equipment: hashmap!(Slot::Hand => None, Slot::Body => None)})
+			ComponentWrapper::Equipment(Equipment{slots: vec!(Slot::Hand, Slot::Body)})
 		]
 	}
 }

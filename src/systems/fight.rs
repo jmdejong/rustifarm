@@ -19,8 +19,7 @@ use crate::components::{
 	ControlCooldown,
 	Autofight,
 	Faction,
-	Equipment,
-	equipment::Stat
+	Inventory
 };
 
 use crate::controls::{Control};
@@ -41,10 +40,10 @@ impl <'a> System<'a> for Fight {
 		WriteStorage<'a, ControlCooldown>,
 		WriteStorage<'a, Autofight>,
 		ReadStorage<'a, Faction>,
-		ReadStorage<'a, Equipment>
+		ReadStorage<'a, Inventory>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns, mut autofighters, factions, equipments): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut attacked, fighters, healths, mut cooldowns, mut autofighters, factions, inventories): Self::SystemData) {
 		for (entity, controller, position, fighter) in (&entities, &controllers, &positions, &fighters).join(){
 			let mut target = None;
 			match &controller.control {
@@ -70,8 +69,8 @@ impl <'a> System<'a> for Fight {
 			}
 			if let Some(ent) = target {
 				let mut attack = fighter.attack.clone();
-				if let Some(equipment) = equipments.get(entity) {
-					attack = attack.apply_bonuses(&equipment.all_bonuses());
+				if let Some(inventory) = inventories.get(entity) {
+					attack = attack.apply_bonuses(&inventory.equipment_bonuses());
 				}
 				AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: attack, attacker: Some(entity)});
 				cooldowns.insert(entity, ControlCooldown{amount: fighter.cooldown}).unwrap();

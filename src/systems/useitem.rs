@@ -16,8 +16,7 @@ use crate::{
 		Inventory,
 		AttackInbox,
 		AttackMessage,
-		AttackType,
-		Equipment
+		AttackType
 	},
 	resources::{NewEntities},
 	components::item::ItemAction::{None, Build, Eat, Equip},
@@ -33,16 +32,15 @@ impl <'a> System<'a> for Use {
 		ReadStorage<'a, Position>,
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, AttackInbox>,
-		WriteStorage<'a, Equipment>
+		WriteStorage<'a, AttackInbox>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, mut equipments): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Use(rank) => {
-					if let Some(item) = inventory.items.get(*rank) {
-						match &item.action {
+					if let Some(slot) = inventory.items.get_mut(*rank) {
+						match &slot.0.action {
 							Build(template) => {
 								new.create(position.pos, template.clone()).unwrap();
 								inventory.items.remove(*rank);
@@ -51,12 +49,9 @@ impl <'a> System<'a> for Use {
 								AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: AttackType::Heal(*health_diff), attacker: Option::None});
 								inventory.items.remove(*rank);
 							}
-							Equip(equippable) => {
-								if let Some(equipment) = equipments.get_mut(ent) {
-									if equipment.equipment.contains_key(&equippable.slot) {
-										equipment.equipment.insert(equippable.slot, Some(equippable.clone()));
-									}
-								}
+							Equip(_equippable) => {
+								// todo: unequip previous
+								slot.1 = true;
 							}
 							None => {}
 						}

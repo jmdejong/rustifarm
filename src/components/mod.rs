@@ -4,6 +4,7 @@ pub mod messages;
 pub mod faction;
 pub mod interactable;
 pub mod equipment;
+pub mod inventory;
 
 pub use item::Item;
 pub use messages::{
@@ -14,6 +15,7 @@ pub use messages::{
 pub use faction::Faction;
 pub use interactable::Interactable;
 pub use equipment::Equipment;
+pub use inventory::Inventory;
 
 use specs::{
 	DenseVecStorage,
@@ -100,15 +102,6 @@ impl Player {
 	pub fn new(id: PlayerId) -> Self {
 		Self{id}
 	}
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Inventory {
-	pub items: Vec<Item>,
-	pub capacity: usize
-}
-impl Component for Inventory {
-	type Storage = FlaggedStorage<Self, HashMapStorage<Self>>;
 }
 
 #[derive(Component, Debug, Clone)]

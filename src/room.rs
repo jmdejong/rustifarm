@@ -31,8 +31,7 @@ use crate::{
 		Inventory,
 		Health,
 		New,
-		Removed,
-		Equipment
+		Removed
 	},
 	Encyclopedia,
 	roomtemplate::RoomTemplate,
@@ -223,13 +222,12 @@ impl <'a, 'b>Room<'a, 'b> {
 		let players = self.world.read_component::<Player>();
 		let inventories = self.world.read_component::<Inventory>();
 		let healths = self.world.read_component::<Health>();
-		let equipments = self.world.read_component::<Equipment>();
 		let mut saved = HashMap::new();
-		for (player, inventory, health, equipment) in (&players, &inventories, &healths, &equipments).join() {
+		for (player, inventory, health) in (&players, &inventories, &healths).join() {
 			saved.insert(player.id.clone(), PlayerState::create(
 				player.id.clone(),
 				self.id.clone(),
-				inventory.items.iter().map(|item| item.ent.clone()).collect(),
+				inventory.items.iter().map(|(item, _)| item.ent.clone()).collect(),
 				inventory.capacity,
 				health.health,
 				health.maxhealth,
@@ -246,12 +244,10 @@ impl <'a, 'b>Room<'a, 'b> {
 		let inventory = inventories.get(ent)?;
 		let healths = self.world.read_component::<Health>();
 		let health = healths.get(ent)?;
-		let equipments = self.world.read_component::<Equipment>();
-		let equipment = equipments.get(ent)?;
 		Some(PlayerState::create(
 			player.id.clone(),
 			self.id.clone(),
-			inventory.items.iter().map(|item| item.ent.clone()).collect(),
+			inventory.items.iter().map(|(item, _)| item.ent.clone()).collect(),
 			inventory.capacity,
 			health.health,
 			health.maxhealth,

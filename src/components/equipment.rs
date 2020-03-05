@@ -86,35 +86,8 @@ impl Equippable {
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Equipment {
-	pub equipment: HashMap<Slot, Option<Equippable>>
+	pub slots: Vec<Slot>
 }
-
-impl Equipment {
-	pub fn get_bonus(&self, stat: Stat) -> i64 {
-		let mut bonus = 0;
-		for v in self.equipment.values() {
-			if let Some(equippable) = v {
-				if let Some(s) = equippable.stats.get(&stat) {
-					bonus += s;
-				}
-			}
-		}
-		bonus
-	}
-	pub fn all_bonuses(&self) -> HashMap<Stat, i64> {
-		let mut bonuses: HashMap<Stat, i64> = HashMap::new();
-		for v in self.equipment.values() {
-			if let Some(equippable) = v {
-				for (stat, s) in equippable.stats.iter(){
-					let current: i64 = *bonuses.entry(*stat).or_insert(0);
-					bonuses.insert(*stat, current + s);
-				}
-			}
-		}
-		bonuses
-	}
-}
-
 
 #[cfg(test)]
 mod tests {

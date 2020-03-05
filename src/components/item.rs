@@ -48,7 +48,6 @@ impl ItemAction {
 	}
 }
 
-
 #[cfg(test)]
 mod tests {
 	use super::*;
