@@ -43,6 +43,14 @@ impl <'a, 'b>World<'a, 'b> {
 	}
 	
 	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
+		let result = self.get_room_mut_(id);
+		if let Err(err) = &result {
+			println!("Failed to load room {:?}: {:?}", id, err);
+		}
+		result
+	}
+	
+	fn get_room_mut_(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
 		if !self.rooms.contains_key(id){
 			let template = self.template_loader.load_room(id.clone())?;
 			let mut room: Room = Room::create(id.clone(), &self.encyclopedia, &template);
