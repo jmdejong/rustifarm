@@ -219,24 +219,15 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn save_players(&self) -> HashMap<PlayerId, PlayerState> {
+		let mut states = HashMap::new();
 		let players = self.world.read_component::<Player>();
-		let inventories = self.world.read_component::<Inventory>();
-		let healths = self.world.read_component::<Health>();
-		let mut saved = HashMap::new();
-		for (player, inventory, health) in (&players, &inventories, &healths).join() {
-			saved.insert(player.id.clone(), PlayerState::create(
-				player.id.clone(),
-				self.id.clone(),
-				inventory.items.iter().map(|(item, _)| item.ent.clone()).collect(),
-				inventory.capacity,
-				health.health,
-				health.maxhealth,
-				HashMap::new()
-			));
+		let entities = self.world.entities();
+		for (ent, player) in (&entities, &players).join(){
+			states.insert(player.id.clone(), self.save_player_ent(ent).unwrap());
 		}
-		saved
+		states
 	}
-	// todo: merge save_players and save_player_ent
+	
 	fn save_player_ent(&self, ent: Entity) -> Option<PlayerState> {
 		let players = self.world.read_component::<Player>();
 		let player = players.get(ent)?;
