@@ -86,13 +86,7 @@
 			"height": 0.3
 		},
 		"stone": {
-			"components": [
-				["Item", {
-					"ent": ["self", null],
-					"name": ["string", "stone"],
-					"action": ["action", ["build", "builtwall"]]
-				}]
-			],
+			"item": ["build", "builtwall"],
 			"sprite": "stone",
 			"height": 0.4
 		},
@@ -198,13 +192,7 @@
 			"sprite": "seed",
 			"height": 0.2,
 			"name": "radishseed",
-			"components": [
-				["Item", {
-					"ent": ["self", null],
-					"name": ["string", "radishseed"],
-					"action": ["action", ["build", "plantedradishseed"]]
-				}]
-			]
+			"item": ["build", "plantedradishseed"]
 		},
 		"plantedradishseed": {
 			"sprite": "seed",
@@ -221,27 +209,15 @@
 			"sprite": "food",
 			"height": 0.3,
 			"name": "radishes",
-			"components": [
-				["Item", {
-					"ent": ["self", null],
-					"name": ["string", "radishes"],
-					"action": ["action", ["eat", 3]]
-				}]
-			]
+			"item": ["eat", 3]
 		},
 		"sword": {
 			"sprite": "sword",
 			"height": 0.5,
-			"components": [
-				["Item", {
-					"ent": ["self", null],
-					"name": ["string", "sword"],
-					"action": ["action", ["equip", {
-						"slot": "hand",
-						"stats": {"strength": 50}
-					}]]
-				}]
-			]
+			"item": ["equip", {
+				"slot": "hand",
+				"stats": {"strength": 50}
+			}]
 		}
 	}
 }

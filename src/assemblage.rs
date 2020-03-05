@@ -80,21 +80,43 @@ impl Assemblage {
 			components: Self::parse_definition_components(val.get("components").unwrap_or(&json!([])))?,
 			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?
 		};
+		let name = if let Some(nameval) = val.get("name") {
+				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
+			} else {None};
 		// visible component is so common that shortcuts are very helpful
 		if let Some(spritename) = val.get("sprite") {
-			let height = val.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?;
-			let name = val.get("name").unwrap_or(spritename);
+			let sprite = spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string();
+			let height = val
+				.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?
+				.as_f64().ok_or(aerr!("height not a float"))?;
 			assemblage.components.push((
 				ComponentType::Visible,
 				hashmap!(
+					"name".to_string() => ComponentParameter::Constant(
+						Parameter::String(name.clone().unwrap_or(sprite.clone()))
+					),
 					"sprite".to_string() => ComponentParameter::Constant(
-						Parameter::String(spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string())
+						Parameter::String(sprite)
 					),
 					"height".to_string() => ComponentParameter::Constant(
-						Parameter::Float(height.as_f64().ok_or(aerr!("height not a float"))?)
-					),
-					"name".to_string() => ComponentParameter::Constant(
-						Parameter::String(name.as_str().ok_or(aerr!("name not a string"))?.to_string())
+						Parameter::Float(height)
+					)
+				)
+			));
+		}
+		// item component is common too
+		if let Some(action) = val.get("item") {
+			assemblage.components.push((
+				ComponentType::Item,
+				hashmap!(
+					"ent".to_string() => ComponentParameter::TemplateSelf,
+					"name".to_string() => if let Some(n) = name {
+							ComponentParameter::Constant(Parameter::String(n))
+						} else {
+							ComponentParameter::TemplateName
+						},
+					"action".to_string() => ComponentParameter::Constant(
+						Parameter::from_typed_json(ParameterType::Action, action).ok_or(aerr!("invalid item action"))?
 					)
 				)
 			));
