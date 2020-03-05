@@ -39,8 +39,8 @@ impl <'a> System<'a> for Use {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Use(rank) => {
-					if let Some(slot) = inventory.items.get_mut(*rank) {
-						match &slot.0.action {
+					if let Some(entry) = inventory.items.get_mut(*rank) {
+						match &entry.0.action {
 							Build(template) => {
 								new.create(position.pos, template.clone()).unwrap();
 								inventory.items.remove(*rank);
@@ -49,9 +49,16 @@ impl <'a> System<'a> for Use {
 								AttackInbox::add_message(&mut attacked, ent, AttackMessage{typ: AttackType::Heal(*health_diff), attacker: Option::None});
 								inventory.items.remove(*rank);
 							}
-							Equip(_equippable) => {
-								// todo: unequip previous
-								slot.1 = true;
+							Equip(equippable) => {
+								let slot = equippable.slot;
+								for otherentry in inventory.items.iter_mut() {
+									if let Equip(other) = &otherentry.0.action {
+										if other.slot == slot {
+											otherentry.1 = false;
+										}
+									}
+								}
+								inventory.items[*rank].1 = true;
 							}
 							None => {}
 						}
