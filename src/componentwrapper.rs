@@ -17,9 +17,8 @@ use crate::{
 };
 
 
-
 macro_rules! components {
-	($($comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr);*;) => {
+	(post: $($comp: ident ($($paramname: ident : $paramtype: ident, $extraction: expr),*) $creation: expr);*;) => {
 		#[derive(Clone)]
 		pub enum ComponentWrapper{
 			$(
@@ -82,7 +81,54 @@ macro_rules! components {
 				}
 			}
 		}
-	}
+		
+		use specs::{World, Entity, WorldExt};
+		pub fn extract_parameter(typ: ComponentType, parameter: &str, world: World, ent: Entity) -> Option<Parameter> {
+			match typ {
+				$(
+					
+					#[allow(path_statements)]
+					ComponentType::$comp => {
+						None::<Parameter> 
+						$(
+							;
+							if parameter == stringify!($paramname) {
+								#[allow(unreachable_code, non_snake_case)]
+								Some(Parameter::$paramtype({
+									let components = world.read_component::<crate::components::$comp>();
+									#[allow(unused_variables)]
+									let $comp = components.get(ent)?;
+									$extraction
+								}))
+							} else {
+								None
+							}
+						)*
+					}
+				)*
+			}
+		}
+	};
+	// no parameters: make unit struct
+	(pre: ($($done: tt)*) $comp: ident; $($tail:tt)*) => {
+		components!(pre: ($($done)* $comp () {$comp};) $($tail)*);
+	};
+	// struct is just parameters
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident),*);$($tail:tt)*) => {
+		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {$comp.$paramname.clone()}),*) {$comp{$($paramname,)*}};) $($tail)*);
+	};
+	// full definition minus variable exraction
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr; $($tail:tt)*) => {
+		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {panic!(format!("can not extract {} for {}", stringify!($paramname), stringify!($comp)))}),*) $creation;) $($tail)*);
+	};
+	// full definition
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident ($extraction: expr)),*) $creation: expr; $($tail:tt)*) => {
+		components!(pre: ($($done)* $comp ($($paramname : $paramtype, $extraction),*) $creation;) $($tail)*);
+	};
+	(pre: ($($done: tt)*)) => {
+		components!(post: $($done)*);
+	};
+	($($all: tt)*) => {components!(pre: () $($all)*);};
 }
 
 components!(
@@ -93,14 +139,14 @@ components!(
 			name
 		}
 	};
-	Movable (cooldown: Int) {Movable {cooldown}};
-	Blocking () {Blocking};
-	Floor () {Floor};
+	Movable (cooldown: Int);
+	Blocking;
+	Floor;
 	Player (name: String) {Player::new(PlayerId{name})};
-	Item (ent: Template, name: String, action: Action) {Item{ent, name, action}};
+	Item (ent: Template, name: String, action: Action);
 	Inventory () {panic!("inventory from parameters not implemented")};
-	Health (health: Int, maxhealth: Int) {Health{health, maxhealth}};
-	Serialise (template: Template) {Serialise{template}};
+	Health (health: Int, maxhealth: Int);
+	Serialise (template: Template);
 	RoomExit (destination: String, dest_pos: String) {
 		RoomExit {
 			destination: RoomId::from_str(&destination),
@@ -116,8 +162,8 @@ components!(
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};
-	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int) {MonsterAI{move_chance, homesickness, view_distance}};
-	Mortal () {Mortal};
+	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int);
+	Mortal;
 	Spawner (amount: Int, delay: Int, clan: String, template: Template, initial_spawn: Bool) {
 		Spawner{
 			amount: amount as usize,
@@ -133,11 +179,11 @@ components!(
 			last_spawn: if initial_spawn {Some(Timestamp(-delay))} else {None}
 		}
 	};
-	Clan (name: String) Clan{name};
-	Home (home: Pos) Home{home};
+	Clan (name: String);
+	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str())?};
 	Interactable (action: String) {Interactable::from_str(action.as_str())?};
-	Loot (loot: LootList) {Loot{loot}};
+	Loot (loot: LootList);
 	Grow (delay: Int, into: Template) {Grow{delay, into, target_time: None}};
 	Equipment () {panic!("equipment from parameters not implemented")};
 );
