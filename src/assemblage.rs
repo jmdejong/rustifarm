@@ -18,7 +18,8 @@ type ArgumentDef = (String, ParameterType, Option<Parameter>);
 pub struct Assemblage {
 	pub arguments: Vec<ArgumentDef>,
 	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>,
-	pub save: bool
+	pub save: bool,
+	pub extract: Vec<(String, ComponentType, String)>
 }
 
 impl Assemblage {
@@ -78,7 +79,26 @@ impl Assemblage {
 		let mut assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(val.get("components").unwrap_or(&json!([])))?,
-			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?
+			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?,
+			extract: val
+				.get("extract")
+				.unwrap_or(&json!({}))
+				.as_object().ok_or(aerr!("assemblage extract not a bool"))?
+				.into_iter()
+				.map(|(argname, val)| {
+					Ok((
+						argname.to_string(),
+						ComponentType::from_str(
+							val
+								.get(0).ok_or(aerr!("index 0 not in extract value"))?
+								.as_str().ok_or(aerr!("extract component name not a string"))?
+						).ok_or(aerr!("extract invalid component name"))?,
+						val.get(1)
+							.ok_or(aerr!("index 1 not in extract value"))?
+							.as_str().ok_or(aerr!("extract member name not a string"))?.to_string()
+					))
+				})
+				.collect::<Result<Vec<(String, ComponentType, String)>>>()?
 		};
 		let name = if let Some(nameval) = val.get("name") {
 				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
@@ -161,7 +181,7 @@ impl Assemblage {
 			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or(aerr!("failed to load component"))?);
 		}
 		if template.save && self.save {
-			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone()}));
+			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: self.extract.clone() }));
 		}
 		Ok(components)
 	}

@@ -83,27 +83,24 @@ macro_rules! components {
 		}
 		
 		use specs::{World, Entity, WorldExt};
-		pub fn extract_parameter(typ: ComponentType, parameter: &str, world: World, ent: Entity) -> Option<Parameter> {
+		pub fn extract_parameter(typ: ComponentType, parameter: &str, world: &World, ent: Entity) -> Option<Parameter> {
 			match typ {
 				$(
 					
 					#[allow(path_statements)]
 					ComponentType::$comp => {
-						None::<Parameter> 
 						$(
-							;
 							if parameter == stringify!($paramname) {
 								#[allow(unreachable_code, non_snake_case)]
-								Some(Parameter::$paramtype({
+								return Some(Parameter::$paramtype({
 									let components = world.read_component::<crate::components::$comp>();
 									#[allow(unused_variables)]
 									let $comp = components.get(ent)?;
 									$extraction
 								}))
-							} else {
-								None
 							}
 						)*
+						None::<Parameter> 
 					}
 				)*
 			}
@@ -119,7 +116,7 @@ macro_rules! components {
 	};
 	// full definition minus variable exraction
 	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr; $($tail:tt)*) => {
-		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {panic!(format!("can not extract {} for {}", stringify!($paramname), stringify!($comp)))}),*) $creation;) $($tail)*);
+		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {None?}),*) $creation;) $($tail)*);
 	};
 	// full definition
 	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident ($extraction: expr)),*) $creation: expr; $($tail:tt)*) => {
@@ -146,7 +143,7 @@ components!(
 	Item (ent: Template, name: String, action: Action);
 	Inventory () {panic!("inventory from parameters not implemented")};
 	Health (health: Int, maxhealth: Int);
-	Serialise (template: Template);
+	Serialise () {panic!("serialise from parameters not implemented")};
 	RoomExit (destination: String, dest_pos: String) {
 		RoomExit {
 			destination: RoomId::from_str(&destination),

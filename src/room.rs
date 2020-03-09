@@ -38,6 +38,7 @@ use crate::{
 	savestate::SaveState,
 	Template,
 	playerstate::{PlayerState, RoomPos},
+	componentwrapper::extract_parameter,
 	Pos,
 	PlayerId,
 	RoomId,
@@ -201,11 +202,20 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	pub fn save(&self) -> SaveState {
+		let entities = self.world.entities();
 		let positions = self.world.read_component::<Position>();
 		let serialisers = self.world.read_component::<Serialise>();
 		let mut state = SaveState::new();
-		for (pos, serialiser) in (&positions, &serialisers).join() {
-			state.changes.entry(pos.pos).or_insert_with(Vec::new).push(serialiser.template.clone());
+		for (entity, pos, serialiser) in (&entities, &positions, &serialisers).join() {
+			let mut template = serialiser.template.clone();
+			for (argument, component, member) in &serialiser.extract {
+				if let Some(parameter) = extract_parameter(*component, member.as_str(), &self.world, entity){
+					template.kwargs.insert(argument.clone(), parameter);
+				} else {
+					println!("failed to extract parameter {:?} from {:?}", member, component);
+				}
+			}
+			state.changes.entry(pos.pos).or_insert_with(Vec::new).push(template);
 		}
 		state
 	}

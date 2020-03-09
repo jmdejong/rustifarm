@@ -5,6 +5,7 @@ pub mod faction;
 pub mod interactable;
 pub mod equipment;
 pub mod inventory;
+pub mod serialise;
 
 pub use item::Item;
 pub use messages::{
@@ -16,6 +17,7 @@ pub use faction::Faction;
 pub use interactable::Interactable;
 pub use equipment::Equipment;
 pub use inventory::Inventory;
+pub use serialise::Serialise;
 
 use specs::{
 	DenseVecStorage,
@@ -116,11 +118,6 @@ impl Health {
 			self.health = self.maxhealth;
 		}
 	}
-}
-
-#[derive(Component, Debug, Clone)]
-pub struct Serialise {
-	pub template: Template
 }
 
 #[derive(Component, Debug, Clone)]

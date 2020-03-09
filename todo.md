@@ -1,6 +1,7 @@
 
 # TODO
 
+- make readme
 - save time
 - save variable arguments (health etc)
 - timer resource

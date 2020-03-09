@@ -120,7 +120,8 @@
 				"Mortal"
 			],
 			"sprite": "wall",
-			"height": 2
+			"height": 2,
+			"extract": {"health": ["Health", "health"]}
 		},
 		"spiketrap": {
 			"components": [["Trap", {"damage": ["int", 8]}]],
