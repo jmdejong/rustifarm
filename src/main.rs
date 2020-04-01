@@ -125,6 +125,7 @@ fn main() -> Result<()>{
 		world.update();
 		if count % 50 == 0 {
 			world.save();
+			world.unload_rooms();
 		}
 		let messages = world.view();
 		for (player, mut message) in messages {

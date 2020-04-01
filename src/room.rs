@@ -228,6 +228,10 @@ impl <'a, 'b>Room<'a, 'b> {
 		}
 	}
 	
+	pub fn has_players(&self) -> bool {
+		!self.world.read_component::<Player>().is_empty()
+	}
+	
 	pub fn save_players(&self) -> HashMap<PlayerId, PlayerState> {
 		let mut states = HashMap::new();
 		let players = self.world.read_component::<Player>();

@@ -24,6 +24,7 @@ pub struct World<'a, 'b> {
 	default_room: RoomId,
 	players: HashMap<PlayerId, RoomId>,
 	rooms: HashMap<RoomId, Room<'a, 'b>>,
+	room_age: HashMap<RoomId, u32>,
 	encyclopedia: Encyclopedia,
 	time: Timestamp
 }
@@ -38,11 +39,13 @@ impl <'a, 'b>World<'a, 'b> {
 			default_room,
 			encyclopedia: encyclopedia.clone(),
 			players: HashMap::new(),
-			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia))
+			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia)),
+			room_age: HashMap::new()
 		}
 	}
 	
 	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
+		self.room_age.insert(id.clone(), 0);
 		let result = self.get_room_mut_(id);
 		if let Err(err) = &result {
 			println!("Failed to load room {:?}: {:?}", id, err);
@@ -166,6 +169,24 @@ impl <'a, 'b>World<'a, 'b> {
 		}
 		if let Err(err) = self.persistence.save_world_meta(self.time) {
 			println!("{:?}",err);
+		}
+	}
+	
+	pub fn unload_rooms(&mut self){
+		let mut to_remove = Vec::new();
+		for roomid in self.rooms.keys() {
+			if self.rooms[roomid].has_players() {
+				self.room_age.insert(roomid.clone(), 0);
+			} else {
+				let age = *self.room_age.get(&roomid).unwrap_or(&0) + 1;
+				self.room_age.insert(roomid.clone(), age);
+				if age > 2 {
+					to_remove.push(roomid.clone());
+				}
+			}
+		}
+		for roomid in to_remove {
+			self.rooms.remove(&roomid);
 		}
 	}
 	

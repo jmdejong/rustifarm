@@ -196,6 +196,7 @@ components!(
 			into,
 			delay,
 			target_time: if target_time == 0 { None } else { Some(Timestamp(target_time)) }
+			// please forgive me for using 0 as null
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
 	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
