@@ -226,4 +226,10 @@ pub struct Grow {
 	pub into: Template
 }
 
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct CreationTime {
+	pub time: Timestamp
+}
+
 

@@ -91,7 +91,7 @@
 			"height": 0.4
 		},
 		"player": {
-			"arguments": [["name", "string", null]],
+			"arguments": [["name", "string"]],
 			"components": [
 				["Visible", {
 					"sprite": ["string", "player"],
@@ -106,7 +106,7 @@
 			]
 		},
 		"portal": {
-			"arguments": [["destination", "string", null], ["dest_pos", "string", ""]],
+			"arguments": [["destination", "string"], ["dest_pos", "string", ""]],
 			"components": [
 				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "dest_pos"]}],
 				"Floor"
@@ -160,7 +160,7 @@
 			]
 		},
 		"spawner": {
-			"arguments": [["template", "template", null], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""], ["initial_spawn", "bool", true]],
+			"arguments": [["template", "template"], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""], ["initial_spawn", "bool", true]],
 			"components": [
 				["Spawner", {
 					"template": ["arg", "template"],
@@ -172,7 +172,7 @@
 			]
 		},
 		"letter": {
-			"arguments": [["char", "string", null]],
+			"arguments": [["char", "string"]],
 			"components": [["Visible", {
 				"name": ["concat", [["string", "letter_"], ["arg", "char"]]],
 				"sprite": ["concat", [["string", "emptyletter-"], ["arg", "char"]]],
@@ -196,15 +196,33 @@
 			"item": ["build", "plantedradishseed"]
 		},
 		"plantedradishseed": {
+			"arguments": [["target_time", "sometime", null]],
 			"sprite": "seed",
 			"height": 0.05,
 			"name": "seed",
 			"components": [
 				["Grow", {
-					"delay": ["int", 200],
-					"into": ["template", "radishplant"]
+					"delay": ["int", 100],
+					"target_time": ["arg", "target_time"],
+					"into": ["template", "radishseedling"]
 				}]
 			]
+		},
+		"radishseedling": {
+			"arguments": [["target_time", "sometime", null]],
+			"sprite": "seedling",
+			"height": 0.05,
+			"name": "seedling",
+			"components": [
+				["Grow", {
+					"delay": ["int", 200],
+					"target_time": ["arg", "target_time"],
+					"into": ["template", "radishplant"]
+				}]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			}
 		},
 		"radishes": {
 			"sprite": "food",

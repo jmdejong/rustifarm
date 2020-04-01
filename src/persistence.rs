@@ -3,12 +3,13 @@ use std::path::{PathBuf, Path};
 use std::fs;
 use std::env;
 use serde_json;
-use serde_json::Value;
+use serde_json::{Value, json};
 use crate::{
 	PlayerId,
 	RoomId,
 	savestate::SaveState,
 	playerstate::PlayerState,
+	Timestamp,
 	Result,
 	aerr
 };
@@ -16,13 +17,12 @@ use crate::{
 pub trait PersistentStorage {
 	
 	fn load_room(&self, id: RoomId) -> Result<SaveState>;
-	
 	fn load_player(&self, id: PlayerId) -> Result<PlayerState>;
+	fn load_world_meta(&self) -> Result<Timestamp>;
 	
 	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()>;
-	
 	fn save_player(&self, id: PlayerId, sate: PlayerState) -> Result<()>;
-	
+	fn save_world_meta(&self, time: Timestamp) -> Result<()>;
 }
 
 
@@ -78,6 +78,20 @@ impl PersistentStorage for FileStorage {
 		PlayerState::from_json(&json)
 	}
 	
+	fn load_world_meta(&self) -> Result<Timestamp> {
+		let mut path = self.directory.clone();
+		path.push("world.save.json");
+		let text = fs::read_to_string(path)?;
+		let json: Value = serde_json::from_str(&text)?;
+		Ok(
+			Timestamp(
+				json
+					.get("steps").ok_or(aerr!("world data does not have steps"))?
+					.as_i64().ok_or(aerr!("timestamp not an int"))?
+			)
+		)
+	}
+	
 	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()> {
 		let mut path = self.directory.clone();
 		path.push("rooms");
@@ -85,7 +99,6 @@ impl PersistentStorage for FileStorage {
 		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = state.to_json().to_string();
-		// todo: write to a temp file first
 		write_file_safe(path, text)?;
 		Ok(())
 	}
@@ -97,8 +110,15 @@ impl PersistentStorage for FileStorage {
 		let fname = id.to_string() + ".save.json";
 		path.push(fname);
 		let text = state.to_json().to_string();
-		// todo: write to a temp file first
 		write_file_safe(path, text)?;
+		Ok(())
+	}
+	
+	fn save_world_meta(&self, time: Timestamp) -> Result<()> {
+		let mut path = self.directory.clone();
+		fs::create_dir_all(&path)?;
+		path.push("world.save.json");
+		write_file_safe(path, json!({"steps": time.0}).to_string())?;
 		Ok(())
 	}
 }

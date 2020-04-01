@@ -33,12 +33,12 @@ impl <'a, 'b>World<'a, 'b> {
 	pub fn new(encyclopedia: Encyclopedia, template_loader: WorldLoader, persistence: Box<dyn PersistentStorage>, default_room: RoomId) -> Self {
 		World {
 			template_loader,
+			time: persistence.load_world_meta().unwrap_or(Timestamp(1000000)),
 			persistence,
 			default_room,
 			encyclopedia: encyclopedia.clone(),
 			players: HashMap::new(),
-			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia)),
-			time: Timestamp(1000000)
+			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia))
 		}
 	}
 	
@@ -164,6 +164,9 @@ impl <'a, 'b>World<'a, 'b> {
 				}
 			}
 		}
+		if let Err(err) = self.persistence.save_world_meta(self.time) {
+			println!("{:?}",err);
+		}
 	}
 	
 	pub fn view(&self) -> HashMap<PlayerId, WorldMessage> {
@@ -176,3 +179,4 @@ impl <'a, 'b>World<'a, 'b> {
 		views
 	}
 }
+

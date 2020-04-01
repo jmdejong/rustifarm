@@ -181,7 +181,7 @@ components!(
 	Faction (faction: String) {Faction::from_str(faction.as_str())?};
 	Interactable (action: String) {Interactable::from_str(action.as_str())?};
 	Loot (loot: LootList);
-	Grow (delay: Int, into: Template) {Grow{delay, into, target_time: None}};
+	Grow (into: Template, delay: Int, target_time: SomeTime);
 	Equipment () {panic!("equipment from parameters not implemented")};
 );
 

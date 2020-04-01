@@ -42,7 +42,7 @@ impl Template {
 	
 	pub fn from_json(val: &Value) -> Result<Template> {
 		if val.is_string(){
-			return Ok(Self::empty(val.as_str().ok_or(aerr!("json string is not a string?"))?));
+			return Ok(Self::empty(val.as_str().unwrap()));
 		}
 		let name = EntityType(val.get("type").ok_or(aerr!("template doesn't have 'type'"))?.as_str().ok_or(aerr!("template type not a string"))?.to_string());
 		let mut args = Vec::new();

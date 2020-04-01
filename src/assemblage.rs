@@ -31,11 +31,16 @@ impl Assemblage {
 			let tup = arg.as_array().ok_or(aerr!("argument is not an array"))?;
 			let key = tup.get(0).ok_or(aerr!("argument has no name"))?.as_str().ok_or(aerr!("argument name is not a string"))?.to_string();
 			let typ = ParameterType::from_str(tup.get(1).ok_or(aerr!("argument has no type"))?.as_str().ok_or(aerr!("argument type not a string"))?).ok_or(aerr!("failed to parse argument type"))?;
-			let def = tup.get(2).ok_or("argument has no default")?;
-			if def.is_null() {
+			if let Some(def) = tup.get(2){
+				arguments.push(
+					(
+						key.clone(),
+						typ,
+						Some(Parameter::from_typed_json(typ, def).ok_or(aerr!("invalid argument default"))?)
+					)
+				);
+			} else  {
 				arguments.push((key.clone(), typ, None));
-			} else {
-				arguments.push((key.clone(), typ, Some(Parameter::from_typed_json(typ, def).ok_or(aerr!("invalid argument default"))?)));
 			}
 		}
 		Ok(arguments)
@@ -159,7 +164,7 @@ impl Assemblage {
 					None
 				}
 			};
-			let param = value.ok_or(aerr!("argument has no value"))?;
+			let param = value.ok_or(aerr!(&format!("argument <{:?}> has no value", (idx, (name, typ, def)))))?;
 			if param.paramtype() != *typ {
 				return Err(aerr!("argument has incorrect type"));
 			}

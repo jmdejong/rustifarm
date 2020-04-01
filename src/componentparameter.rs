@@ -55,7 +55,8 @@ impl ComponentParameter {
 				Some(Parameter::String(string))
 			}
 			Self::TemplateSelf => Some(Parameter::Template(template.clone())),
-			Self::TemplateName => Some(Parameter::String(template.name.0.clone()))
+			Self::TemplateName => Some(Parameter::String(template.name.0.clone())),
+			
 		}
 	}
 	
