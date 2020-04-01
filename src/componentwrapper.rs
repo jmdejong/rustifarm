@@ -183,6 +183,7 @@ components!(
 	Loot (loot: LootList);
 	Grow (into: Template, delay: Int, target_time: SomeTime);
 	Equipment () {panic!("equipment from parameters not implemented")};
+	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
 );
 
 
