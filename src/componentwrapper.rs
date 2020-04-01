@@ -181,7 +181,22 @@ components!(
 	Faction (faction: String) {Faction::from_str(faction.as_str())?};
 	Interactable (action: String) {Interactable::from_str(action.as_str())?};
 	Loot (loot: LootList);
-	Grow (into: Template, delay: Int, target_time: SomeTime);
+	Grow (
+			into: Template (Grow.into.clone()),
+			delay: Int (Grow.delay),
+			target_time: Int ({
+				if let Some(time) = Grow.target_time {
+					time.0
+				} else {
+					0
+				}
+			})
+		)
+		Grow {
+			into,
+			delay,
+			target_time: if target_time == 0 { None } else { Some(Timestamp(target_time)) }
+		};
 	Equipment () {panic!("equipment from parameters not implemented")};
 	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
 );

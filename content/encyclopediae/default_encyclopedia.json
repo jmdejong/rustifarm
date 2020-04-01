@@ -196,7 +196,7 @@
 			"item": ["build", "plantedradishseed"]
 		},
 		"plantedradishseed": {
-			"arguments": [["target_time", "sometime", null]],
+			"arguments": [["target_time", "int", 0]],
 			"sprite": "seed",
 			"height": 0.05,
 			"name": "seed",
@@ -206,10 +206,13 @@
 					"target_time": ["arg", "target_time"],
 					"into": ["template", "radishseedling"]
 				}]
-			]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			}
 		},
 		"radishseedling": {
-			"arguments": [["target_time", "sometime", null]],
+			"arguments": [["target_time", "int", 0]],
 			"sprite": "seedling",
 			"height": 0.05,
 			"name": "seedling",

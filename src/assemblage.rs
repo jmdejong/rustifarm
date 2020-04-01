@@ -166,7 +166,12 @@ impl Assemblage {
 			};
 			let param = value.ok_or(aerr!(&format!("argument <{:?}> has no value", (idx, (name, typ, def)))))?;
 			if param.paramtype() != *typ {
-				return Err(aerr!("argument has incorrect type"));
+				return Err(aerr!(&format!(
+					"argument has incorrect type: {:?}, {:?}, {:?}",
+					(idx, (name, typ, def)),
+					param.paramtype(),
+					param
+				)));
 			}
 			arguments.insert(name, param);
 		}

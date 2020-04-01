@@ -3,8 +3,7 @@ use serde_json::{Value, json};
 use crate::{
 	Template,
 	components::item::ItemAction,
-	Pos,
-	Timestamp
+	Pos
 };
 
 
@@ -76,13 +75,6 @@ parameters!(
 				Some((Template::from_json(item.get(0)?).ok()?, item.get(1)?.as_f64()?))
 			).collect::<Option<Vec<(Template, f64)>>>()?)
 		({json!(v.iter().map(|(t, c)| (t.to_json(), *c)).collect::<Vec<(Value, f64)>>())});
-	SomeTime (Option<Timestamp>) sometime, v 
-		(
-			serde_json::from_value::<Option<i64>>(v.clone())
-				.ok()?
-				.map(|time| Timestamp(time))
-		)
-		(json!(v.map(|timestamp| timestamp.0)));
 );
 
 
