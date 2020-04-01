@@ -216,7 +216,8 @@ mod tests {
 			Assemblage{
 				arguments: vec![],
 				components: vec![],
-				save: true
+				save: true,
+				extract: Vec::new()
 			}
 		);
 	}
@@ -244,7 +245,8 @@ mod tests {
 						"name".to_string() => ComponentParameter::Constant(Parameter::String("grass".to_string()))
 					))
 				],
-				save: true
+				save: true,
+				extract: Vec::new()
 			};
 		assert_eq!(result, constructed);
 	}
@@ -343,7 +345,7 @@ mod tests {
 	fn null_argument(){
 		let result = Assemblage::from_json(&json!({
 				"arguments": [
-					["sprite", "string", null]
+					["sprite", "string"]
 				],
 				"components": [
 					["Visible", {
@@ -362,7 +364,8 @@ mod tests {
 						"name".to_string() => ComponentParameter::Argument("sprite".to_string())
 					))
 				],
-				save: true
+				save: true,
+				extract: Vec::new()
 			};
 		assert_eq!(result, constructed);
 	}

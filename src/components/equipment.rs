@@ -120,18 +120,4 @@ mod tests {
 		);
 	}
 	
-	
-	#[test]
-	fn bonus_value() {
-		assert_eq!(
-			Equipment{equipment: hashmap!(
-				Slot::Hand => Some(Equippable{
-					slot: Slot::Hand,
-					stats: hashmap!(Stat::Strength => 15)
-				}),
-				Slot::Body => None
-			)}.get_bonus(Stat::Strength),
-			15
-		);
-	}
 }
