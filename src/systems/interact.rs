@@ -6,7 +6,8 @@ use specs::{
 	WriteStorage,
 	System,
 	Join,
-	Read
+	Read,
+	Write
 };
 
 use crate::components::{
@@ -14,11 +15,12 @@ use crate::components::{
 	Position,
 	ControlCooldown,
 	Interactable,
-	Dead
+	Dead,
+	Removed
 };
 
 use crate::controls::{Control};
-use crate::resources::{Ground};
+use crate::resources::{Ground, NewEntities};
 
 
 
@@ -31,18 +33,21 @@ impl <'a> System<'a> for Interact {
 		Read<'a, Ground>,
 		WriteStorage<'a, ControlCooldown>,
 		ReadStorage<'a, Interactable>,
-		WriteStorage<'a, Dead>
+		WriteStorage<'a, Dead>,
+		WriteStorage<'a, Removed>,
+		Write<'a, NewEntities>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			match &controller.control {
 				Control::Interact(directions) => {
 					'targets: for direction in directions {
-						for ent in ground.cells.get(&(position.pos + direction.to_position())).unwrap_or(&HashSet::new()) {
+						let pos = position.pos + direction.to_position();
+						for ent in ground.cells.get(&pos).unwrap_or(&HashSet::new()) {
 							if let Some(interactable) = interactables.get(*ent) {
-								target = Some((*ent, interactable));
+								target = Some((*ent, interactable, pos));
 								break 'targets;
 							}
 						}
@@ -50,10 +55,14 @@ impl <'a> System<'a> for Interact {
 				}
 				_ => {}
 			}
-			if let Some((ent, interactable)) = target {
+			if let Some((ent, interactable, pos)) = target {
 				match interactable {
 					Interactable::Harvest => {
 						deads.insert(ent, Dead).unwrap();
+					}
+					Interactable::Change(into) => {
+						new.create(pos, into).unwrap();
+						removeds.insert(ent, Removed).unwrap();
 					}
 				}
 				cooldowns.insert(entity, ControlCooldown{amount: 2}).unwrap();

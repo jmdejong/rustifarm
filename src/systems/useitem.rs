@@ -48,7 +48,7 @@ impl <'a> System<'a> for Use {
 							Build(template, required_flags, blocking_flags) => {
 								let ground_flags = ground.flags_on(position.pos, &flags);
 								if required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
-									new.create(position.pos, template.clone()).unwrap();
+									new.create(position.pos, &template).unwrap();
 									inventory.items.remove(*rank);
 								}
 							}

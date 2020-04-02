@@ -181,7 +181,7 @@ components!(
 	Clan (name: String);
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
-	Interactable (action: String) {Interactable::from_str(action.as_str()).ok_or(aerr!("invalid interactable name"))?};
+	Interactable (action: Interaction) {action};
 	Loot (loot: LootList);
 	Grow (
 			into: Template (Grow.into.clone()),

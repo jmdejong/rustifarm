@@ -64,7 +64,7 @@ impl <'a> System<'a> for Attacking {
 			}
 			if let Some(position) = positions.get(ent){
 				if wounded {
-					new.create(position.pos, Template::empty("wound")).unwrap();
+					new.create(position.pos, &Template::empty("wound")).unwrap();
 				}
 			}
 		}

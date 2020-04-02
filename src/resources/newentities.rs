@@ -20,8 +20,8 @@ impl NewEntities {
 			encyclopedia
 		}
 	}
-	pub fn create(&mut self, pos: Pos, template: Template) -> Result<()> {
-		let components = self.encyclopedia.construct(&template)?;
+	pub fn create(&mut self, pos: Pos, template: &Template) -> Result<()> {
+		let components = self.encyclopedia.construct(template)?;
 		self.to_build.push((pos, components));
 		Ok(())
 	}

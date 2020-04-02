@@ -63,7 +63,7 @@ impl <'a> System<'a> for Take {
 						return
 					}
 					let (item, _is_equipped) = inventory.items.remove(*rank);
-					let _ = new.create(position.pos, item.ent);
+					let _ = new.create(position.pos, &item.ent);
 				}
 				_ => {}
 			}

@@ -182,7 +182,7 @@
 			"name": "radishplant",
 			"height": 0.5,
 			"components": [
-				["Interactable", {"action": ["string", "harvest"]}],
+				["Interactable", {"action": ["interaction", "harvest"]}],
 				"Mortal",
 				["Loot", {"loot": ["lootlist", [["radishseed", 0.92], ["radishseed", 0.20], ["radishes", 0.8], ["radishes", 0.4]]]}]
 			],
@@ -241,6 +241,22 @@
 				"slot": "hand",
 				"stats": {"strength": 50}
 			}]
+		},
+		"closeddoor": {
+			"sprite": "closeddoor",
+			"height": 2,
+			"flags": ["Blocking"],
+			"components": [
+				["Interactable", {"action": ["interaction", ["change", {"type": "opendoor", "save": false}]]}]
+			]
+		},
+		"opendoor": {
+			"sprite": "opendoor",
+			"height": 0.8,
+			"flags": ["Occupied"],
+			"components": [
+				["Interactable", {"action": ["interaction", ["change", {"type": "closeddoor", "save": false}]]}]
+			]
 		}
 	}
 }

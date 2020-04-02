@@ -261,7 +261,7 @@ impl <'a, 'b>Room<'a, 'b> {
 	}
 	
 	fn create_entity(&mut self, template: Template, pos: Pos) -> Result<()>{
-		self.world.fetch_mut::<NewEntities>().create(pos, template)?;
+		self.world.fetch_mut::<NewEntities>().create(pos, &template)?;
 		Ok(())
 	}
 	

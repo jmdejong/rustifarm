@@ -32,7 +32,7 @@ impl <'a> System<'a> for DropLoot{
 			for (template, chance) in &loot.loot {
 				if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
 					// todo: better error handling
-					new.create(position.pos, template.clone()).unwrap();
+					new.create(position.pos, &template).unwrap();
 				}
 			}
 		}
