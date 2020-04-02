@@ -1,24 +1,24 @@
 {
 	"assemblages": {
 		"wall": {
-			"components": [["Flags", {"flags": ["strings", ["Blocking"]]}]],
 			"sprite": "wall",
-			"height": 2
+			"height": 2,
+			"flags": ["Blocking"]
 		},
 		"rock": {
-			"components": [["Flags", {"flags": ["strings", ["Blocking"]]}]],
 			"sprite": "rock",
-			"height": 10
+			"height": 10,
+			"flags": ["Blocking"]
 		},
 		"tree": {
-			"components": [["Flags", {"flags": ["strings", ["Blocking"]]}]],
 			"sprite": "tree",
-			"height": 3
+			"height": 3,
+			"flags": ["Blocking"]
 		},
 		"fence": {
-			"components": [["Flags", {"flags": ["strings", ["Blocking"]]}]],
 			"sprite": "fence",
-			"height": 1
+			"height": 1,
+			"flags": ["Blocking"]
 		},
 		"grass": {
 			"components": [
@@ -34,9 +34,9 @@
 					]],
 					"height": ["float", 0.1],
 					"name": ["string", "grass"]
-				}],
-				["Flags", {"flags": ["strings", ["Floor", "Soil"]]}]
-			]
+				}]
+			],
+			"flags": ["Floor", "Soil"]
 		},
 		"greengrass": {
 			"components": [
@@ -48,26 +48,24 @@
 					]],
 					"height": ["float", 0.1],
 					"name": ["string", "grass"]
-				}],
-				["Flags", {"flags": ["strings", ["Floor", "Soil"]]}]
-			]
+				}]
+			],
+			"flags": ["Floor", "Soil"]
 		},
 		"ground": {
-			"components": [["Flags", {"flags": ["strings", ["Floor", "Soil"]]}]],
 			"sprite": "ground",
-			"height": 0.1
+			"height": 0.1,
+			"flags": ["Floor", "Soil"]
 		},
 		"floor": {
-			"components": [["Flags", {"flags": ["strings", ["Floor"]]}]],
 			"sprite": "floor",
-			"height": 0.1
+			"height": 0.1,
+			"flags": ["Floor"]
 		},
 		"bridge": {
-			"components": [
-				["Flags", {"flags": ["strings", ["Floor"]]}]
-			],
 			"sprite": "bridge",
-			"height": 0.1
+			"height": 0.1,
+			"flags": ["Floor"]
 		},
 		"water": {
 			"components": [],
@@ -108,20 +106,20 @@
 		"portal": {
 			"arguments": [["destination", "string"], ["dest_pos", "string", ""]],
 			"components": [
-				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "dest_pos"]}],
-				["Flags", {"flags": ["strings", ["Floor"]]}]
-			]
+				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "dest_pos"]}]
+			],
+			"flags": ["Floor"]
 		},
 		"builtwall": {
 			"arguments": [["health", "int", 100]],
 			"components": [
-				["Flags", {"flags": ["strings", ["Blocking"]]}],
 				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 100]}],
 				"Mortal"
 			],
 			"sprite": "wall",
 			"height": 2,
-			"extract": {"health": ["Health", "health"]}
+			"extract": {"health": ["Health", "health"]},
+			"flags": ["Blocking"]
 		},
 		"spiketrap": {
 			"components": [["Trap", {"damage": ["int", 8]}]],
@@ -187,13 +185,14 @@
 				["Interactable", {"action": ["string", "harvest"]}],
 				"Mortal",
 				["Loot", {"loot": ["lootlist", [["radishseed", 0.92], ["radishseed", 0.20], ["radishes", 0.8], ["radishes", 0.4]]]}]
-			]
+			],
+			"flags": ["Occupied"]
 		},
 		"radishseed": {
 			"sprite": "seed",
 			"height": 0.2,
 			"name": "radishseed",
-			"item": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied"]]]
+			"item": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]
 		},
 		"plantedradishseed": {
 			"arguments": [["target_time", "int", 0]],
@@ -209,7 +208,8 @@
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
-			}
+			},
+			"flags": ["Occupied"]
 		},
 		"radishseedling": {
 			"arguments": [["target_time", "int", 0]],
@@ -225,7 +225,8 @@
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
-			}
+			},
+			"flags": ["Occupied"]
 		},
 		"radishes": {
 			"sprite": "food",

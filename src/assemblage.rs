@@ -80,6 +80,68 @@ impl Assemblage {
 		Ok(())
 	}
 	
+	fn common_short_definitions(val: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
+		let mut components = Vec::new();
+		
+		let name = if let Some(nameval) = val.get("name") {
+				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
+			} else {None};
+		
+		// visible component is so common that shortcuts are very helpful
+		if let Some(spritename) = val.get("sprite") {
+			let sprite = spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string();
+			let height = val
+				.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?
+				.as_f64().ok_or(aerr!("height not a float"))?;
+			components.push((
+				ComponentType::Visible,
+				hashmap!(
+					"name".to_string() => ComponentParameter::Constant(
+						Parameter::String(name.clone().unwrap_or(sprite.clone()))
+					),
+					"sprite".to_string() => ComponentParameter::Constant(
+						Parameter::String(sprite)
+					),
+					"height".to_string() => ComponentParameter::Constant(
+						Parameter::Float(height)
+					)
+				)
+			));
+		}
+		
+		// item component is common too
+		if let Some(action) = val.get("item") {
+			components.push((
+				ComponentType::Item,
+				hashmap!(
+					"ent".to_string() => ComponentParameter::TemplateSelf,
+					"name".to_string() => if let Some(n) = name {
+							ComponentParameter::Constant(Parameter::String(n))
+						} else {
+							ComponentParameter::TemplateName
+						},
+					"action".to_string() => ComponentParameter::Constant(
+						Parameter::from_typed_json(ParameterType::Action, action).ok_or(aerr!("invalid item action"))?
+					)
+				)
+			));
+		}
+		
+		// and so is flags
+		if let Some(flags) = val.get("flags") {
+			components.push((
+				ComponentType::Flags,
+				hashmap!(
+					"flags".to_string() => ComponentParameter::Constant(
+						Parameter::from_typed_json(ParameterType::Strings, flags).ok_or(aerr!("failed to parse flags"))?
+					)
+				)
+			));
+		}
+		
+		Ok(components)
+	}
+	
 	pub fn from_json(val: &Value) -> Result<Self>{
 		let mut assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
@@ -105,47 +167,7 @@ impl Assemblage {
 				})
 				.collect::<Result<Vec<(String, ComponentType, String)>>>()?
 		};
-		let name = if let Some(nameval) = val.get("name") {
-				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
-			} else {None};
-		// visible component is so common that shortcuts are very helpful
-		if let Some(spritename) = val.get("sprite") {
-			let sprite = spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string();
-			let height = val
-				.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?
-				.as_f64().ok_or(aerr!("height not a float"))?;
-			assemblage.components.push((
-				ComponentType::Visible,
-				hashmap!(
-					"name".to_string() => ComponentParameter::Constant(
-						Parameter::String(name.clone().unwrap_or(sprite.clone()))
-					),
-					"sprite".to_string() => ComponentParameter::Constant(
-						Parameter::String(sprite)
-					),
-					"height".to_string() => ComponentParameter::Constant(
-						Parameter::Float(height)
-					)
-				)
-			));
-		}
-		// item component is common too
-		if let Some(action) = val.get("item") {
-			assemblage.components.push((
-				ComponentType::Item,
-				hashmap!(
-					"ent".to_string() => ComponentParameter::TemplateSelf,
-					"name".to_string() => if let Some(n) = name {
-							ComponentParameter::Constant(Parameter::String(n))
-						} else {
-							ComponentParameter::TemplateName
-						},
-					"action".to_string() => ComponentParameter::Constant(
-						Parameter::from_typed_json(ParameterType::Action, action).ok_or(aerr!("invalid item action"))?
-					)
-				)
-			));
-		}
+		assemblage.components.append(&mut Self::common_short_definitions(val)?);
 		assemblage.validate()?;
 		Ok(assemblage)
 	}
