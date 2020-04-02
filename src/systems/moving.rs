@@ -15,9 +15,9 @@ use crate::{
 	Pos,
 	components::{
 		Controller,
-		Blocking,
 		Position,
-		Floor,
+		Flags,
+		Flag,
 		Moved,
 		Entered,
 		Movable,
@@ -40,34 +40,23 @@ impl <'a> System<'a> for Move {
 		ReadStorage<'a, Controller>,
 		WriteStorage<'a, Position>,
 		Read<'a, Size>,
-		ReadStorage<'a, Blocking>,
+		ReadStorage<'a, Flags>,
 		Write<'a, Ground>,
-		ReadStorage<'a, Floor>,
 		WriteStorage<'a, Moved>,
 		WriteStorage<'a, Entered>,
 		ReadStorage<'a, Movable>,
 		WriteStorage<'a, ControlCooldown>
 	);
 	
-	fn run(&mut self, (entities, controllers, mut positions, size, blocking, mut ground, floor, mut moved, mut entered, movables, mut cooldowns): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, mut positions, size, flags, mut ground, mut moved, mut entered, movables, mut cooldowns): Self::SystemData) {
 		moved.clear();
 		entered.clear();
 		for (ent, controller, mut pos, movable) in (&entities, &controllers, &mut positions.restrict_mut(), &movables).join(){
 			match &controller.control {
 				Control::Move(direction) => {
 					let newpos = (pos.get_unchecked().pos + direction.to_position()).clamp(Pos::new(0, 0), Pos::new(size.width - 1, size.height - 1));
-					let mut blocked = false;
-					let mut on_floor = false;
-					for ent in ground.cells.get(&newpos).unwrap_or(&HashSet::new()) {
-						if blocking.get(*ent).is_some(){
-							blocked = true;
-							break;
-						}
-						if floor.get(*ent).is_some(){
-							on_floor = true;
-						}
-					}
-					if !blocked && on_floor {
+					let ground_flags = ground.flags_on(newpos, &flags);
+					if !ground_flags.contains(&Flag::Blocking) && ground_flags.contains(&Flag::Floor) {
 						let mut pos_mut = pos.get_mut_unchecked();
 						moved.insert(ent, Moved{from: pos_mut.pos}).expect("can't insert Moved");
 						ground.cells.get_mut(&pos_mut.pos).unwrap().remove(&ent);

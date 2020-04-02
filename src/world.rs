@@ -180,7 +180,7 @@ impl <'a, 'b>World<'a, 'b> {
 			} else {
 				let age = *self.room_age.get(&roomid).unwrap_or(&0) + 1;
 				self.room_age.insert(roomid.clone(), age);
-				if age > 2 {
+				if age > 10 {
 					to_remove.push(roomid.clone());
 				}
 			}

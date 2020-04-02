@@ -188,7 +188,7 @@ impl Assemblage {
 			for (name, param) in compparams {
 				compargs.insert(name.as_str(), param.evaluate(&arguments, template).ok_or(aerr!("argument not found"))?);
 			}
-			components.push(ComponentWrapper::load_component(*comptype, compargs).ok_or(aerr!("failed to load component"))?);
+			components.push(ComponentWrapper::load_component(*comptype, compargs)?);
 		}
 		if template.save && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: self.extract.clone() }));

@@ -6,6 +6,7 @@ pub mod interactable;
 pub mod equipment;
 pub mod inventory;
 pub mod serialise;
+pub mod flags;
 
 pub use item::Item;
 pub use messages::{
@@ -18,6 +19,10 @@ pub use interactable::Interactable;
 pub use equipment::Equipment;
 pub use inventory::Inventory;
 pub use serialise::Serialise;
+pub use flags::{
+	Flag,
+	Flags
+};
 
 use specs::{
 	DenseVecStorage,
@@ -73,14 +78,6 @@ pub struct Controller {
 pub struct Movable {
 	pub cooldown: i64
 }
-
-#[derive(Default, Component, Debug, Clone)]
-#[storage(NullStorage)]
-pub struct Blocking;
-
-#[derive(Default, Component, Debug, Clone)]
-#[storage(NullStorage)]
-pub struct Floor;
 
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]

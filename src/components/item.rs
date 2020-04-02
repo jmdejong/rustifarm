@@ -1,6 +1,10 @@
 
+use std::collections::HashSet;
 use specs::{Component, DenseVecStorage};
-use crate::{Template};
+use crate::{
+	Template,
+	components::Flag
+};
 
 use super::equipment::Equippable;
 
@@ -18,7 +22,7 @@ use serde_json::{json, Value};
 #[derive(Debug, Clone, PartialEq)]
 pub enum ItemAction {
 	Eat(i64),
-	Build(Template),
+	Build(Template, HashSet<Flag>, HashSet<Flag>),
 	Equip(Equippable),
 	None
 }
@@ -26,21 +30,17 @@ pub enum ItemAction {
 use ItemAction::{Eat, Build, Equip, None};
 
 impl ItemAction {
-	pub fn to_json(&self) -> Value {
-		match self {
-			Eat(health) => json!(["eat", health]),
-			Build(template) => json!(["build", template.to_json()]),
-			Equip(equippable) => json!(["equip", equippable.to_json()]),
-			None => json!(["none", null])
-		}
-	}
 	
 	pub fn from_json(val: &Value) -> Option<Self> {
 		let typ = val.get(0)?;
 		let arg = val.get(1)?;
 		Some(match typ.as_str()? {
 			"eat" => Eat(arg.as_i64()?),
-			"build" => Build(Template::from_json(arg).ok()?),
+			"build" => Build(
+				Template::from_json(arg.get(0)?).ok()?,
+				arg.get(1)?.as_array()?.into_iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?,
+				arg.get(2)?.as_array()?.into_iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?
+			),
 			"none" => None,
 			"equip" => Equip(Equippable::from_json(arg)?),
 			_ => {return Option::None}

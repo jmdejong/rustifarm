@@ -1,5 +1,5 @@
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use specs::Builder;
 use rand::Rng;
 
@@ -10,10 +10,13 @@ use crate::{
 	playerstate::RoomPos,
 	components::{
 		AttackType,
-		Clan
+		Clan,
+		Flag
 	},
 	parameter::{Parameter, ParameterType},
-	Timestamp
+	Timestamp,
+	Result,
+	aerr
 };
 
 
@@ -33,16 +36,17 @@ macro_rules! components {
 					)*
 				}
 			}
-			pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Option<Self> {
+			pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Result<Self> {
 				#[allow(unused_imports, unreachable_code)]
 				match comptype {
 					$(
-						ComponentType::$comp => Some(Self::$comp({
+						ComponentType::$comp => Ok(Self::$comp({
 							use crate::components::$comp;
 							$(
-								let $paramname = match parameters.remove(stringify!($paramname))? {
+								let $paramname = match parameters.remove(stringify!($paramname))
+										.ok_or(aerr!(&format!("required parameter '{}'not found", stringify!($paramname))))? {
 									Parameter::$paramtype(p) => p,
-									_ => {return None}
+									x => Err(aerr!(&format!("parameter type mismatch for parameter {}: {} {:?}", stringify!($paramname), stringify!($paramtype), x)))?
 								};
 							)*
 							$creation
@@ -137,8 +141,6 @@ components!(
 		}
 	};
 	Movable (cooldown: Int);
-	Blocking;
-	Floor;
 	Player (name: String) {Player::new(PlayerId{name})};
 	Item (ent: Template, name: String, action: Action);
 	Inventory () {panic!("inventory from parameters not implemented")};
@@ -178,8 +180,8 @@ components!(
 	};
 	Clan (name: String);
 	Home (home: Pos);
-	Faction (faction: String) {Faction::from_str(faction.as_str())?};
-	Interactable (action: String) {Interactable::from_str(action.as_str())?};
+	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
+	Interactable (action: String) {Interactable::from_str(action.as_str()).ok_or(aerr!("invalid interactable name"))?};
 	Loot (loot: LootList);
 	Grow (
 			into: Template (Grow.into.clone()),
@@ -200,6 +202,14 @@ components!(
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
 	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
+	Flags (flags: Strings) {
+		Flags(
+			flags
+				.iter()
+				.map(|f| Flag::from_str(f))
+				.collect::<Option<HashSet<Flag>>>().ok_or(aerr!("invalid flag name"))?
+		)
+	};
 );
 
 

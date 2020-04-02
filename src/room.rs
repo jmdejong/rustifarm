@@ -122,7 +122,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, Blocking, Floor, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, CreationTime), 
+			(Position, Visible, Controller, Movable, /*Blocking, Floor,*/ New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, Dead, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, Mortal, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, CreationTime, Flags), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		

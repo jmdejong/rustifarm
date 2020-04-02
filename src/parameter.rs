@@ -68,13 +68,18 @@ parameters!(
 	Pos (Pos) pos, v (Pos::from_json(v)?) (json!(v));
 	Float (f64) float, v (v.as_f64()?) (json!(v));
 	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
-	Action (ItemAction) action, v (ItemAction::from_json(v)?) (v.to_json());
+	Action (ItemAction) action, v (ItemAction::from_json(v)?) (panic!("item actions can't be serialized"));
 	Bool (bool) bool, v (v.as_bool()?) (json!(v));
 	LootList (Vec<(Template, f64)>) lootlist, v 
 		(v.as_array()?.iter().map(|item| 
 				Some((Template::from_json(item.get(0)?).ok()?, item.get(1)?.as_f64()?))
 			).collect::<Option<Vec<(Template, f64)>>>()?)
 		({json!(v.iter().map(|(t, c)| (t.to_json(), *c)).collect::<Vec<(Value, f64)>>())});
+	Strings (Vec<String>) strings, v
+		(v.as_array()?.iter().map(|item| 
+				Some(item.as_str()?.to_string())
+			).collect::<Option<Vec<String>>>()?)
+		({json!(v)});
 );
 
 
