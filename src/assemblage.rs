@@ -133,7 +133,7 @@ impl Assemblage {
 				ComponentType::Flags,
 				hashmap!(
 					"flags".to_string() => ComponentParameter::Constant(
-						Parameter::from_typed_json(ParameterType::Strings, flags).ok_or(aerr!("failed to parse flags"))?
+						Parameter::from_typed_json(ParameterType::List, flags).ok_or(aerr!("failed to parse flags"))?
 					)
 				)
 			));

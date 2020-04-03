@@ -4,6 +4,7 @@
 - make readme
 - more tests
 - command line options
+- private rooms
 - timer resource?
 - log world events to player
 - draw new entities

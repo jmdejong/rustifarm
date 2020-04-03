@@ -77,11 +77,15 @@ parameters!(
 				Some((Template::from_json(item.get(0)?).ok()?, item.get(1)?.as_f64()?))
 			).collect::<Option<Vec<(Template, f64)>>>()?)
 		({json!(v.iter().map(|(t, c)| (t.to_json(), *c)).collect::<Vec<(Value, f64)>>())});
-	Strings (Vec<String>) strings, v
-		(v.as_array()?.iter().map(|item| 
-				Some(item.as_str()?.to_string())
-			).collect::<Option<Vec<String>>>()?)
-		({json!(v)});
+	List (Vec<Parameter>) list, v 
+		({
+			v
+				.as_array()?
+				.iter()
+				.map(|item| Parameter::guess_from_json(item))
+				.collect::<Option<Vec<Parameter>>>()?
+		})
+		(panic!("can not serialise parameter list"));
 );
 
 
@@ -126,7 +130,7 @@ mod tests {
 	use serde_json::json;
 	
 	macro_rules! gfj { // guess from json
-		($j:expr) => {Parameter::guess_from_json(&json!($j)).unwrap()}
+		($($j:tt)*) => {Parameter::guess_from_json(&json!($($j)*)).unwrap()}
 	}
 	
 	#[test]
@@ -149,11 +153,35 @@ mod tests {
 		assert_eq!(gfj!(0.0), Parameter::Float(0.0));
 		assert_eq!(gfj!(-0.0), Parameter::Float(0.0));
 		assert_eq!(gfj!(true), Parameter::Bool(true));
+		
+		assert_eq!(gfj!(["int", 3]), Parameter::Int(3));
 	}
 	
 	#[test]
 	fn guess_json_none() {
 		assert!(Parameter::guess_from_json(&json!([2, 5])).is_none());
 		assert!(Parameter::guess_from_json(&json!({"hello": "world"})).is_none());
+	}
+	
+	#[test]
+	fn parse_list() {
+		assert_eq!(
+				gfj!(["list", [5, 3, 1, 2]]),
+			Parameter::List(vec![
+				Parameter::Int(5),
+				Parameter::Int(3),
+				Parameter::Int(1),
+				Parameter::Int(2)
+			])
+		);
+		assert_eq!(
+				gfj!(["list", [5, 3.0, "Hello", true]]),
+			Parameter::List(vec![
+				Parameter::Int(5),
+				Parameter::Float(3.0),
+				Parameter::string("Hello"),
+				Parameter::Bool(true)
+			])
+		);
 	}
 }

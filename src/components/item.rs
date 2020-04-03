@@ -53,6 +53,7 @@ mod tests {
 	use super::*;
 	use crate::hashmap;
 	use super::super::equipment::*;
+	use serde_json::json;
 	
 	#[test]
 	fn equip_from_json() {

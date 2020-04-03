@@ -202,11 +202,17 @@ components!(
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
 	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
-	Flags (flags: Strings) {
+	Flags (flags: List) {
 		Flags(
 			flags
 				.iter()
-				.map(|f| Flag::from_str(f))
+				.map(|param| {
+					if let Parameter::String(f) = param {
+						Flag::from_str(f)
+					} else {
+						None
+					}
+				})
 				.collect::<Option<HashSet<Flag>>>().ok_or(aerr!("invalid flag name"))?
 		)
 	};
