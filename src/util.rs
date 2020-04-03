@@ -41,11 +41,6 @@ macro_rules! aerr {
 	($description:expr) => {Box::new(crate::util::AError::new($description))}
 }
 
-#[macro_export]
-macro_rules! err {
-	($description:expr) => {Err(crate::aerr!($description))}
-}
-
 
 #[macro_export]
 macro_rules! hashmap {

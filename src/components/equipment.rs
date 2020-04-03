@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use serde_json::{json, Value};
+use serde_json::Value;
 use specs::{
 	Component,
 	HashMapStorage
@@ -21,12 +21,6 @@ impl Slot {
 			_ => None
 		}
 	}
-	pub fn to_string(&self) -> String {
-		match self {
-			Self::Hand => "hand",
-			Self::Body => "body"
-		}.to_string()
-	}
 }
 
 
@@ -43,12 +37,6 @@ impl Stat {
 			"defence" => Some(Self::Defence),
 			_ => None
 		}
-	}
-	pub fn to_string(&self) -> String {
-		match self {
-			Self::Strength => "strength",
-			Self::Defence => "defence"
-		}.to_string()
 	}
 }
 
@@ -71,12 +59,6 @@ impl Equippable {
 					Some((Stat::from_str(k.as_str())?, v.as_i64()?))
 				)
 				.collect::<Option<HashMap<Stat, i64>>>()?
-		})
-	}
-	pub fn to_json(&self) -> Value {
-		json!({
-			"slot": self.slot.to_string(),
-			"stats": self.stats.iter().map(|(k, v)| (k.to_string(), *v)).collect::<HashMap<String, i64>>()
 		})
 	}
 }

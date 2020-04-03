@@ -1,10 +1,11 @@
 
 use std::thread::sleep;
 use std::time::Duration;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use std::fs;
 use serde_json;
+use structopt::StructOpt;
 
 mod server;
 mod gameserver;
@@ -33,6 +34,7 @@ mod world;
 mod sprite;
 mod timestamp;
 mod purgatory;
+mod config;
 
 use self::{
 	pos::Pos,
@@ -42,14 +44,11 @@ use self::{
 	sprite::Sprite,
 	template::Template,
 	encyclopedia::Encyclopedia,
-	timestamp::Timestamp
-};
-
-use self::{
+	timestamp::Timestamp,
+	
 	gameserver::GameServer,
-	server::unixserver::UnixServer,
-	server::tcpserver::TcpServer,
 	server::Server,
+	server::address::Address,
 	persistence::FileStorage,
 	controls::Action,
 	worldloader::WorldLoader,
@@ -61,22 +60,32 @@ use self::{
 
 fn main() -> Result<()>{
 	
-	let mut servers: Vec<Box<dyn Server>> = Vec::new();
-
-	let addr = Path::new("\0rustifarm");
-	let unixserver = UnixServer::new(&addr)?;
-	servers.push(Box::new(unixserver));
+	let config = config::Config::from_args();
 	
-	let addr = "127.0.0.1:1234".parse()?;
-	let inetserver = TcpServer::new(&addr)?;
-	servers.push(Box::new(inetserver));
+	let adresses = config.address
+		.unwrap_or(vec!["abstract:rustifarm".parse()?, "inet:127.0.0.1:1234".parse()?]);
+	println!("adresses: {:?}", adresses);
+	let servers: Vec<Box<dyn Server>> = 
+		adresses
+		.iter()
+		.map(|a| a.to_server().unwrap())
+		.collect();
 	
 	let mut gameserver = GameServer::new(servers);
 	
-	let content_dir = PathBuf::new().join(std::env::var("CARGO_MANIFEST_DIR").unwrap_or(".".to_string())).join("content/");
+	let content_dir = config.content_dir.unwrap_or(
+		PathBuf::new()
+			.join(std::env::var("CARGO_MANIFEST_DIR").unwrap_or(".".to_string()))
+			.join("content/")
+	);
+	println!("content directory: {:?}", content_dir);
 	let loader = WorldLoader::new(content_dir.join("maps"));
 	
-	let storage = FileStorage::new(FileStorage::savedir().expect("couldn't find any save directory"));
+	let save_dir = config.save_dir.unwrap_or(
+		FileStorage::savedir().expect("couldn't find any save directory")
+	);
+	println!("save directory: {:?}", content_dir);
+	let storage = FileStorage::new(save_dir);
 	
 	let encyclopedia = Encyclopedia::from_json(
 		serde_json::from_str(
@@ -144,5 +153,7 @@ fn main() -> Result<()>{
 	println!("world saved");
 	Ok(())
 }
+
+
 
 
