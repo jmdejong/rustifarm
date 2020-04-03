@@ -75,6 +75,7 @@ pub struct Equipment {
 mod tests {
 	use super::*;
 	use crate::hashmap;
+	use serde_json::json;
 	
 	
 	#[test]
