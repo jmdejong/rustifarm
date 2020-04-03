@@ -45,9 +45,9 @@ macro_rules! components {
 							use crate::components::$comp;
 							$(
 								let $paramname = match parameters.remove(stringify!($paramname))
-										.ok_or(aerr!(&format!("required parameter '{}'not found", stringify!($paramname))))? {
+										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))? {
 									Parameter::$paramtype(p) => p,
-									x => Err(aerr!(&format!("parameter type mismatch for parameter {}: {} {:?}", stringify!($paramname), stringify!($paramtype), x)))?
+									x => Err(aerr!("parameter type mismatch for parameter {}: {} {:?}", stringify!($paramname), stringify!($paramtype), x))?
 								};
 							)*
 							$creation

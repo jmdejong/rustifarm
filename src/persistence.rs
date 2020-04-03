@@ -37,10 +37,8 @@ impl FileStorage {
 		}
 	}
 	
-	pub fn savedir() -> Option<PathBuf> {
-		if let Some(pathname) = env::var_os("ASCIIFARM_SAVE_DIR") {
-			Some(PathBuf::from(pathname))
-		} else if let Some(pathname) = env::var_os("XDG_DATA_HOME") {
+	pub fn default_save_dir() -> Option<PathBuf> {
+		if let Some(pathname) = env::var_os("XDG_DATA_HOME") {
 			let mut path = PathBuf::from(pathname);
 			path.push("asciifarm");
 			path.push("saves");

@@ -39,7 +39,7 @@ impl FromStr for Address {
 			"inet" => Ok(Address::Inet(text.parse()?)),
 			"unix" => Ok(Address::Unix(PathBuf::new().join(text))),
 			"abstract" => Ok(Address::Unix(PathBuf::new().join(&format!("\0{}", text)))),
-			_ => Err(aerr!(&format!("'{}' is not a valid address type", typename)))
+			_ => Err(aerr!("'{}' is not a valid address type", typename))
 		}
 	}
 }

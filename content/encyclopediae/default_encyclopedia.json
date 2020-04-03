@@ -187,8 +187,8 @@
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
-					["list", [{"type": "radishses"}, 0.8]],
-					["list", [{"type": "radishses"}, 0.4]]
+					["list", [{"type": "radishes"}, 0.8]],
+					["list", [{"type": "radishes"}, 0.4]]
 				]]}]
 			],
 			"flags": ["Occupied"]

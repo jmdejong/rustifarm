@@ -65,7 +65,7 @@ impl ComponentParameter {
 		let typename = value.get(0).ok_or(aerr!("index 0 not in component parameter"))?.as_str().ok_or(aerr!("compparam type not a string"))?;
 		if let Some(paramtype) = ParameterType::from_str(typename) {
 			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or_else(||
-				aerr!(& format!("failed to parse parameter constant: {:?} {:?}", paramtype, paramvalue))
+				aerr!("failed to parse parameter constant: {:?} {:?}", paramtype, paramvalue)
 			)?))
 		} else {
 			match typename {
@@ -91,7 +91,7 @@ impl ComponentParameter {
 				},
 				"self" => Ok(Self::TemplateSelf),
 				"name" => Ok(Self::TemplateName),
-				_ => Err(aerr!(&format!("unknown compparam type '{}'", typename)))
+				_ => Err(aerr!("unknown compparam type '{}'", typename))
 			}
 		}
 	}

@@ -26,7 +26,7 @@ impl Encyclopedia {
 	}
 	
 	pub fn construct(&self, template: &Template) -> Result<PreEntity> {
-		let assemblage = self.items.get(&template.name).ok_or(aerr!("unknown assemblage name"))?;
+		let assemblage = self.items.get(&template.name).ok_or(aerr!("unknown assemblage name: '{:?}' in {:?}", template.name, template))?;
 		assemblage.instantiate(template)
 	}
 	

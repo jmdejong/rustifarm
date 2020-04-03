@@ -82,7 +82,7 @@ fn main() -> Result<()>{
 	let loader = WorldLoader::new(content_dir.join("maps"));
 	
 	let save_dir = config.save_dir.unwrap_or(
-		FileStorage::savedir().expect("couldn't find any save directory")
+		FileStorage::default_save_dir().expect("couldn't find any save directory")
 	);
 	println!("save directory: {:?}", content_dir);
 	let storage = FileStorage::new(save_dir);
