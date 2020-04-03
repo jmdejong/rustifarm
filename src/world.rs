@@ -1,6 +1,5 @@
 
 use std::collections::HashMap;
-use crate::hashmap;
 
 use crate::{
 	PlayerId,
@@ -39,7 +38,7 @@ impl <'a, 'b>World<'a, 'b> {
 			default_room,
 			encyclopedia: encyclopedia.clone(),
 			players: HashMap::new(),
-			rooms: hashmap!(purgatory::purgatory_id() => purgatory::create_purgatory(encyclopedia)),
+			rooms: HashMap::new(),
 			room_age: HashMap::new()
 		}
 	}
@@ -55,12 +54,17 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	fn get_room_mut_(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
 		if !self.rooms.contains_key(id){
-			let template = self.template_loader.load_room(id.clone())?;
-			let mut room: Room = Room::create(id.clone(), &self.encyclopedia, &template);
+			println!("loading room '{}'", id.name);
+			let mut room: Room = if id == &purgatory::purgatory_id() {
+					purgatory::create_purgatory(&self.encyclopedia)
+				} else {
+					let template = self.template_loader.load_room(id.clone())?;
+					Room::create(id.clone(), &self.encyclopedia, &template)
+				};
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);
 			}
-		let last_time = self.time - 1;
+			let last_time = self.time - 1;
 			if room.get_time() < last_time {
 				room.update(last_time);
 			}
@@ -180,12 +184,13 @@ impl <'a, 'b>World<'a, 'b> {
 			} else {
 				let age = *self.room_age.get(&roomid).unwrap_or(&0) + 1;
 				self.room_age.insert(roomid.clone(), age);
-				if age > 10 {
+				if age > 2 {
 					to_remove.push(roomid.clone());
 				}
 			}
 		}
 		for roomid in to_remove {
+			println!("unloading room '{}'", roomid.name);
 			self.rooms.remove(&roomid);
 		}
 	}

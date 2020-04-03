@@ -22,7 +22,7 @@
 		"X,oo,,.,,,d,,,,,,,~~~~,,,,,,,,,,f,,,,f,,,X",
 		"X,,*,,.,,,,,,,,,,,~~~''''''''''''''''f'''X",
 		"X*,,,,.,,,d,VVV,,,~~~'''''''''''f''''f'''X",
-		"X,,,,,.,,,,,VVV,,,~~~'''''''''''ffffff'''X",
+		"1,,,,,.,,,,,VVV,,,~~~'''''''''''ffffff'''X",
 		"X/,,,,.,,,,,VVV,,,~~~''''''''''''''''''''X",
 		"XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX",
 		"     %%%                                  "
@@ -41,6 +41,7 @@
 		"*": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "pebble"}, "delay": 600}}],
 		"o": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "stone"}, "delay": 600}}],
 		"%": {"type": "portal", "kwargs": {"destination": "broom", "dest_pos": "northentry"}},
+		"1": {"type": "portal", "kwargs": {"destination": "_home+{player}"}},
 		"^": ["grass", "spiketrap"],
 		"d": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "dummy"}, "delay": 100}}],
 		"r": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "rat"}, "amount": 3, "clan": "rats", "delay": 200}}],
