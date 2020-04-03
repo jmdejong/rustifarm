@@ -80,13 +80,6 @@ fn main() -> Result<()>{
 	);
 	println!("content directory: {:?}", content_dir);
 	let loader = WorldLoader::new(content_dir.join("maps"));
-	
-	let save_dir = config.save_dir.unwrap_or(
-		FileStorage::default_save_dir().expect("couldn't find any save directory")
-	);
-	println!("save directory: {:?}", content_dir);
-	let storage = FileStorage::new(save_dir);
-	
 	let encyclopedia = Encyclopedia::from_json(
 		serde_json::from_str(
 			&fs::read_to_string(
@@ -96,6 +89,12 @@ fn main() -> Result<()>{
 			)?
 		)?
 	)?;
+	
+	let save_dir = config.save_dir.unwrap_or(
+		FileStorage::default_save_dir().expect("couldn't find any save directory")
+	);
+	println!("save directory: {:?}", content_dir);
+	let storage = FileStorage::new(save_dir);
 
 	let mut world = World::new(encyclopedia, loader, Box::new(storage), RoomId::from_str("room"));
 	

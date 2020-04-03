@@ -6,7 +6,6 @@ use crate::{
 	parameter::{Parameter, ParameterType},
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::Serialise,
-	hashmap,
 	Template,
 	Result,
 	aerr
@@ -46,9 +45,9 @@ impl Assemblage {
 		Ok(arguments)
 	}
 	
-	fn parse_definition_components(comps: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
+	fn parse_definition_components(comps: &[Value]) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
 		let mut components = Vec::new();
-		for tup in comps.as_array().ok_or(aerr!("components is not a json array"))? {
+		for tup in comps {
 			if let Some(name) = tup.as_str() {
 				components.push((ComponentType::from_str(name).ok_or(aerr!("not a valid componenttype"))?, HashMap::new()));
 			} else {
@@ -80,9 +79,8 @@ impl Assemblage {
 		Ok(())
 	}
 	
-	fn common_short_definitions(val: &Value) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
+	fn preprocess(val: &Value) -> Result<Vec<Value>> {
 		let mut components = Vec::new();
-		
 		let name = if let Some(nameval) = val.get("name") {
 				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
 			} else {None};
@@ -93,59 +91,45 @@ impl Assemblage {
 			let height = val
 				.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?
 				.as_f64().ok_or(aerr!("height not a float"))?;
-			components.push((
-				ComponentType::Visible,
-				hashmap!(
-					"name".to_string() => ComponentParameter::Constant(
-						Parameter::String(name.clone().unwrap_or(sprite.clone()))
-					),
-					"sprite".to_string() => ComponentParameter::Constant(
-						Parameter::String(sprite)
-					),
-					"height".to_string() => ComponentParameter::Constant(
-						Parameter::Float(height)
-					)
-				)
-			));
+			components.push(json!(["Visible", {
+				"name": ["string", name.clone().unwrap_or(sprite.clone())],
+				"sprite": ["string", sprite],
+				"height": ["float", height]
+			}]));
 		}
-		
 		// item component is common too
 		if let Some(action) = val.get("item") {
-			components.push((
-				ComponentType::Item,
-				hashmap!(
-					"ent".to_string() => ComponentParameter::TemplateSelf,
-					"name".to_string() => if let Some(n) = name {
-							ComponentParameter::Constant(Parameter::String(n))
-						} else {
-							ComponentParameter::TemplateName
-						},
-					"action".to_string() => ComponentParameter::Constant(
-						Parameter::from_typed_json(ParameterType::Action, action).ok_or(aerr!("invalid item action"))?
-					)
-				)
-			));
+			components.push(json!(["Item", {
+				"ent": ["self", null],
+				"name": if let Some(n) = name {
+						json!(["string", n])
+					} else {
+						json!(["name", Value::Null])
+					},
+				"action": ["action", action]
+			}]));
 		}
-		
 		// and so is flags
 		if let Some(flags) = val.get("flags") {
-			components.push((
-				ComponentType::Flags,
-				hashmap!(
-					"flags".to_string() => ComponentParameter::Constant(
-						Parameter::from_typed_json(ParameterType::List, flags).ok_or(aerr!("failed to parse flags"))?
-					)
-				)
-			));
+			components.push(json!(["Flags", {
+				"flags": ["list", flags]
+			}]));
 		}
 		
 		Ok(components)
 	}
 	
 	pub fn from_json(val: &Value) -> Result<Self>{
-		let mut assemblage = Self {
+		let mut json_components: Vec<Value> = val
+			.get("components")
+			.unwrap_or(&json!([]))
+			.as_array()
+			.ok_or(aerr!("components is not a json array"))?
+			.to_vec();
+		json_components.append(&mut Self::preprocess(val)?);
+		let assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
-			components: Self::parse_definition_components(val.get("components").unwrap_or(&json!([])))?,
+			components: Self::parse_definition_components(&json_components)?,
 			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?,
 			extract: val
 				.get("extract")
@@ -167,7 +151,6 @@ impl Assemblage {
 				})
 				.collect::<Result<Vec<(String, ComponentType, String)>>>()?
 		};
-		assemblage.components.append(&mut Self::common_short_definitions(val)?);
 		assemblage.validate()?;
 		Ok(assemblage)
 	}
