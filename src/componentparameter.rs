@@ -91,7 +91,7 @@ impl ComponentParameter {
 				},
 				"self" => Ok(Self::TemplateSelf),
 				"name" => Ok(Self::TemplateName),
-				_ => Err(aerr!("unknown compparam type"))
+				_ => Err(aerr!(&format!("unknown compparam type '{}'", typename)))
 			}
 		}
 	}

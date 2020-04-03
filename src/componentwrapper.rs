@@ -15,6 +15,7 @@ use crate::{
 	},
 	parameter::{Parameter, ParameterType},
 	Timestamp,
+	Template,
 	Result,
 	aerr
 };
@@ -182,7 +183,25 @@ components!(
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
 	Interactable (action: Interaction) {action};
-	Loot (loot: LootList);
+	Loot (loot: List) {
+		Loot { loot:
+			loot
+			.iter()
+			.map(|param| {match param {
+				Parameter::Template(template) => Some((template.clone(), 1.0)),
+				Parameter::List(l) => {
+					if l.len() == 2 {
+						if let (Parameter::Template(template), Parameter::Float(chance)) = (l[0].clone(), l[1].clone()) {
+							return Some((template.clone(), chance))
+						}
+					}
+					None?
+				},
+				_ => None?
+			}})
+			.collect::<Option<Vec<(Template, f64)>>>().ok_or(aerr!("invalid loot definition"))?
+		}
+	};
 	Grow (
 			into: Template (Grow.into.clone()),
 			delay: Int (Grow.delay),

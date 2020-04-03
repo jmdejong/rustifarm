@@ -184,7 +184,12 @@
 			"components": [
 				["Interactable", {"action": ["interaction", "harvest"]}],
 				"Mortal",
-				["Loot", {"loot": ["lootlist", [["radishseed", 0.92], ["radishseed", 0.20], ["radishes", 0.8], ["radishes", 0.4]]]}]
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "radishseed"}, 0.92]],
+					["list", [{"type": "radishseed"}, 0.20]],
+					["list", [{"type": "radishses"}, 0.8]],
+					["list", [{"type": "radishses"}, 0.4]]
+				]]}]
 			],
 			"flags": ["Occupied"]
 		},
