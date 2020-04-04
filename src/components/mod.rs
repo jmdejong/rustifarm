@@ -33,7 +33,6 @@ use specs::{
 	DenseVecStorage,
 	VecStorage,
 	HashMapStorage,
-	FlaggedStorage,
 	NullStorage,
 	Component,
 	Entity
@@ -50,7 +49,8 @@ use crate::{
 	Timestamp
 };
 
-#[derive(Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[storage(VecStorage)]
 pub struct Position{
 	pub pos: Pos
 }
@@ -60,18 +60,12 @@ impl Position {
 	}
 }
 
-impl Component for Position {
-	type Storage = FlaggedStorage<Self, VecStorage<Self>>;
-}
-
-#[derive(Debug, Clone)]
+#[derive(Component, Debug, Clone)]
+#[storage(VecStorage)]
 pub struct Visible {
 	pub sprite: Sprite,
 	pub height: f64,
 	pub name: String
-}
-impl Component for Visible {
-	type Storage = FlaggedStorage<Self, VecStorage<Self>>;
 }
 
 #[derive(Component, Debug)]

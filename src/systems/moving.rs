@@ -1,18 +1,14 @@
 
-use std::collections::HashSet;
-
 use specs::{
 	Entities,
 	ReadStorage,
 	WriteStorage,
-	Read,
 	System,
 	Join,
 	Write
 };
 
 use crate::{
-	Pos,
 	components::{
 		Controller,
 		Position,
@@ -27,7 +23,6 @@ use crate::{
 		Control
 	},
 	resources::{
-		Size,
 		Ground
 	},
 };
@@ -39,7 +34,6 @@ impl <'a> System<'a> for Move {
 		Entities<'a>,
 		ReadStorage<'a, Controller>,
 		WriteStorage<'a, Position>,
-		Read<'a, Size>,
 		ReadStorage<'a, Flags>,
 		Write<'a, Ground>,
 		WriteStorage<'a, Moved>,
@@ -48,20 +42,19 @@ impl <'a> System<'a> for Move {
 		WriteStorage<'a, ControlCooldown>
 	);
 	
-	fn run(&mut self, (entities, controllers, mut positions, size, flags, mut ground, mut moved, mut entered, movables, mut cooldowns): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, mut positions, flags, mut ground, mut moved, mut entered, movables, mut cooldowns): Self::SystemData) {
 		moved.clear();
 		entered.clear();
-		for (ent, controller, mut pos, movable) in (&entities, &controllers, &mut positions.restrict_mut(), &movables).join(){
+		for (ent, controller, mut position, movable) in (&entities, &controllers, &mut positions, &movables).join(){
 			match &controller.control {
 				Control::Move(direction) => {
-					let newpos = (pos.get_unchecked().pos + direction.to_position()).clamp(Pos::new(0, 0), Pos::new(size.width - 1, size.height - 1));
+					let newpos = position.pos + direction.to_position();
 					let ground_flags = ground.flags_on(newpos, &flags);
 					if !ground_flags.contains(&Flag::Blocking) && ground_flags.contains(&Flag::Floor) {
-						let mut pos_mut = pos.get_mut_unchecked();
-						moved.insert(ent, Moved{from: pos_mut.pos}).expect("can't insert Moved");
-						ground.cells.get_mut(&pos_mut.pos).unwrap().remove(&ent);
-						pos_mut.pos = newpos;
-						ground.cells.entry(newpos).or_insert_with(HashSet::new).insert(ent);
+						moved.insert(ent, Moved{from: position.pos}).expect("can't insert Moved");
+						ground.remove(&position.pos, ent);
+						position.pos = newpos;
+						ground.insert(newpos, ent);
 						for ent in ground.cells.get(&newpos).unwrap() {
 							let _ = entered.insert(*ent, Entered);
 						}

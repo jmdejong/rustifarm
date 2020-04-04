@@ -6,7 +6,6 @@ use specs::{
 	WorldExt,
 	DispatcherBuilder,
 	Dispatcher,
-	Builder,
 	Join,
 	Entity
 };
@@ -30,7 +29,6 @@ use crate::{
 		Player,
 		Inventory,
 		Health,
-		New,
 		Removed
 	},
 	Encyclopedia,
@@ -66,17 +64,17 @@ use crate::{
 		Spawn,
 		Interact,
 		DropLoot,
-		Growth
+		Growth,
+		Clear
 	}
 };
 
 pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 	DispatcherBuilder::new()
 		.with(Volate, "volate", &[])
-		.with(RegisterNew::default(), "registernew", &[])
-		.with(Growth, "growth", &["registernew"])
-		.with(UpdateCooldowns, "cool_down", &["registernew"])
-		.with(Spawn, "spawn", &["registernew"])
+		.with(Growth, "growth", &[])
+		.with(UpdateCooldowns, "cool_down", &[])
+		.with(Spawn, "spawn", &[])
 		.with(ControlInput, "controlinput", &["cool_down"])
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Take, "take", &["controlinput", "controlai"])
@@ -85,20 +83,20 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Move, "move", &["controlinput", "controlai"])
 		.with(Trapping, "trapping", &["move"])
 		.with(Fight, "fight", &["move"])
-		.with(Heal, "heal", &["registernew"])
+		.with(Heal, "heal", &[])
 		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal", "interact"])
 		.with(Die, "die", &["attacking"])
 		.with(DropLoot, "droploot", &["attacking"])
-		.with(View::default(), "view", &["move", "attacking", "volate", "die"])
-		.with(Migrate, "migrate", &["view"])
-		.with(Create, "create", &["view", "spawn", "droploot", "growth"])
-		.with(Remove, "remove", &["view", "move", "droploot"])
+		.with(Migrate, "migrate", &["move", "attacking", "volate", "die"])
+		.with(Create, "create", &["migrate", "spawn", "droploot", "growth"])
+		.with(Remove, "remove", &["migrate", "move", "droploot"])
 		.build()
 }
 
 pub struct Room<'a, 'b> {
 	world: World,
 	dispatcher: Dispatcher<'a, 'b>,
+	view_dispatcher: Dispatcher<'a, 'b>,
 	pub id: RoomId,
 	places: HashMap<String, Pos>
 }
@@ -129,6 +127,11 @@ impl <'a, 'b>Room<'a, 'b> {
 		Room {
 			world,
 			dispatcher,
+			view_dispatcher: DispatcherBuilder::new()
+				.with(RegisterNew, "registernew", &[])
+				.with(View, "view", &["registernew"])
+				.with(Clear, "clear", &["view"])
+				.build(),
 			id,
 			places: HashMap::new()
 		}
@@ -170,6 +173,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Time>().time = timestamp;
 		self.dispatcher.dispatch(&self.world);
 		self.world.maintain();
+		self.view_dispatcher.dispatch(&self.world);
 	}
 	
 	
@@ -184,13 +188,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			RoomPos::Pos(pos) => *pos,
 			RoomPos::Name(name) => *self.places.get(name).unwrap()
 		};
-		let mut builder = self.world.create_entity();
-		let ent = builder.entity;
-		for comp in pre_player {
-			builder = comp.build(builder);
-		}
-		builder.with(Position::new(spawn)).with(New).build();
-		self.world.fetch_mut::<Players>().entities.insert(state.id.clone(), ent);
+		self.world.fetch_mut::<NewEntities>().to_build.push((spawn, pre_player));
 	}
 	
 	pub fn remove_player(&mut self, id: &PlayerId) -> Result<PlayerState>{

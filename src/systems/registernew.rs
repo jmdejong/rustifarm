@@ -1,5 +1,4 @@
 
-use std::collections::HashSet;
 
 use specs::{
 	ReadStorage,
@@ -11,26 +10,32 @@ use specs::{
 
 use crate::components::{
 	Position,
-	New
+	New,
+	Player
 };
 
 use crate::resources::{
-	Ground
+	Ground,
+	Players
 };
 
 
-#[derive(Default)]
 pub struct RegisterNew;
 impl <'a> System<'a> for RegisterNew {
 	type SystemData = (
 		Entities<'a>,
+		ReadStorage<'a, New>,
 		Write<'a, Ground>,
 		ReadStorage<'a, Position>,
-		ReadStorage<'a, New>,
+		Write<'a, Players>,
+		ReadStorage<'a, Player>
 	);
-	fn run(&mut self, (entities, mut ground, positions, new): Self::SystemData) {
+	fn run(&mut self, (entities, new, mut ground, positions, mut player_list, players): Self::SystemData) {
 		for (ent, pos, _new) in (&entities, &positions, &new).join() {
-			ground.cells.entry(pos.pos).or_insert_with(HashSet::new).insert(ent);
+			ground.insert(pos.pos, ent);
+		}
+		for (ent, player, _new) in (&entities, &players, &new).join(){
+			player_list.entities.insert(player.id.clone(), ent);
 		}
 	}
 }

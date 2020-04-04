@@ -20,6 +20,7 @@ mod spawn;
 mod interact;
 mod droploot;
 mod growth;
+mod clear;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -42,5 +43,6 @@ pub use self::{
 	spawn::Spawn,
 	interact::Interact,
 	droploot::DropLoot,
-	growth::Growth
+	growth::Growth,
+	clear::Clear
 };

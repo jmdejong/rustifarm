@@ -8,27 +8,33 @@ use specs::{
 };
 
 use crate::{
-	components::{Visible, Removed, Flags, Flag},
+	components::{Visible, Flags, Flag},
 	Pos
 };
 
 #[derive(Default)]
 pub struct Ground {
-	pub cells: HashMap<Pos, HashSet<Entity>>
+	pub cells: HashMap<Pos, HashSet<Entity>>,
+	pub changes: HashSet<Pos>
 }
 
 impl Ground {
-	pub fn components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>, removals: &'a ReadStorage<Removed>) -> Vec<&'a C> {
-		self.cells
-			.get(&pos)
-			.unwrap_or(&HashSet::new())
-			.iter()
-			.filter(|e| !removals.contains(**e))
-			.filter_map(|e| component_type.get(*e))
-			.collect()
+	
+	pub fn insert(&mut self, pos: Pos, ent: Entity){
+		self.cells.entry(pos).or_insert_with(HashSet::new).insert(ent);
+		self.changes.insert(pos);
 	}
 	
-	pub fn all_components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>) -> Vec<&'a C> {
+	pub fn remove(&mut self, pos: &Pos, ent: Entity) -> bool{
+		if let Some(cell) = self.cells.get_mut(pos) {
+			self.changes.insert(*pos);
+			cell.remove(&ent)
+		} else {
+			false
+		}
+	}
+	
+	pub fn components_on<'a, C: Component>(&self, pos: Pos, component_type: &'a ReadStorage<C>) -> Vec<&'a C> {
 		self.cells
 			.get(&pos)
 			.unwrap_or(&HashSet::new())
@@ -51,6 +57,6 @@ impl Ground {
 	}
 	
 	pub fn flags_on<'a>(&self, pos: Pos, flags: &'a ReadStorage<Flags>) -> HashSet<Flag> {
-		self.all_components_on::<Flags>(pos, flags).into_iter().fold(HashSet::new(), |a, b| &a | &b.0)
+		self.components_on::<Flags>(pos, flags).into_iter().fold(HashSet::new(), |a, b| &a | &b.0)
 	}
 }

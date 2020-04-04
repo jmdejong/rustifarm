@@ -26,7 +26,7 @@ impl <'a> System<'a> for Remove {
 				println!("{:?}", msg);
 			}
 			if let Some(position) = positions.get(ent) {
-				ground.cells.get_mut(&position.pos).unwrap().remove(&ent);
+				ground.remove(&position.pos, ent);
 			}
 		}
 	}

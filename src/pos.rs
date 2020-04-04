@@ -18,6 +18,7 @@ impl Pos {
 		Pos {x, y}
 	}
 	
+	#[allow(dead_code)]
 	pub fn clamp(self, smaller: Pos, larger: Pos) -> Pos {
 		Pos {
 			x: clamp(self.x, smaller.x, larger.x),

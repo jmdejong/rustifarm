@@ -30,6 +30,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum RoomPos {
 	Pos(Pos),
 	Name(String),
