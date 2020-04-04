@@ -262,6 +262,14 @@
 			"components": [
 				["Interactable", {"action": ["interaction", ["change", {"type": "closeddoor", "save": false}]]}]
 			]
+		},
+		"sign": {
+			"sprite": "sign",
+			"height": 1,
+			"flags": ["Occupied"],
+			"components": [
+				["Interactable", {"action": ["interaction", ["say", "Good morning there, World"]]}]
+			]
 		}
 	}
 }

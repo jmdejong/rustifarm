@@ -12,7 +12,8 @@ use crate::{
 #[storage(HashMapStorage)]
 pub enum Interactable {
 	Harvest,
-	Change(Template)
+	Change(Template),
+	Say(String)
 }
 
 impl Interactable {
@@ -22,6 +23,7 @@ impl Interactable {
 		match typ.as_str()? {
 			"harvest" => Some(Interactable::Harvest),
 			"change" => Some(Interactable::Change(Template::from_json(arg).ok()?)),
+			"say" => Some(Interactable::Say(arg.as_str()?.to_string())),
 			_ => None
 		}
 	}

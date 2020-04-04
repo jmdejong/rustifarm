@@ -7,6 +7,7 @@ pub mod equipment;
 pub mod inventory;
 pub mod serialise;
 pub mod flags;
+pub mod ear;
 
 pub use item::Item;
 pub use messages::{
@@ -22,6 +23,10 @@ pub use serialise::Serialise;
 pub use flags::{
 	Flag,
 	Flags
+};
+pub use ear::{
+	Sound,
+	Ear
 };
 
 use specs::{

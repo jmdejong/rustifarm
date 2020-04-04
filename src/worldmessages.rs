@@ -9,7 +9,7 @@ use crate::{
 };
 
 macro_rules! worldmessages {
-	($($name: ident, $typ: ident, $strname: expr);*;) => {
+	($($name: ident, $typ: ident, $strname: expr, $filter: expr);*;) => {
 	
 		#[derive(Debug, Clone, Default, PartialEq, Eq)]
 		pub struct WorldMessage {
@@ -22,7 +22,7 @@ macro_rules! worldmessages {
 			
 			pub fn remove_old(&mut self, previous: &WorldMessage){
 				$(
-					if self.$name == previous.$name {
+					if $filter && self.$name == previous.$name {
 						self.$name = None;
 					}
 				)*
@@ -54,12 +54,13 @@ macro_rules! worldmessages {
 }
 
 worldmessages!(
-	field, FieldMessage, "field";
-	pos, Pos, "playerpos";
-	change, ChangeMessage, "changecells";
-	inventory, InventoryMessage, "inventory";
-	health, HealthMessage, "health";
-	ground, GroundMessage, "ground";
+	field, FieldMessage, "field", true;
+	pos, Pos, "playerpos", true;
+	change, ChangeMessage, "changecells", true;
+	inventory, InventoryMessage, "inventory", true;
+	health, HealthMessage, "health", true;
+	ground, GroundMessage, "ground", true;
+	sounds, SoundMessage, "messages", false;
 );
 
 
@@ -67,6 +68,7 @@ pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
 pub type HealthMessage = (i64, i64);
 pub type InventoryMessage = Vec<String>;
 pub type GroundMessage = Vec<String>;
+pub type SoundMessage = Vec<(Option<String>, String)>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct FieldMessage {

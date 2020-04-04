@@ -235,6 +235,7 @@ components!(
 				.collect::<Option<HashSet<Flag>>>().ok_or(aerr!("invalid flag name"))?
 		)
 	};
+	Ear () {Ear::default()};
 );
 
 

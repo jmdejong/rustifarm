@@ -3,6 +3,7 @@ use std::collections::{HashSet};
 
 use specs::{
 	ReadStorage,
+	WriteStorage,
 	Read,
 	Write,
 	System,
@@ -13,7 +14,7 @@ use specs::{
 use crate::{
 	Pos,
 	Sprite,
-	components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health},
+	components::{Visible, Player, Position, Inventory, New, Moved, Removed, Health, Ear},
 	resources::{Size, Output, Ground},
 	worldmessages::{WorldMessage, FieldMessage}
 };
@@ -34,9 +35,10 @@ impl <'a> System<'a> for View {
 		ReadStorage<'a, New>,
 		ReadStorage<'a, Moved>,
 		ReadStorage<'a, Removed>,
-		Read<'a, Ground>
+		Read<'a, Ground>,
+		WriteStorage<'a, Ear>
 	);
-	fn run(&mut self, (entities, positions, inventories, healths, visible, size, players, mut output, new, moved, removed, ground): Self::SystemData) {
+	fn run(&mut self, (entities, positions, inventories, healths, visible, size, players, mut output, new, moved, removed, ground, mut ears): Self::SystemData) {
 		
 		let mut changed = HashSet::new();
 		for (pos, _new) in (&positions, &new).join() {
@@ -77,6 +79,11 @@ impl <'a> System<'a> for View {
 			}
 			if let Some(health) = healths.get(ent){
 				updates.health = Some((health.health, health.maxhealth));
+			}
+			if let Some(ear) = ears.get_mut(ent){
+				if !ear.sounds.is_empty(){
+					updates.sounds = Some(ear.sounds.drain(..).map(|s| s.as_message()).collect());
+				}
 			}
 			updates.ground = Some(
 				ground

@@ -18,7 +18,8 @@ use crate::{
 		Autofight,
 		Faction,
 		Equipment,
-		equipment::Slot
+		equipment::Slot,
+		Ear
 	},
 	Result,
 	aerr,
@@ -151,7 +152,8 @@ impl PlayerState {
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
 			ComponentWrapper::Autofight(Autofight::default()),
 			ComponentWrapper::Faction(Faction::Good),
-			ComponentWrapper::Equipment(Equipment{slots: vec!(Slot::Hand, Slot::Body)})
+			ComponentWrapper::Equipment(Equipment{slots: vec!(Slot::Hand, Slot::Body)}),
+			ComponentWrapper::Ear(Ear::default())
 		]
 	}
 }

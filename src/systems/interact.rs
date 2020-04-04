@@ -16,7 +16,9 @@ use crate::components::{
 	ControlCooldown,
 	Interactable,
 	Dead,
-	Removed
+	Removed,
+	Sound,
+	Ear
 };
 
 use crate::controls::{Control};
@@ -35,10 +37,11 @@ impl <'a> System<'a> for Interact {
 		ReadStorage<'a, Interactable>,
 		WriteStorage<'a, Dead>,
 		WriteStorage<'a, Removed>,
-		Write<'a, NewEntities>
+		Write<'a, NewEntities>,
+		WriteStorage<'a, Ear>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new, mut ears): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			match &controller.control {
@@ -63,6 +66,11 @@ impl <'a> System<'a> for Interact {
 					Interactable::Change(into) => {
 						new.create(pos, into).unwrap();
 						removeds.insert(ent, Removed).unwrap();
+					}
+					Interactable::Say(text) => {
+						if let Some(ear) = ears.get_mut(entity) {
+							ear.sounds.push(Sound{source: None, text: text.clone()});
+						}
 					}
 				}
 				cooldowns.insert(entity, ControlCooldown{amount: 2}).unwrap();
