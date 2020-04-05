@@ -270,6 +270,14 @@
 			"components": [
 				["Interactable", {"action": ["interaction", ["say", "Good morning there, World"]]}]
 			]
+		},
+		"dude": {
+			"sprite": "human",
+			"height": 1.5,
+			"flags": ["Occupied"],
+			"components": [
+				["Interactable", {"action": ["interaction", ["reply", "did you say '{}'?"]]}]
+			]
 		}
 	}
 }

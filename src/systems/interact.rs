@@ -45,20 +45,22 @@ impl <'a> System<'a> for Interact {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			match &controller.control {
-				Control::Interact(directions) => {
+				Control::Interact(directions, arg) => {
 					'targets: for direction in directions {
 						let pos = position.pos + direction.to_position();
 						for ent in ground.cells.get(&pos).unwrap_or(&HashSet::new()) {
 							if let Some(interactable) = interactables.get(*ent) {
-								target = Some((*ent, interactable, pos));
-								break 'targets;
+								if interactable.accepts_arg(arg){
+									target = Some((*ent, interactable, pos, arg.clone()));
+									break 'targets;
+								}
 							}
 						}
 					}
 				}
 				_ => {}
 			}
-			if let Some((ent, interactable, pos)) = target {
+			if let Some((ent, interactable, pos, arg)) = target {
 				match interactable {
 					Interactable::Harvest => {
 						deads.insert(ent, Dead).unwrap();
@@ -70,6 +72,11 @@ impl <'a> System<'a> for Interact {
 					Interactable::Say(text) => {
 						if let Some(ear) = ears.get_mut(entity) {
 							ear.sounds.push(Sound{source: None, text: text.clone()});
+						}
+					}
+					Interactable::Reply(text) => {
+						if let Some(ear) = ears.get_mut(entity) {
+							ear.sounds.push(Sound{source: None, text: text.replace("{}", &arg.unwrap())});
 						}
 					}
 				}

@@ -3,7 +3,6 @@
 
 - make readme
 - more tests
-- parameterised interactions
 - trader
 - visitors
 - improved tutorial

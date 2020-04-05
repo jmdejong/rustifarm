@@ -48,7 +48,7 @@ pub enum Control {
 	Use(usize),
 	Attack(Vec<Direction>),
 	AttackTarget(Entity),
-	Interact(Vec<Direction>)
+	Interact(Vec<Direction>, Option<String>),
 }
 
 
@@ -77,24 +77,21 @@ impl Control {
 					}
 					Control::Use(rank as usize)
 				}),
-				"attack" => Some(Control::Attack({
-					let mut directions = Vec::new();
-					for dir in val.get(1)?.as_array()? {
-						directions.push(Direction::from_json(dir)?);
-					}
-					directions
-				})),
-				"interact" => Some(Control::Interact({
-					let mut directions = Vec::new();
-					for dir in val.get(1)?.as_array()? {
-						directions.push(Direction::from_json(dir)?);
-					}
-					directions
-				})),
+				"attack" => Some(Control::Attack(
+					parse_directions(val.get(1)?)?
+				)),
+				"interact" => Some(Control::Interact(
+					parse_directions(val.get(1)?)?,
+					val.get(2).map(|v| Some(v.as_str()?.to_string())).flatten()
+				)),
 				_ => None
 			}
 		} else {None}
 	}
+}
+
+fn parse_directions(val: &Value) -> Option<Vec<Direction>> {
+	val.as_array()?.into_iter().map(Direction::from_json).collect()
 }
 
 #[derive(Debug, Clone)]
