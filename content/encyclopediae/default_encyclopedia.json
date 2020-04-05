@@ -227,13 +227,23 @@
 			"components": [
 				["Interactable", {"action": ["interaction", ["reply", "did you say '{}'?"]]}]
 			]
+		},
+		"trader": {
+			"sprite": "human",
+			"height": 1.5,
+			"components": [
+				["Interactable", {"action": ["interaction", ["exchange", ["buy ", {
+					"pebble": [["radish", "radish"], ["pebble"]],
+					"radishseed": [["radish"], ["radishseed", "radishseed"]]
+				}]]]}]
+			]
 		}
 	},
 	"items": {
 		"pebble": {},
 		"stone": {"action": ["build", ["builtwall", ["Floor"], ["Blocking"]]]},
-		"radishseed": {"action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
-		"radish": {"action": ["eat", 3]},
+		"radishseed": {"sprite": "seed", "action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"radish": {"sprite": "food", "action": ["eat", 3]},
 		"sword": {"action": ["equip", {
 			"slot": "hand",
 			"stats": {"strength": 50}

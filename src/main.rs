@@ -36,6 +36,7 @@ mod timestamp;
 mod purgatory;
 mod config;
 mod item;
+mod exchange;
 
 use self::{
 	pos::Pos,

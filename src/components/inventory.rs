@@ -5,6 +5,7 @@ use crate::{
 	ItemId,
 	item::{Item, ItemAction},
 	components::equipment::{Stat, Equippable},
+	Encyclopedia
 };
 
 #[derive(Debug, Clone)]
@@ -24,6 +25,14 @@ impl Component for Inventory {
 }
 
 impl Inventory {
+	
+	pub fn add_item(&mut self, itemid: ItemId, enc: &Encyclopedia) {
+		self.items.insert(0, InventoryEntry{
+			itemid: itemid.clone(),
+			item: enc.get_item(&itemid).unwrap(),
+			is_equipped: false
+		});
+	}
 	
 	fn equipped(&self) -> Vec<Equippable> {
 		let mut equippables = Vec::new();

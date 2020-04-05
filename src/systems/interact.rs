@@ -10,21 +10,21 @@ use specs::{
 	Write
 };
 
-use crate::components::{
-	Controller,
-	Position,
-	ControlCooldown,
-	Interactable,
-	Dead,
-	Removed,
-	Sound,
-	Ear
+use crate::{
+	components::{
+		Controller,
+		Position,
+		ControlCooldown,
+		Interactable,
+		Dead,
+		Removed,
+		Sound,
+		Ear,
+		Inventory
+	},
+	controls::{Control},
+	resources::{Ground, NewEntities}
 };
-
-use crate::controls::{Control};
-use crate::resources::{Ground, NewEntities};
-
-
 
 pub struct Interact;
 impl <'a> System<'a> for Interact {
@@ -38,12 +38,14 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, Dead>,
 		WriteStorage<'a, Removed>,
 		Write<'a, NewEntities>,
-		WriteStorage<'a, Ear>
+		WriteStorage<'a, Ear>,
+		WriteStorage<'a, Inventory>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new, mut ears): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new, mut ears, mut inventories): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
+			let ear = ears.get_mut(entity);
 			match &controller.control {
 				Control::Interact(directions, arg) => {
 					'targets: for direction in directions {
@@ -70,18 +72,44 @@ impl <'a> System<'a> for Interact {
 						removeds.insert(ent, Removed).unwrap();
 					}
 					Interactable::Say(text) => {
-						if let Some(ear) = ears.get_mut(entity) {
-							ear.sounds.push(Sound{source: None, text: text.clone()});
-						}
+						say(ear, text.clone());
 					}
 					Interactable::Reply(text) => {
-						if let Some(ear) = ears.get_mut(entity) {
-							ear.sounds.push(Sound{source: None, text: text.replace("{}", &arg.unwrap())});
+						say(ear, text.replace("{}", &arg.unwrap()));
+					}
+					Interactable::Exchange(prefix, exchanges) => {
+						if let Some(txt) = arg {
+							if let Some(inventory) = inventories.get_mut(entity) {
+								if txt.starts_with(prefix){
+									let action = txt.split_at(prefix.len()).1;
+									if let Some(exchange) = exchanges.get(action) {
+										if exchange.can_trade(inventory){
+											exchange.trade(inventory, &new.encyclopedia);
+											say(ear, format!("Success! '{}' ({})", txt, exchange.show()));
+										} else {
+											say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()));
+										}
+									} else {
+										say(ear, format!("Invalid option: {}", action));
+									}
+								}
+							}
+						} else {
+							say(ear, format!("options: {:?}", exchanges.iter().map(|(id, exchange)| 
+									format!("{}{}: {}", prefix, id, exchange.show())
+								).collect::<Vec<String>>())
+							);
 						}
 					}
 				}
 				cooldowns.insert(entity, ControlCooldown{amount: 2}).unwrap();
 			}
 		}
+	}
+}
+
+fn say(maybe_ear: Option<&mut Ear>, text: String){
+	if let Some(ear) = maybe_ear {
+		ear.sounds.push(Sound{source: None, text});
 	}
 }

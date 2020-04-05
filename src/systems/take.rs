@@ -14,7 +14,6 @@ use crate::components::{
 	Position,
 	Removed,
 	Inventory,
-	inventory::InventoryEntry,
 	Item,
 	Visible
 };
@@ -51,11 +50,7 @@ impl <'a> System<'a> for Take {
 					}
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
-							inventory.items.insert(0, InventoryEntry{
-								itemid: item.0.clone(),
-								item: new.encyclopedia.get_item(&item.0).unwrap(),
-								is_equipped: false
-							});
+							inventory.add_item(item.0.clone(), &new.encyclopedia);
 							if let Err(msg) = removed.insert(ent, Removed) {
 								println!("{:?}", msg);
 							}
