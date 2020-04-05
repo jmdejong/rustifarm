@@ -14,6 +14,7 @@ use crate::components::{
 	Position,
 	Removed,
 	Inventory,
+	inventory::InventoryEntry,
 	Item,
 	Visible
 };
@@ -50,7 +51,11 @@ impl <'a> System<'a> for Take {
 					}
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
-							inventory.items.insert(0, (item.clone(), false));
+							inventory.items.insert(0, InventoryEntry{
+								itemid: item.0.clone(),
+								item: new.encyclopedia.get_item(&item.0).unwrap(),
+								is_equipped: false
+							});
 							if let Err(msg) = removed.insert(ent, Removed) {
 								println!("{:?}", msg);
 							}
@@ -62,8 +67,8 @@ impl <'a> System<'a> for Take {
 					if *rank >= inventory.items.len() {
 						return
 					}
-					let (item, _is_equipped) = inventory.items.remove(*rank);
-					let _ = new.create(position.pos, &item.ent);
+					let entry = inventory.items.remove(*rank);
+					let _ = new.create(position.pos, &entry.item.ent);
 				}
 				_ => {}
 			}

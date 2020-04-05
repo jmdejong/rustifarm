@@ -98,15 +98,9 @@ impl Assemblage {
 			}]));
 		}
 		// item component is common too
-		if let Some(action) = val.get("item") {
+		if let Some(item) = val.get("item") {
 			components.push(json!(["Item", {
-				"ent": ["self", null],
-				"name": if let Some(n) = name {
-						json!(["string", n])
-					} else {
-						json!(["name", Value::Null])
-					},
-				"action": ["action", action]
+				"item": ["string", item]
 			}]));
 		}
 		// and so is flags

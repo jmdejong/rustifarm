@@ -1,14 +1,22 @@
 
 use std::collections::HashMap;
 use specs::{Component, FlaggedStorage, HashMapStorage};
-use super::{
+use crate::{
+	ItemId,
 	item::{Item, ItemAction},
-	equipment::{Stat, Equippable},
+	components::equipment::{Stat, Equippable},
 };
+
+#[derive(Debug, Clone)]
+pub struct InventoryEntry {
+	pub itemid: ItemId,
+	pub item: Item,
+	pub is_equipped: bool
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct Inventory {
-	pub items: Vec<(Item, bool)>,
+	pub items: Vec<InventoryEntry>,
 	pub capacity: usize
 }
 impl Component for Inventory {
@@ -19,9 +27,9 @@ impl Inventory {
 	
 	fn equipped(&self) -> Vec<Equippable> {
 		let mut equippables = Vec::new();
-		for (item, is_equipped) in self.items.iter() {
-			if *is_equipped {
-				if let ItemAction::Equip(equippable) = &item.action {
+		for entry in self.items.iter() {
+			if entry.is_equipped {
+				if let ItemAction::Equip(equippable) = &entry.item.action {
 					equippables.push(equippable.clone());
 				} else {
 					panic!("unequippable item equipped!");

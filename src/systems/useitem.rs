@@ -21,7 +21,7 @@ use crate::{
 		Flags
 	},
 	resources::{NewEntities, Ground},
-	components::item::ItemAction::{None, Build, Eat, Equip},
+	item::ItemAction::{None, Build, Eat, Equip},
 	controls::Control,
 };
 
@@ -44,7 +44,7 @@ impl <'a> System<'a> for Use {
 			match &controller.control {
 				Control::Use(rank) => {
 					if let Some(entry) = inventory.items.get_mut(*rank) {
-						match &entry.0.action {
+						match &entry.item.action {
 							Build(template, required_flags, blocking_flags) => {
 								let ground_flags = ground.flags_on(position.pos, &flags);
 								if required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
@@ -59,13 +59,13 @@ impl <'a> System<'a> for Use {
 							Equip(equippable) => {
 								let slot = equippable.slot;
 								for otherentry in inventory.items.iter_mut() {
-									if let Equip(other) = &otherentry.0.action {
+									if let Equip(other) = &otherentry.item.action {
 										if other.slot == slot {
-											otherentry.1 = false;
+											otherentry.is_equipped = false;
 										}
 									}
 								}
-								inventory.items[*rank].1 = true;
+								inventory.items[*rank].is_equipped = true;
 							}
 							None => {}
 						}

@@ -72,37 +72,6 @@
 			"sprite": "water",
 			"height": 0.1
 		},
-		"pebble": {
-			"components": [
-				["Item", {
-					"ent": ["self", null],
-					"name": ["string", "pebble"],
-					"action": ["action", ["none", null]]
-				}]
-			],
-			"sprite": "pebble",
-			"height": 0.3
-		},
-		"stone": {
-			"item": ["build", ["builtwall", ["Floor"], ["Blocking"]]],
-			"sprite": "stone",
-			"height": 0.4
-		},
-		"player": {
-			"arguments": [["name", "string"]],
-			"components": [
-				["Visible", {
-					"sprite": ["string", "player"],
-					"height": ["float", 1.0],
-					"name": ["arg", "name"]
-				}],
-				["Player", {
-					"name": ["arg", "name"]
-				}],
-				["Inventory", {"capacity": ["int", 3]}],
-				["Health", {"health": ["int", 9], "maxhealth": ["int", 10]}]
-			]
-		},
 		"portal": {
 			"arguments": [["destination", "string"], ["dest_pos", "string", ""]],
 			"components": [
@@ -187,17 +156,11 @@
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
-					["list", [{"type": "radishes"}, 0.8]],
-					["list", [{"type": "radishes"}, 0.4]]
+					["list", [{"type": "radish"}, 0.8]],
+					["list", [{"type": "radish"}, 0.4]]
 				]]}]
 			],
 			"flags": ["Occupied"]
-		},
-		"radishseed": {
-			"sprite": "seed",
-			"height": 0.2,
-			"name": "radishseed",
-			"item": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]
 		},
 		"plantedradishseed": {
 			"arguments": [["target_time", "int", 0]],
@@ -233,20 +196,6 @@
 			},
 			"flags": ["Occupied"]
 		},
-		"radishes": {
-			"sprite": "food",
-			"height": 0.3,
-			"name": "radishes",
-			"item": ["eat", 3]
-		},
-		"sword": {
-			"sprite": "sword",
-			"height": 0.5,
-			"item": ["equip", {
-				"slot": "hand",
-				"stats": {"strength": 50}
-			}]
-		},
 		"closeddoor": {
 			"sprite": "closeddoor",
 			"height": 2,
@@ -279,5 +228,15 @@
 				["Interactable", {"action": ["interaction", ["reply", "did you say '{}'?"]]}]
 			]
 		}
+	},
+	"items": {
+		"pebble": {},
+		"stone": {"action": ["build", ["builtwall", ["Floor"], ["Blocking"]]]},
+		"radishseed": {"action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"radish": {"action": ["eat", 3]},
+		"sword": {"action": ["equip", {
+			"slot": "hand",
+			"stats": {"strength": 50}
+		}]}
 	}
 }

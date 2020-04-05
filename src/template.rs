@@ -31,13 +31,22 @@ impl Template {
 		}
 	}
 	
+	pub fn empty(name: &str) -> Self {
+		Self::new(name, HashMap::new())
+	}
+	
+	pub fn from_entity_type(typ: EntityType) -> Self {
+		Self {
+			name: typ,
+			args: Vec::new(),
+			kwargs: HashMap::new(),
+			save: true
+		}
+	}
+	
 	pub fn unsaved(mut self) -> Self {
 		self.save = false;
 		self
-	}
-	
-	pub fn empty(name: &str) -> Self {
-		Self::new(name, HashMap::new())
 	}
 	
 	pub fn from_json(val: &Value) -> Result<Template> {

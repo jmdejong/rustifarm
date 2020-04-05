@@ -2,7 +2,6 @@
 use serde_json::{Value, json};
 use crate::{
 	Template,
-	components::item::ItemAction,
 	components::interactable::Interactable,
 	Pos
 };
@@ -69,7 +68,6 @@ parameters!(
 	Pos (Pos) pos, v (Pos::from_json(v)?) (json!(v));
 	Float (f64) float, v (v.as_f64()?) (json!(v));
 	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
-	Action (ItemAction) action, _v (ItemAction::from_json(_v)?) (panic!("item actions can't be serialized"));
 	Interaction (Interactable) interaction, _v (Interactable::from_json(_v)?) (panic!("interactions can't be serialized"));
 	Bool (bool) bool, v (v.as_bool()?) (json!(v));
 	List (Vec<Parameter>) list, _v 

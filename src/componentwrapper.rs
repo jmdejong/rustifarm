@@ -6,6 +6,7 @@ use rand::Rng;
 use crate::{
 	PlayerId,
 	RoomId,
+	ItemId,
 	Sprite,
 	playerstate::RoomPos,
 	components::{
@@ -143,7 +144,7 @@ components!(
 	};
 	Movable (cooldown: Int);
 	Player (name: String) {Player::new(PlayerId{name})};
-	Item (ent: Template, name: String, action: Action);
+	Item (item: String) {Item(ItemId(item))};
 	Inventory () {panic!("inventory from parameters not implemented")};
 	Health (health: Int, maxhealth: Int);
 	Serialise () {panic!("serialise from parameters not implemented")};

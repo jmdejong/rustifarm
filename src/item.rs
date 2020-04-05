@@ -1,23 +1,27 @@
 
+
 use std::collections::HashSet;
 use serde_json::{Value};
 use specs::{Component, DenseVecStorage};
 use crate::{
 	Template,
-	components::Flag
+	components::{
+		Flag,
+		equipment::Equippable
+	}
 };
 
-use super::equipment::Equippable;
 
-#[derive(Component, Debug, Clone)]
+
+#[derive(Debug, Default, PartialEq, Eq, Clone, Hash)]
+pub struct ItemId(pub String);
+
+#[derive(Debug, Clone)]
 pub struct Item {
 	pub ent: Template,
 	pub name: String,
 	pub action: ItemAction
 }
-
-
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ItemAction {
@@ -52,7 +56,7 @@ impl ItemAction {
 mod tests {
 	use super::*;
 	use crate::hashmap;
-	use super::super::equipment::*;
+	use crate::components::equipment::*;
 	use serde_json::json;
 	
 	#[test]

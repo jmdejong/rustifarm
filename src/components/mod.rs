@@ -1,5 +1,4 @@
 
-pub mod item;
 pub mod messages;
 pub mod faction;
 pub mod interactable;
@@ -9,7 +8,6 @@ pub mod serialise;
 pub mod flags;
 pub mod ear;
 
-pub use item::Item;
 pub use messages::{
 	AttackMessage,
 	AttackInbox,
@@ -46,7 +44,8 @@ use crate::{
 	controls::Control,
 	Template,
 	playerstate::RoomPos,
-	Timestamp
+	Timestamp,
+	ItemId,
 };
 
 #[derive(Component, Debug, Clone)]
@@ -227,5 +226,10 @@ pub struct Grow {
 pub struct CreationTime {
 	pub time: Timestamp
 }
+
+
+#[derive(Component, Debug, Clone)]
+pub struct Item(pub ItemId);
+
 
 

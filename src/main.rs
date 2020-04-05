@@ -35,11 +35,13 @@ mod sprite;
 mod timestamp;
 mod purgatory;
 mod config;
+mod item;
 
 use self::{
 	pos::Pos,
 	playerid::PlayerId,
 	roomid::RoomId,
+	item::ItemId,
 	util::Result,
 	sprite::Sprite,
 	template::Template,
