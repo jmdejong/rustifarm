@@ -44,10 +44,14 @@ impl <'a> System<'a> for Spawn {
 				if let Some(last_spawn) = spawner.last_spawn {
 					if time.time > last_spawn + spawner.delay {
 						spawner.last_spawn = None;
-						let mut preent = new.encyclopedia.construct(&spawner.template).expect("unable to spawn entity from spawner");
-						preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
-						preent.push(ComponentWrapper::Home(Home{home: position.pos}));
-						new.to_build.push((position.pos, preent));
+						match new.encyclopedia.construct(&spawner.template) {
+							Ok(mut preent) => {
+								preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
+								preent.push(ComponentWrapper::Home(Home{home: position.pos}));
+								new.to_build.push((position.pos, preent));
+							}
+							Err(err) => {println!("Error: can not spawn entity from spawner: {}", err);}
+						}
 					}
 				} else {
 					spawner.last_spawn = Some(time.time)

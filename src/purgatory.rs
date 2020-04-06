@@ -89,6 +89,6 @@ pub fn create_purgatory<'a, 'b>(encyclopedia: &Encyclopedia) -> Room<'a, 'b> {
 			"Y": [{"type": "letter", "args": ["Y"]}],
 			"Z": [{"type": "letter", "args": ["Z"]}]
 		}
-	})).unwrap());
+	})).unwrap()).unwrap();
 	room
 }

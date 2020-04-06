@@ -59,7 +59,7 @@ impl <'a, 'b>World<'a, 'b> {
 					purgatory::create_purgatory(&self.encyclopedia)
 				} else {
 					let template = self.template_loader.load_room(id.clone())?;
-					Room::create(id.clone(), &self.encyclopedia, &template)
+					Room::create(id.clone(), &self.encyclopedia, &template)?
 				};
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);

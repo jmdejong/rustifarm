@@ -62,12 +62,12 @@ use self::{
 
 
 
-fn main() -> Result<()>{
+fn main(){
 	
 	let config = config::Config::from_args();
 	
 	let adresses = config.address
-		.unwrap_or(vec!["abstract:rustifarm".parse()?, "inet:127.0.0.1:1234".parse()?]);
+		.unwrap_or(vec!["abstract:rustifarm".parse().unwrap(), "inet:127.0.0.1:1234".parse().unwrap()]);
 	println!("adresses: {:?}", adresses);
 	let servers: Vec<Box<dyn Server>> = 
 		adresses
@@ -90,10 +90,10 @@ fn main() -> Result<()>{
 				content_dir
 					.join("encyclopediae")
 					.join("default_encyclopedia.json")
-			)?
-		)?
-	)?;
-	encyclopedia.validate()?;
+			).expect("can not load default_encyclopedia.json")
+		).expect("default_encyclopedia is invalid json")
+	).expect("can not load encyclopedia from json");
+	encyclopedia.validate().expect("invalid encyclopedia");
 	
 	let save_dir = config.save_dir.unwrap_or(
 		FileStorage::default_save_dir().expect("couldn't find any save directory")
@@ -127,10 +127,10 @@ fn main() -> Result<()>{
 					let _ = world.control_player(player, control);
 				}
 				Action::Join(player) => {
-					world.add_player(&player)?;
+					world.add_player(&player).expect("can not add player");
 				}
 				Action::Leave(player) => {
-					world.remove_player(&player)?;
+					world.remove_player(&player).expect("can not remove player");
 					message_cache.remove(&player);
 				}
 			}
@@ -156,7 +156,6 @@ fn main() -> Result<()>{
 	println!("saving world");
 	world.save();
 	println!("world saved");
-	Ok(())
 }
 
 

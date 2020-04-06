@@ -137,7 +137,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		}
 	}
 	
-	pub fn load_from_template(&mut self, template: &RoomTemplate) {
+	pub fn load_from_template(&mut self, template: &RoomTemplate) -> Result<()> {
 	
 		let (width, height) = template.size;
 		self.world.fetch_mut::<Size>().width = width;
@@ -150,19 +150,20 @@ impl <'a, 'b>Room<'a, 'b> {
 			let y = (idx as i64) / width;
 			
 			for template in templates {
-				self.create_entity(template.clone().unsaved(), Pos{x, y}).unwrap();
+				self.create_entity(template.clone().unsaved(), Pos{x, y})?;
 			}
 		}
 		for (name, place) in &template.places {
 			self.places.insert(name.clone(), *place);
 		}
+		Ok(())
 	}
 	
 	
-	pub fn create(id: RoomId, encyclopedia: &Encyclopedia, template: &RoomTemplate) -> Room<'a, 'b> {
+	pub fn create(id: RoomId, encyclopedia: &Encyclopedia, template: &RoomTemplate) -> Result<Room<'a, 'b>> {
 		let mut room = Self::new(id, encyclopedia.clone(), default_dispatcher());
-		room.load_from_template(template);
-		room
+		room.load_from_template(template)?;
+		Ok(room)
 	}
 	
 	pub fn view(&self) -> HashMap<PlayerId, WorldMessage> {
