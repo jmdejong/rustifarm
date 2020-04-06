@@ -109,7 +109,7 @@ impl PlayerState {
 			.ok_or(perr!("inventory does not have items"))?
 			.as_array()
 			.ok_or(perr!("inventory items not an array"))?
-			.into_iter()
+			.iter()
 			.map(|entry| {
 				let itemid = ItemId(
 					entry

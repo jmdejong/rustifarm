@@ -36,7 +36,7 @@ impl <'a, 'b>World<'a, 'b> {
 			time: persistence.load_world_meta().unwrap_or(Timestamp(1000000)),
 			persistence,
 			default_room,
-			encyclopedia: encyclopedia.clone(),
+			encyclopedia: encyclopedia,
 			players: HashMap::new(),
 			rooms: HashMap::new(),
 			room_age: HashMap::new()

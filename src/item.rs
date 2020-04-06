@@ -41,8 +41,8 @@ impl ItemAction {
 			"eat" => Eat(arg.as_i64()?),
 			"build" => Build(
 				Template::from_json(arg.get(0)?).ok()?,
-				arg.get(1)?.as_array()?.into_iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?,
-				arg.get(2)?.as_array()?.into_iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?
+				arg.get(1)?.as_array()?.iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?,
+				arg.get(2)?.as_array()?.iter().map(|v| Flag::from_str(v.as_str()?)).collect::<Option<HashSet<Flag>>>()?
 			),
 			"none" => None,
 			"equip" => Equip(Equippable::from_json(arg)?),

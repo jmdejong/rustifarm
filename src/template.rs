@@ -57,7 +57,7 @@ impl Template {
 				"kwargs": v.get(1).ok_or(perr!("index 1 not in template array {:?}", v))?
 			}),
 			Value::Object(_) => v.clone(),
-			_ => Err(perr!("invalid template {:?}", v))?
+			_ => return Err(perr!("invalid template {:?}", v))
 		};
 			
 		let name = EntityType(val.get("type").ok_or(perr!("template doesn't have 'type'"))?.as_str().ok_or(perr!("template type not a string"))?.to_string());

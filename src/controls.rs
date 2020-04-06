@@ -29,7 +29,7 @@ impl Direction {
 		}
 	}
 	
-	pub fn to_position(&self) -> Pos {
+	pub fn to_position(self) -> Pos {
 		match self {
 			Direction::North => Pos::new(0, -1),
 			Direction::South => Pos::new(0, 1),

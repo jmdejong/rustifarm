@@ -13,7 +13,7 @@ pub struct Sound {
 
 impl Sound {
 	pub fn as_message(self) -> (Option<String>, String) {
-		return (None, format!("{}: {}", self.source.unwrap_or("".to_string()), self.text));
+		(None, format!("{}: {}", self.source.unwrap_or("".to_string()), self.text))
 	}
 }
 
