@@ -63,6 +63,9 @@ impl ComponentParameter {
 	}
 	
 	pub fn from_json(value: &Value) -> PResult<Self> {
+		if !value.is_array() {
+			return Ok(Self::Constant(Parameter::guess_from_json(value).ok_or(perr!("invalid component parameter {:?}", value))?));
+		}
 		let paramvalue = value.get(1).ok_or(perr!("index 1 not in component parameter"))?;
 		let typename = value.get(0).ok_or(perr!("index 0 not in component parameter"))?.as_str().ok_or(perr!("compparam type not a string"))?;
 		if let Some(paramtype) = ParameterType::from_str(typename) {
@@ -101,7 +104,7 @@ impl ComponentParameter {
 	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
-			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or(aerr!("unknown argument name"))?.1,
+			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or(aerr!("unknown argument name {} in {:?}", argname, arguments))?.1,
 			Self::Random(options) => {
 				let typ: ParameterType = options.get(0).ok_or(aerr!("random has no options"))?.get_type(arguments)?;
 				for param in options {

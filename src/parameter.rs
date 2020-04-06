@@ -70,15 +70,15 @@ parameters!(
 	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
 	Interaction (Interactable) interaction, _v (Interactable::from_json(_v)?) (panic!("interactions can't be serialized"));
 	Bool (bool) bool, v (v.as_bool()?) (json!(v));
-	List (Vec<Parameter>) list, _v 
+	List (Vec<Parameter>) list, v 
 		({
-			_v
+			v
 				.as_array()?
 				.iter()
 				.map(|item| Parameter::guess_from_json(item))
 				.collect::<Option<Vec<Parameter>>>()?
 		})
-		(panic!("can not serialise parameter list"));
+		(json!(["list", v.iter().map(Parameter::to_json).collect::<Vec<Value>>()]));
 );
 
 
@@ -108,7 +108,6 @@ impl Parameter {
 			} else if val.is_object(){
 				ParameterType::Template
 			} else {
-				println!("{:?}", val);
 				return None
 			};
 		Self::from_typed_json(typ, val)

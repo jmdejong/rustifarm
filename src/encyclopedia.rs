@@ -12,7 +12,8 @@ use crate::{
 	item::Item,
 	item::ItemAction,
 	PResult,
-	perr
+	perr,
+	parameter::Parameter
 };
 
 #[derive(Default, Clone)]
@@ -79,6 +80,26 @@ impl Encyclopedia {
 				Ok((id, item))
 			})
 			.collect::<PResult<HashMap<ItemId, Item>>>()?;
+		for (name, v) in
+				val
+				.get("templates")
+				.unwrap_or(&json!({}))
+				.as_object().ok_or(perr!("templates not a json dict: {:?}", val.get("templates")))?
+				.iter() {
+			let enttype = EntityType(v
+				.get(0).ok_or(perr!("index 0 not in subtitution template"))?
+				.as_str().ok_or(perr!("subtitution origin name not a string"))?
+				.to_string());
+			let values = v.get(1).ok_or(perr!("index 0 not in subtitution template"))?;
+			let mut assemblage = assemblages.get(&enttype).ok_or(perr!("template name '{:?}' points not an assemblage", enttype))?.clone();
+			for arg in assemblage.arguments.iter_mut() {
+				if let Some(x) = values.get(&arg.0) {
+					let param = Parameter::from_typed_json(arg.1, x).ok_or(perr!("subtitution parameter has wrong type"))?;
+					arg.2 = Some(param);
+				}
+			}
+			assemblages.insert(EntityType(name.to_string()), assemblage);
+		}
 		
 		Ok(Encyclopedia{
 			assemblages,

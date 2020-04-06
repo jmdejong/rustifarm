@@ -189,18 +189,18 @@ components!(
 			loot
 			.iter()
 			.map(|param| {match param {
-				Parameter::Template(template) => Some((template.clone(), 1.0)),
+				Parameter::Template(template) => Ok((template.clone(), 1.0)),
 				Parameter::List(l) => {
 					if l.len() == 2 {
 						if let (Parameter::Template(template), Parameter::Float(chance)) = (l[0].clone(), l[1].clone()) {
-							return Some((template.clone(), chance))
+							return Ok((template.clone(), chance))
 						}
 					}
-					None?
+					Err(aerr!("loot list elements as list must only contain a template and a float: {:?}", l))?
 				},
-				_ => None?
+				_ => Err(aerr!("loot list elements must be a template or a list: {:?}", param))?
 			}})
-			.collect::<Option<Vec<(Template, f64)>>>().ok_or(aerr!("invalid loot definition"))?
+			.collect::<Result<Vec<(Template, f64)>>>()?
 		}
 	};
 	Grow (

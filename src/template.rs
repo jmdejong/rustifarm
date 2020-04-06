@@ -49,10 +49,17 @@ impl Template {
 		self
 	}
 	
-	pub fn from_json(val: &Value) -> PResult<Template> {
-		if val.is_string(){
-			return Ok(Self::empty(val.as_str().unwrap()));
-		}
+	pub fn from_json(v: &Value) -> PResult<Template> {
+		let val = match v {
+			Value::String(s) => json!({"type": s}),
+			Value::Array(_) => json!({
+				"type": v.get(0).ok_or(perr!("index 0 not in template array {:?}", v))?,
+				"kwargs": v.get(1).ok_or(perr!("index 1 not in template array {:?}", v))?
+			}),
+			Value::Object(_) => v.clone(),
+			_ => Err(perr!("invalid template {:?}", v))?
+		};
+			
 		let name = EntityType(val.get("type").ok_or(perr!("template doesn't have 'type'"))?.as_str().ok_or(perr!("template type not a string"))?.to_string());
 		let mut args = Vec::new();
 		for arg in val.get("args").unwrap_or(&json!([])).as_array().ok_or(perr!("template args not an array"))? {

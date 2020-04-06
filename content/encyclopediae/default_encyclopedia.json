@@ -24,16 +24,16 @@
 			"components": [
 				["Visible", {
 					"sprite": ["random", [
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"],
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"],
-						["string", "ground"]
+						"grass1",
+						"grass2",
+						"grass3",
+						"grass1",
+						"grass2",
+						"grass3",
+						"ground"
 					]],
-					"height": ["float", 0.1],
-					"name": ["string", "grass"]
+					"height": 0.1,
+					"name": "grass"
 				}]
 			],
 			"flags": ["Floor", "Soil"]
@@ -42,12 +42,12 @@
 			"components": [
 				["Visible", {
 					"sprite": ["random", [
-						["string", "grass1"],
-						["string", "grass2"],
-						["string", "grass3"]
+						"grass1",
+						"grass2",
+						"grass3"
 					]],
-					"height": ["float", 0.1],
-					"name": ["string", "grass"]
+					"height": 0.1,
+					"name": "grass"
 				}]
 			],
 			"flags": ["Floor", "Soil"]
@@ -82,7 +82,7 @@
 		"builtwall": {
 			"arguments": [["health", "int", 100]],
 			"components": [
-				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 100]}],
+				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
 				"Mortal"
 			],
 			"sprite": "wall",
@@ -91,7 +91,7 @@
 			"flags": ["Blocking"]
 		},
 		"spiketrap": {
-			"components": [["Trap", {"damage": ["int", 8]}]],
+			"components": [["Trap", {"damage": 8}]],
 			"sprite": "spikes",
 			"height": 0.8
 		},
@@ -100,14 +100,14 @@
 			"sprite": "dummy",
 			"height": 1,
 			"components": [
-				["Health", {"health": ["arg", "health"], "maxhealth": ["int", 20]}],
+				["Health", {"health": ["arg", "health"], "maxhealth": 20}],
 				"Mortal"
 			]
 		},
 		"wound": {
 			"sprite": "wound",
 			"height": 0.25,
-			"components": [["Volatile", {"delay": ["int", 4]}]],
+			"components": [["Volatile", {"delay": 3}]],
 			"save": false
 		},
 		"rat": {
@@ -115,15 +115,15 @@
 			"height": 1,
 			"components": [
 				["MonsterAI", {
-					"view_distance": ["int", 3],
-					"move_chance": ["float", 0.08],
-					"homesickness": ["float", 0.1]
+					"view_distance": 3,
+					"move_chance": 0.08,
+					"homesickness": 0.1
 				}],
-				["Health", {"health": ["int", 8], "maxhealth": ["int", 8]}],
-				["Fighter", {"damage": ["int", 2], "cooldown": ["int", 6]}],
-				["Movable", {"cooldown": ["int", 3]}],
+				["Health", {"health": 8, "maxhealth": 8}],
+				["Fighter", {"damage": 2, "cooldown": 6}],
+				["Movable", {"cooldown": 3}],
 				"Mortal",
-				["Faction", {"faction": ["string", "evil"]}]
+				["Faction", {"faction": "evil"}]
 			]
 		},
 		"spawner": {
@@ -141,9 +141,9 @@
 		"letter": {
 			"arguments": [["char", "string"]],
 			"components": [["Visible", {
-				"name": ["concat", [["string", "letter_"], ["arg", "char"]]],
-				"sprite": ["concat", [["string", "emptyletter-"], ["arg", "char"]]],
-				"height": ["float", 1.0]
+				"name": ["concat", ["letter_", ["arg", "char"]]],
+				"sprite": ["concat", ["emptyletter-", ["arg", "char"]]],
+				"height": 1.0
 			}]]
 		},
 		"radishplant": {
@@ -169,7 +169,7 @@
 			"name": "seed",
 			"components": [
 				["Grow", {
-					"delay": ["int", 600],
+					"delay": 600,
 					"target_time": ["arg", "target_time"],
 					"into": ["template", "radishseedling"]
 				}]
@@ -186,7 +186,7 @@
 			"name": "seedling",
 			"components": [
 				["Grow", {
-					"delay": ["int", 600],
+					"delay": 600,
 					"target_time": ["arg", "target_time"],
 					"into": ["template", "radishplant"]
 				}]
@@ -234,9 +234,77 @@
 			"components": [
 				["Interactable", {"action": ["interaction", ["exchange", ["buy ", {
 					"pebble": [["radish", "radish"], ["pebble"]],
-					"radishseed": [["radish"], ["radishseed", "radishseed"]]
+					"radishseed": [["radish"], ["radishseed", "radishseed"]],
+					"carrotseed": [["radish"], ["carrotseed"]]
 				}]]]}]
 			]
+		},
+		"plantedseed": {
+			"arguments": [["target_time", "int", 0], ["next", "template"], ["delay", "int"]],
+			"sprite": "seed",
+			"height": 0.05,
+			"name": "plantedseed",
+			"components": [
+				["Grow", {
+					"delay": ["arg", "delay"],
+					"target_time": ["arg", "target_time"],
+					"into": ["arg", "next"]
+				}]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"seedling": {
+			"arguments": [["target_time", "int", 0], ["next", "template"], ["delay", "int"]],
+			"sprite": "seed",
+			"height": 0.09,
+			"name": "seedling",
+			"components": [
+				["Grow", {
+					"delay": ["arg", "delay"],
+					"target_time": ["arg", "target_time"],
+					"into": ["arg", "next"]
+				}]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"youngplant": {
+			"arguments": [["target_time", "int", 0], ["next", "template"], ["crop", "string"], ["delay", "int"]],
+			"components": [
+				["Grow", {
+					"delay": ["arg", "delay"],
+					"target_time": ["arg", "target_time"],
+					"into": ["arg", "next"]
+				}],
+				["Visible", {
+					"name": ["concat", [["string", "young"], ["arg", "crop"], ["string", "plant"]]],
+					"sprite": "youngplant",
+					"height": 0.8
+				}]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"carrotplant": {
+			"sprite": "smallplant",
+			"name": "carrotplant",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"action": ["interaction", "harvest"]}],
+				"Mortal",
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "carrotseed"}, 1.0]],
+					["list", [{"type": "carrot"}, 1.0]]
+				]]}]
+			],
+			"flags": ["Occupied"]
 		}
 	},
 	"items": {
@@ -244,9 +312,16 @@
 		"stone": {"action": ["build", ["builtwall", ["Floor"], ["Blocking"]]]},
 		"radishseed": {"sprite": "seed", "action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
 		"radish": {"sprite": "food", "action": ["eat", 3]},
+		"carrotseed": {"sprite": "seed", "action": ["build", ["plantedcarrotseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"carrot": {"sprite": "food", "action": ["eat", 5]},
 		"sword": {"action": ["equip", {
 			"slot": "hand",
 			"stats": {"strength": 50}
 		}]}
+	},
+	"templates":{
+		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],
+		"carrotseedling": ["seedling", {"delay": 60, "next": "youngcarrotplant"}],
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}]
 	}
 }
