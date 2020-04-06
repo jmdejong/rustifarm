@@ -181,14 +181,15 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Input>().actions.insert(player, control);
 	}
 	
-	pub fn add_player(&mut self, state: &PlayerState){
-		let pre_player = state.construct(&self.world.fetch::<NewEntities>().encyclopedia);
+	pub fn add_player(&mut self, state: &PlayerState) -> Result<()> {
+		let pre_player = state.construct(&self.world.fetch::<NewEntities>().encyclopedia)?;
 		let spawn = match &state.pos {
 			RoomPos::Unknown => self.world.fetch::<SpawnPosition>().pos,
 			RoomPos::Pos(pos) => *pos,
 			RoomPos::Name(name) => *self.places.get(name).unwrap()
 		};
 		self.world.fetch_mut::<NewEntities>().to_build.push((spawn, pre_player));
+		Ok(())
 	}
 	
 	pub fn remove_player(&mut self, id: &PlayerId) -> Result<PlayerState>{

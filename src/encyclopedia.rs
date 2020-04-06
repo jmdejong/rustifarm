@@ -10,7 +10,9 @@ use crate::{
 	aerr,
 	ItemId,
 	item::Item,
-	item::ItemAction
+	item::ItemAction,
+	PResult,
+	perr
 };
 
 #[derive(Default, Clone)]
@@ -21,34 +23,34 @@ pub struct Encyclopedia {
 
 impl Encyclopedia {
 	
-	pub fn from_json(val: Value) -> Result<Encyclopedia> {
+	pub fn from_json(val: Value) -> PResult<Encyclopedia> {
 		let mut assemblages = 
 			val
 			.get("assemblages")
-			.ok_or(aerr!("no assemblages in encyclopedia json"))?
+			.ok_or(perr!("no assemblages in encyclopedia json"))?
 			.as_object()
-			.ok_or(aerr!("encyclopedia assemblages not a json object"))?
+			.ok_or(perr!("encyclopedia assemblages not a json object"))?
 			.into_iter()
 			.map(|(k, v)| Ok((EntityType(k.clone()), Assemblage::from_json(v)?)))
-			.collect::<Result<HashMap<EntityType, Assemblage>>>()?;
+			.collect::<PResult<HashMap<EntityType, Assemblage>>>()?;
 		let items =
 			val
 			.get("items")
-			.ok_or(aerr!("no items in encyclopedia json"))?
+			.ok_or(perr!("no items in encyclopedia json"))?
 			.as_object()
-			.ok_or(aerr!("encyclopedia items not a json object"))?
+			.ok_or(perr!("encyclopedia items not a json object"))?
 			.into_iter()
 			.map(|(k, v)| {
 				let id = ItemId(k.clone());
 				let sprite = 
 					if let Some(sprite) = v.get("sprite") {
-						sprite.as_str().ok_or(aerr!("item sprite not a string: {:?}", v))?
+						sprite.as_str().ok_or(perr!("item sprite not a string: {:?}", v))?
 					} else {
 						k
 					};
 				let name =
 					if let Some(name) = v.get("name") {
-						name.as_str().ok_or(aerr!("item name not a string: {:?}", v))?.to_string()
+						name.as_str().ok_or(perr!("item name not a string: {:?}", v))?.to_string()
 					} else {
 						k.to_string()
 					};
@@ -69,19 +71,26 @@ impl Encyclopedia {
 						},
 					action: 
 						if let Some(action) = v.get("action") {
-							ItemAction::from_json(action).ok_or(aerr!("failed to parse ItemAction: {:?}", v))?
+							ItemAction::from_json(action).ok_or(perr!("failed to parse ItemAction: {:?}", v))?
 						} else {
 							ItemAction::None
 						}
 				};
 				Ok((id, item))
 			})
-			.collect::<Result<HashMap<ItemId, Item>>>()?;
+			.collect::<PResult<HashMap<ItemId, Item>>>()?;
 		
 		Ok(Encyclopedia{
 			assemblages,
 			items
 		})
+	}
+	
+	pub fn validate(&self) -> Result<()> {
+		for assemblage in self.assemblages.values() {
+			assemblage.validate()?;
+		}
+		Ok(())
 	}
 	
 	pub fn construct(&self, template: &Template) -> Result<PreEntity> {

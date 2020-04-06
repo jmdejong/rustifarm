@@ -37,13 +37,14 @@ mod purgatory;
 mod config;
 mod item;
 mod exchange;
+mod errors;
 
 use self::{
 	pos::Pos,
 	playerid::PlayerId,
 	roomid::RoomId,
 	item::ItemId,
-	util::Result,
+	errors::{Result, PResult},
 	sprite::Sprite,
 	template::Template,
 	encyclopedia::Encyclopedia,
@@ -92,6 +93,7 @@ fn main() -> Result<()>{
 			)?
 		)?
 	)?;
+	encyclopedia.validate()?;
 	
 	let save_dir = config.save_dir.unwrap_or(
 		FileStorage::default_save_dir().expect("couldn't find any save directory")

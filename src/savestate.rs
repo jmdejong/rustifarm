@@ -5,7 +5,9 @@ use crate::{
 	Pos,
 	Template,
 	Result,
-	aerr
+	aerr,
+	PResult,
+	perr
 };
 
 pub struct SaveState {
@@ -29,12 +31,12 @@ impl SaveState {
 		})
 	}
 	
-	pub fn from_json(val: &Value) -> Result<Self> {
+	pub fn from_json(val: &Value) -> PResult<Self> {
 		let mut changes = HashMap::new();
-		for v in val.get("changes").ok_or(aerr!("save does not have changes"))?.as_array().ok_or(aerr!("changes not an array"))? {
-			let pos = Pos::from_json(v.get(0).ok_or(aerr!("change does not have index 0"))?).ok_or(aerr!("change index 0 is not a pos"))?;
+		for v in val.get("changes").ok_or(perr!("save does not have changes"))?.as_array().ok_or(perr!("changes not an array"))? {
+			let pos = Pos::from_json(v.get(0).ok_or(perr!("change does not have index 0"))?).ok_or(perr!("change index 0 is not a pos"))?;
 			let mut templates = Vec::new();
-			for t in v.get(1).ok_or(aerr!("change does not have index 1"))?.as_array().ok_or(aerr!("change index 1 not an array"))? {
+			for t in v.get(1).ok_or(perr!("change does not have index 1"))?.as_array().ok_or(perr!("change index 1 not an array"))? {
 				templates.push(Template::from_json(t)?);
 			}
 			changes.insert(pos, templates);

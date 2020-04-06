@@ -77,7 +77,7 @@ impl <'a, 'b>World<'a, 'b> {
 	fn add_loaded_player(&mut self, state: PlayerState) -> Result<()> {
 		let roomid = state.clone().room.unwrap_or_else(|| self.default_room.clone());
 		let room = self.get_room_mut(&roomid)?;
-		room.add_player(&state);
+		room.add_player(&state)?;
 		self.players.insert(state.id, roomid);
 		Ok(())
 	}

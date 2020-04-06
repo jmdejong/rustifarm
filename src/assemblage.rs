@@ -8,7 +8,9 @@ use crate::{
 	components::Serialise,
 	Template,
 	Result,
-	aerr
+	aerr,
+	PResult,
+	perr
 };
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
@@ -24,18 +26,18 @@ pub struct Assemblage {
 impl Assemblage {
 
 
-	fn parse_definition_arguments(args: &Value) -> Result<Vec<ArgumentDef>> {
+	fn parse_definition_arguments(args: &Value) -> PResult<Vec<ArgumentDef>> {
 		let mut arguments: Vec<ArgumentDef> = Vec::new();
-		for arg in args.as_array().ok_or(aerr!("arguments is not an array"))? {
-			let tup = arg.as_array().ok_or(aerr!("argument is not an array"))?;
-			let key = tup.get(0).ok_or(aerr!("argument has no name"))?.as_str().ok_or(aerr!("argument name is not a string"))?.to_string();
-			let typ = ParameterType::from_str(tup.get(1).ok_or(aerr!("argument has no type"))?.as_str().ok_or(aerr!("argument type not a string"))?).ok_or(aerr!("failed to parse argument type"))?;
+		for arg in args.as_array().ok_or(perr!("arguments is not an array"))? {
+			let tup = arg.as_array().ok_or(perr!("argument is not an array"))?;
+			let key = tup.get(0).ok_or(perr!("argument has no name"))?.as_str().ok_or(perr!("argument name is not a string"))?.to_string();
+			let typ = ParameterType::from_str(tup.get(1).ok_or(perr!("argument has no type"))?.as_str().ok_or(perr!("argument type not a string"))?).ok_or(perr!("failed to parse argument type"))?;
 			if let Some(def) = tup.get(2){
 				arguments.push(
 					(
 						key.clone(),
 						typ,
-						Some(Parameter::from_typed_json(typ, def).ok_or(aerr!("invalid argument default"))?)
+						Some(Parameter::from_typed_json(typ, def).ok_or(perr!("invalid argument default"))?)
 					)
 				);
 			} else  {
@@ -45,18 +47,18 @@ impl Assemblage {
 		Ok(arguments)
 	}
 	
-	fn parse_definition_components(comps: &[Value]) -> Result<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
+	fn parse_definition_components(comps: &[Value]) -> PResult<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
 		let mut components = Vec::new();
 		for tup in comps {
 			if let Some(name) = tup.as_str() {
-				components.push((ComponentType::from_str(name).ok_or(aerr!("not a valid componenttype"))?, HashMap::new()));
+				components.push((ComponentType::from_str(name).ok_or(perr!("not a valid componenttype"))?, HashMap::new()));
 			} else {
 				let comptype = ComponentType::from_str(tup
-					.get(0).ok_or(aerr!("index 0 not in component"))?
-					.as_str().ok_or(aerr!("component name not a string"))?
-				).ok_or("not a valid componenttype")?;
+					.get(0).ok_or(perr!("index 0 not in component"))?
+					.as_str().ok_or(perr!("component name not a string"))?
+				).ok_or(perr!("not a valid componenttype"))?;
 				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
-				for (key, value) in tup.get(1).ok_or(aerr!("index 1 not in component"))?.as_object().ok_or(aerr!("component parameters not a json object"))? {
+				for (key, value) in tup.get(1).ok_or(perr!("index 1 not in component"))?.as_object().ok_or(perr!("component parameters not a json object"))? {
 					let param = ComponentParameter::from_json(value)?;
 					parameters.insert(key.clone(), param);
 				}
@@ -66,31 +68,19 @@ impl Assemblage {
 		Ok(components)
 	}
 	
-	fn validate(&self) -> Result<()> {
-		for (comptype, parameters) in &self.components {
-			for (paramname, paramtype) in comptype.parameters() {
-				let param = parameters.get(paramname).ok_or(aerr!("missing parameter"))?;
-				let actualtype = param.get_type(&self.arguments)?;
-				if actualtype != paramtype {
-					return Err(aerr!("parameter type incorrect"));
-				}
-			}
-		}
-		Ok(())
-	}
 	
-	fn preprocess(val: &Value) -> Result<Vec<Value>> {
+	fn preprocess(val: &Value) -> PResult<Vec<Value>> {
 		let mut components = Vec::new();
 		let name = if let Some(nameval) = val.get("name") {
-				Some(nameval.as_str().ok_or(aerr!("name not a string"))?.to_string())
+				Some(nameval.as_str().ok_or(perr!("name not a string"))?.to_string())
 			} else {None};
 		
 		// visible component is so common that shortcuts are very helpful
 		if let Some(spritename) = val.get("sprite") {
-			let sprite = spritename.as_str().ok_or(aerr!("sprite not a string"))?.to_string();
+			let sprite = spritename.as_str().ok_or(perr!("sprite not a string"))?.to_string();
 			let height = val
-				.get("height").ok_or(aerr!("defining a sprite requires also defining a height"))?
-				.as_f64().ok_or(aerr!("height not a float"))?;
+				.get("height").ok_or(perr!("defining a sprite requires also defining a height"))?
+				.as_f64().ok_or(perr!("height not a float"))?;
 			components.push(json!(["Visible", {
 				"name": ["string", name.clone().unwrap_or(sprite.clone())],
 				"sprite": ["string", sprite],
@@ -113,40 +103,53 @@ impl Assemblage {
 		Ok(components)
 	}
 	
-	pub fn from_json(val: &Value) -> Result<Self>{
+	pub fn from_json(val: &Value) -> PResult<Self>{
 		let mut json_components: Vec<Value> = val
 			.get("components")
 			.unwrap_or(&json!([]))
 			.as_array()
-			.ok_or(aerr!("components is not a json array"))?
+			.ok_or(perr!("components is not a json array"))?
 			.to_vec();
 		json_components.append(&mut Self::preprocess(val)?);
 		let assemblage = Self {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(&json_components)?,
-			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(aerr!("assemblage save not a bool"))?,
+			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(perr!("assemblage save not a bool"))?,
 			extract: val
 				.get("extract")
 				.unwrap_or(&json!({}))
-				.as_object().ok_or(aerr!("assemblage extract not a bool"))?
+				.as_object().ok_or(perr!("assemblage extract not a bool"))?
 				.into_iter()
 				.map(|(argname, val)| {
 					Ok((
 						argname.to_string(),
 						ComponentType::from_str(
 							val
-								.get(0).ok_or(aerr!("index 0 not in extract value"))?
-								.as_str().ok_or(aerr!("extract component name not a string"))?
-						).ok_or(aerr!("extract invalid component name"))?,
+								.get(0).ok_or(perr!("index 0 not in extract value"))?
+								.as_str().ok_or(perr!("extract component name not a string"))?
+						).ok_or(perr!("extract invalid component name"))?,
 						val.get(1)
-							.ok_or(aerr!("index 1 not in extract value"))?
-							.as_str().ok_or(aerr!("extract member name not a string"))?.to_string()
+							.ok_or(perr!("index 1 not in extract value"))?
+							.as_str().ok_or(perr!("extract member name not a string"))?.to_string()
 					))
 				})
-				.collect::<Result<Vec<(String, ComponentType, String)>>>()?
+				.collect::<PResult<Vec<(String, ComponentType, String)>>>()?
 		};
-		assemblage.validate()?;
 		Ok(assemblage)
+	}
+	
+	
+	pub fn validate(&self) -> Result<()> {
+		for (comptype, parameters) in &self.components {
+			for (paramname, paramtype) in comptype.parameters() {
+				let param = parameters.get(paramname).ok_or(aerr!("missing parameter"))?;
+				let actualtype = param.get_type(&self.arguments)?;
+				if actualtype != paramtype {
+					return Err(aerr!("parameter type incorrect"));
+				}
+			}
+		}
+		Ok(())
 	}
 	
 	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>> {

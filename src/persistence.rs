@@ -63,7 +63,8 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
-		SaveState::from_json(&json)
+		let state = SaveState::from_json(&json)?;
+		Ok(state)
 	}
 	
 	fn load_player(&self, id: PlayerId) -> Result<PlayerState> {
@@ -73,7 +74,8 @@ impl PersistentStorage for FileStorage {
 		path.push(fname);
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
-		PlayerState::from_json(&json)
+		let state = PlayerState::from_json(&json)?;
+		Ok(state)
 	}
 	
 	fn load_world_meta(&self) -> Result<Timestamp> {
