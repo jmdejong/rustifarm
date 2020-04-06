@@ -68,16 +68,23 @@
 			"flags": ["Floor"]
 		},
 		"water": {
-			"components": [],
 			"sprite": "water",
-			"height": 0.1
+			"height": 0.0
 		},
+		"house": {"height": 3.0, "sprite": "house"},
+		"freeland": {},
 		"portal": {
-			"arguments": [["destination", "string"], ["dest_pos", "string", ""]],
+			"arguments": [["destination", "string"], ["destpos", "string", ""]],
 			"components": [
-				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "dest_pos"]}]
+				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "destpos"]}]
 			],
 			"flags": ["Floor"]
+		},
+		"img": {
+			"arguments": [["sprite", "string", ""], ["height", "float", 1.0]],
+			"components": [
+				["Visible", {"name": ["arg", "sprite"], "sprite": ["arg", "sprite"], "height": ["arg", "height"]}]
+			]
 		},
 		"builtwall": {
 			"arguments": [["health", "int", 100]],
@@ -112,7 +119,7 @@
 		},
 		"rat": {
 			"sprite": "rat",
-			"height": 1,
+			"height": 1.0,
 			"components": [
 				["MonsterAI", {
 					"view_distance": 3,
@@ -123,7 +130,68 @@
 				["Fighter", {"damage": 2, "cooldown": 6}],
 				["Movable", {"cooldown": 3}],
 				"Mortal",
-				["Faction", {"faction": "evil"}]
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "radishseed"}, 1.0]]
+				]]}]
+			]
+		},
+		"goblin": {
+			"sprite": "goblin",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 8,
+					"move_chance": 0.02,
+					"homesickness": 0.1
+				}],
+				["Health", {"health": 15, "maxhealth": 15}],
+				["Fighter", {"damage": 5, "cooldown": 8}],
+				["Movable", {"cooldown": 4}],
+				"Mortal",
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "sword"}, 0.05]],
+					["list", [{"type": "club"}, 0.1]],
+					["list", [{"type": "radish"}, 0.25]]
+				]]}]
+			]
+		},
+		"troll": {
+			"sprite": "troll",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 8,
+					"move_chance": 0.01,
+					"homesickness": 0.1
+				}],
+				["Health", {"health": 75, "maxhealth": 75}],
+				["Fighter", {"damage": 15, "cooldown": 10}],
+				["Movable", {"cooldown": 5}],
+				"Mortal",
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "stone"}, 1.0]],
+					["list", [{"type": "stone"}, 0.3]],
+					["list", [{"type": "pebble"}, 0.5]],
+					["list", [{"type": "pebble"}, 0.5]],
+					["list", [{"type": "pebble"}, 0.5]]
+				]]}]
+				
+			]
+		},
+		"rabbit": {
+			"sprite": "rabbit",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 3,
+					"move_chance": 0.08,
+					"homesickness": 0.1
+				}],
+				["Movable", {"cooldown": 3}],
+				["Faction", {"faction": "neutral"}]
 			]
 		},
 		"spawner": {
@@ -184,6 +252,23 @@
 			"sprite": "seedling",
 			"height": 0.05,
 			"name": "seedling",
+			"components": [
+				["Grow", {
+					"delay": 600,
+					"target_time": ["arg", "target_time"],
+					"into": ["template", "youngradishplant"]
+				}]
+			],
+			"extract": {
+				"target_time": ["Grow", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"youngradishplant": {
+			"arguments": [["target_time", "int", 0]],
+			"sprite": "youngplant",
+			"height": 0.05,
+			"name": "youngradishplate",
 			"components": [
 				["Grow", {
 					"delay": 600,
@@ -316,7 +401,15 @@
 		"carrot": {"sprite": "food", "action": ["eat", 5]},
 		"sword": {"action": ["equip", {
 			"slot": "hand",
-			"stats": {"strength": 50}
+			"stats": {"strength": 5}
+		}]},
+		"club": {"action": ["equip", {
+			"slot": "hand",
+			"stats": {"strength": 3}
+		}]},
+		"armour": {"action": ["equip", {
+			"slot": "body",
+			"stats": {"defence": 3}
 		}]}
 	},
 	"templates":{

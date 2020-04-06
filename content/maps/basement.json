@@ -1,0 +1,49 @@
+{
+	"width": 24,
+	"height": 11,
+	"spawn": [17, 8],
+	"places": {
+		"stairup": [17, 8]
+	},
+	
+	"field": [
+		"      ###############   ",
+		"      #++++++++a++++#   ",
+		"      #+++++++++++++#   ",
+		"      #+a+++++++++++#   ",
+		"      #+++++++++++++#   ",
+		"      #+++++a+++++++#   ",
+		"      ##D######D#####   ",
+		"      #++++++#++++++#   ",
+		"      #+a++:+#++++<+#   ",
+		"      #++++++#++++++#   ",
+		"      ###############   "
+	],
+	"mapping": {
+		",": "grass",
+		"Y": ["grass", "radishplant"],
+		"~": "water",
+		"#": "wall",
+		"X": "rock",
+		".": "ground",
+		"+": "floor",
+		"^": ["spiketrap"],
+		"D": ["ground", "closeddoor"],
+		"<": [
+			{"type": "portal", "args": ["begin", "stairdown"]},
+			{"type": "img", "args": ["stairup"]},
+			"floor"
+		],
+		"a": ["floor", {
+			"type": "spawner",
+			"args": [{"type": "rat"}, 1, 300],
+			"kwargs": {"initialSpawn": true, "setHome": true}
+		}],
+		":": ["floor", {
+			"type": "spawner",
+			"args": [{"type": "carrotseed"}, 1, 1200],
+			"kwargs": {"initialSpawn": false}
+		}],
+		" ": []
+	}
+}
