@@ -12,8 +12,6 @@ use crate::{
 	systems::{
 		Move,
 		ControlInput,
-		Remove,
-		Create,
 		Volate,
 		UpdateCooldowns,
 		ControlAI,
@@ -31,8 +29,6 @@ pub fn create_purgatory<'a, 'b>(encyclopedia: &Encyclopedia) -> Room<'a, 'b> {
 		.with(ControlInput, "controlinput", &["cool_down"])
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Move, "move", &["controlinput", "controlai"])
-		.with(Create, "create", &["move", "volate"])
-		.with(Remove, "remove", &["volate", "move"])
 		.build();
 	let mut room = Room::new(purgatory_id(), encyclopedia.clone(), dispatcher);
 	room.load_from_template(&RoomTemplate::from_json(&json!({

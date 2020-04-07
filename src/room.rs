@@ -7,7 +7,8 @@ use specs::{
 	DispatcherBuilder,
 	Dispatcher,
 	Join,
-	Entity
+	Entity,
+	RunNow
 };
 
 use crate::{
@@ -88,15 +89,12 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Die, "die", &["attacking"])
 		.with(DropLoot, "droploot", &["attacking"])
 		.with(Migrate, "migrate", &["move", "attacking", "volate", "die"])
-		.with(Create, "create", &["migrate", "spawn", "droploot", "growth"])
-		.with(Remove, "remove", &["migrate", "move", "droploot"])
 		.build()
 }
 
 pub struct Room<'a, 'b> {
 	world: World,
 	dispatcher: Dispatcher<'a, 'b>,
-	view_dispatcher: Dispatcher<'a, 'b>,
 	pub id: RoomId,
 	places: HashMap<String, Pos>
 }
@@ -127,11 +125,6 @@ impl <'a, 'b>Room<'a, 'b> {
 		Room {
 			world,
 			dispatcher,
-			view_dispatcher: DispatcherBuilder::new()
-				.with(RegisterNew, "registernew", &[])
-				.with(View, "view", &["registernew"])
-				.with(Clear, "clear", &["view"])
-				.build(),
 			id,
 			places: HashMap::new()
 		}
@@ -173,8 +166,12 @@ impl <'a, 'b>Room<'a, 'b> {
 	pub fn update(&mut self, timestamp: Timestamp) {
 		self.world.fetch_mut::<Time>().time = timestamp;
 		self.dispatcher.dispatch(&self.world);
+		Create.run_now(&self.world);
+		Remove.run_now(&self.world);
 		self.world.maintain();
-		self.view_dispatcher.dispatch(&self.world);
+		RegisterNew.run_now(&self.world);
+		View.run_now(&self.world);
+		Clear.run_now(&self.world);
 	}
 	
 	
