@@ -57,7 +57,7 @@ worldmessages!(
 	field, FieldMessage, "field", true;
 	pos, Pos, "playerpos", true;
 	change, ChangeMessage, "changecells", true;
-	inventory, InventoryMessage, "inventory", true;
+	inventory, InventoryMessage, "inv", true;
 	health, HealthMessage, "health", true;
 	ground, GroundMessage, "ground", true;
 	sounds, SoundMessage, "messages", false;
@@ -66,7 +66,7 @@ worldmessages!(
 
 pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
 pub type HealthMessage = (i64, i64);
-pub type InventoryMessage = Vec<String>;
+pub type InventoryMessage = Vec<(String, bool)>;
 pub type GroundMessage = Vec<String>;
 pub type SoundMessage = Vec<(Option<String>, String)>;
 

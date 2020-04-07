@@ -59,7 +59,7 @@ impl <'a> System<'a> for View {
 				updates.change = Some(changes.clone());
 			}
 			if let Some(inventory) = inventories.get(ent){
-				updates.inventory = Some(inventory.items.iter().map(|entry| entry.item.name.clone()).collect());
+				updates.inventory = Some(inventory.items.iter().map(|entry| (entry.item.name.clone(), entry.is_equipped)).collect());
 			}
 			if let Some(health) = healths.get(ent){
 				updates.health = Some((health.health, health.maxhealth));

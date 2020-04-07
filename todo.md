@@ -3,7 +3,6 @@
 
 - make readme
 - more tests
-- trader
 - visitors
 - improved tutorial
 - port over rooms/saves
