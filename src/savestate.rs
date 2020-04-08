@@ -34,10 +34,11 @@ impl SaveState {
 		for v in val.get("changes").ok_or(perr!("save does not have changes"))?.as_array().ok_or(perr!("changes not an array"))? {
 			let pos = Pos::from_json(v.get(0).ok_or(perr!("change does not have index 0"))?).ok_or(perr!("change index 0 is not a pos"))?;
 			let mut templates = Vec::new();
-			for t in v.get(1).ok_or(perr!("change does not have index 1"))?.as_array().ok_or(perr!("change index 1 not an array"))? {
+			let jsontemplates = v.get(1).ok_or(perr!("change does not have index 1"))?;
+			for t in jsontemplates.as_array().clone().unwrap_or(&vec![jsontemplates.clone()]) {
 				templates.push(Template::from_json(t)?);
 			}
-			changes.insert(pos, templates);
+			changes.entry(pos).or_insert_with(Vec::new).append(&mut templates);
 		}
 		Ok(Self {changes})
 	}

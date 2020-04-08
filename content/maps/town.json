@@ -95,7 +95,7 @@
         "^": ["spiketrap", "ground"],
         "%": [{
             "type": "portal",
-            "kwargs": {"destination": "smallview", "despos": "towneast"}
+            "kwargs": {"destination": "smallview", "destpos": "towneast"}
         }, "ground"],
         "r": ["grass", "rabbit"],
         "/": ["grass", "sword"],
