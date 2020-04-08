@@ -96,9 +96,7 @@ impl <'a, 'b>World<'a, 'b> {
 			.unwrap_or_else(|_err| // todo: what if player exists but can't be loaded for another reason?
 				PlayerState::new(playerid.clone())
 			);
-		if &state.id != playerid {
-			return Err(aerr!("Player ids do not match. Wanted {:?}, got {:?}", playerid, state.id));
-		}
+		state.id = playerid.clone();
 		if state.room == Some(purgatory::purgatory_id()){
 			state.respawn();
 		}
