@@ -2,6 +2,7 @@
 use std::path::{PathBuf, Path};
 use std::fs;
 use std::env;
+use std::io::ErrorKind;
 use serde_json;
 use serde_json::{Value, json};
 use crate::{
@@ -10,19 +11,30 @@ use crate::{
 	savestate::SaveState,
 	playerstate::PlayerState,
 	Timestamp,
-	Result,
-	aerr
+	aerr,
+	errors::AnyError
 };
+
+
+pub enum LoaderError {
+	MissingResource(AnyError),
+	InvalidResource(AnyError)
+}
+
+macro_rules! inv {
+	($code:expr) => {($code).map_err(|err| LoaderError::InvalidResource(Box::new(err)))}
+}
+
 
 pub trait PersistentStorage {
 	
-	fn load_room(&self, id: RoomId) -> Result<SaveState>;
-	fn load_player(&self, id: PlayerId) -> Result<PlayerState>;
-	fn load_world_meta(&self) -> Result<Timestamp>;
+	fn load_room(&self, id: RoomId) -> Result<SaveState, LoaderError>;
+	fn load_player(&self, id: PlayerId) -> Result<PlayerState, LoaderError>;
+	fn load_world_meta(&self) -> Result<Timestamp, LoaderError>;
 	
-	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()>;
-	fn save_player(&self, id: PlayerId, sate: PlayerState) -> Result<()>;
-	fn save_world_meta(&self, time: Timestamp) -> Result<()>;
+	fn save_room(&self, id: RoomId, state: SaveState) -> Result<(), AnyError>;
+	fn save_player(&self, id: PlayerId, sate: PlayerState) -> Result<(), AnyError>;
+	fn save_world_meta(&self, time: Timestamp) -> Result<(), AnyError>;
 }
 
 
@@ -56,43 +68,61 @@ impl FileStorage {
 
 impl PersistentStorage for FileStorage {
 	
-	fn load_room(&self, id: RoomId) -> Result<SaveState> {
+	fn load_room(&self, id: RoomId) -> Result<SaveState, LoaderError> {
 		let mut path = self.directory.clone();
 		path.push("rooms");
 		let fname = id.to_string() + ".save.json";
 		path.push(fname);
-		let text = fs::read_to_string(path)?;
-		let json: Value = serde_json::from_str(&text)?;
-		let state = SaveState::from_json(&json)?;
+		let text = fs::read_to_string(path).map_err(|err| {
+			if err.kind() == ErrorKind::NotFound {
+				LoaderError::MissingResource(Box::new(err))
+			} else {
+				LoaderError::InvalidResource(Box::new(err))
+			}
+		})?;
+		let json: Value = inv!(serde_json::from_str(&text))?;
+		let state = inv!(SaveState::from_json(&json))?;
 		Ok(state)
 	}
 	
-	fn load_player(&self, id: PlayerId) -> Result<PlayerState> {
+	fn load_player(&self, id: PlayerId) -> Result<PlayerState, LoaderError> {
 		let mut path = self.directory.clone();
 		path.push("players");
 		let fname = id.to_string() + ".save.json";
 		path.push(fname);
-		let text = fs::read_to_string(path)?;
-		let json: Value = serde_json::from_str(&text)?;
-		let state = PlayerState::from_json(&json)?;
+		let text = fs::read_to_string(path).map_err(|err| {
+			if err.kind() == ErrorKind::NotFound {
+				LoaderError::MissingResource(Box::new(err))
+			} else {
+				LoaderError::InvalidResource(Box::new(err))
+			}
+		})?;
+		let json: Value = inv!(serde_json::from_str(&text))?;
+		let state = inv!(PlayerState::from_json(&json))?;
 		Ok(state)
 	}
 	
-	fn load_world_meta(&self) -> Result<Timestamp> {
+	fn load_world_meta(&self) -> Result<Timestamp, LoaderError> {
 		let mut path = self.directory.clone();
 		path.push("world.save.json");
-		let text = fs::read_to_string(path)?;
-		let json: Value = serde_json::from_str(&text)?;
+		let text = fs::read_to_string(path).map_err(|err| {
+			if err.kind() == ErrorKind::NotFound {
+				LoaderError::MissingResource(Box::new(err))
+			} else {
+				LoaderError::InvalidResource(Box::new(err))
+			}
+		})?;
+		let json: Value = inv!(serde_json::from_str(&text))?;
 		Ok(
 			Timestamp(
-				json
-					.get("steps").ok_or(aerr!("world data does not have steps"))?
-					.as_i64().ok_or(aerr!("timestamp not an int"))?
+				inv!(inv!(json
+					.get("steps").ok_or(aerr!("world data does not have steps")))?
+					.as_i64().ok_or(aerr!("timestamp not an int")))?
 			)
 		)
 	}
 	
-	fn save_room(&self, id: RoomId, state: SaveState) -> Result<()> {
+	fn save_room(&self, id: RoomId, state: SaveState) -> Result<(), AnyError> {
 		let mut path = self.directory.clone();
 		path.push("rooms");
 		fs::create_dir_all(&path)?;
@@ -103,7 +133,7 @@ impl PersistentStorage for FileStorage {
 		Ok(())
 	}
 	
-	fn save_player(&self, id: PlayerId, state: PlayerState) -> Result<()> {
+	fn save_player(&self, id: PlayerId, state: PlayerState) -> Result<(), AnyError> {
 		let mut path = self.directory.clone();
 		path.push("players");
 		fs::create_dir_all(&path)?;
@@ -114,7 +144,7 @@ impl PersistentStorage for FileStorage {
 		Ok(())
 	}
 	
-	fn save_world_meta(&self, time: Timestamp) -> Result<()> {
+	fn save_world_meta(&self, time: Timestamp) -> Result<(), AnyError> {
 		let mut path = self.directory.clone();
 		fs::create_dir_all(&path)?;
 		path.push("world.save.json");
@@ -123,7 +153,7 @@ impl PersistentStorage for FileStorage {
 	}
 }
 
-fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> Result<()> {
+fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> Result<(), AnyError> {
 	let temppath = path
 		.as_ref()
 		.with_file_name(

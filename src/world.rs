@@ -9,7 +9,7 @@ use crate::{
 	room::Room,
 	room,
 	worldloader::WorldLoader,
-	persistence::PersistentStorage,
+	persistence::{PersistentStorage, LoaderError},
 	playerstate::{PlayerState, RoomPos},
 	Encyclopedia,
 	controls::Control,
@@ -36,9 +36,18 @@ pub struct World<'a, 'b> {
 impl <'a, 'b>World<'a, 'b> {
 	
 	pub fn new(encyclopedia: Encyclopedia, template_loader: WorldLoader, persistence: Box<dyn PersistentStorage>, default_room: RoomId) -> Self {
+		let time = match persistence.load_world_meta() {
+			Ok(time) => {time}
+			Err(LoaderError::MissingResource(_)) => {
+				Timestamp(1000000)
+			}
+			Err(LoaderError::InvalidResource(err)) => {
+				panic!("Invalid world meta: {:?}", err)
+			}
+		};
 		World {
 			template_loader,
-			time: persistence.load_world_meta().unwrap_or(Timestamp(1000000)),
+			time,
 			persistence,
 			default_room,
 			encyclopedia: encyclopedia,
@@ -69,8 +78,12 @@ impl <'a, 'b>World<'a, 'b> {
 					room.load_from_template(&template)?;
 					room
 				};
-			if let Ok(state) = self.persistence.load_room(id.clone()){
-				room.load_saved(&state);
+			match self.persistence.load_room(id.clone()){
+				Ok(state) => {
+					room.load_saved(&state);
+				}
+				Err(LoaderError::MissingResource(_)) => {}
+				Err(LoaderError::InvalidResource(err)) => {return Err(err);}
 			}
 			let last_time = self.time - 1;
 			if room.get_time() < last_time {
@@ -91,11 +104,15 @@ impl <'a, 'b>World<'a, 'b> {
 	}
 	
 	pub fn add_player(&mut self, playerid: &PlayerId) -> Result<()> {
-		let mut state = self.persistence
-			.load_player(playerid.clone())
-			.unwrap_or_else(|_err| // todo: what if player exists but can't be loaded for another reason?
+		let mut state = match self.persistence.load_player(playerid.clone()) {
+			Ok(state) => {state}
+			Err(LoaderError::MissingResource(_)) => {
 				PlayerState::new(playerid.clone())
-			);
+			}
+			Err(LoaderError::InvalidResource(err)) => {
+				return Err(err)
+			}
+		};
 		state.id = playerid.clone();
 		if state.room == Some(purgatory::purgatory_id()){
 			state.respawn();
