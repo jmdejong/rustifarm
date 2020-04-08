@@ -94,7 +94,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 
 pub struct Room<'a, 'b> {
 	world: World,
-	dispatcher: Dispatcher<'a, 'b>,
+	dispatcher: Option<Dispatcher<'a, 'b>>,
 	pub id: RoomId,
 	places: HashMap<String, Pos>
 }
@@ -113,7 +113,7 @@ macro_rules! register_insert {
 
 impl <'a, 'b>Room<'a, 'b> {
 
-	pub fn new(id: RoomId, encyclopedia: Encyclopedia, dispatcher: Dispatcher<'a, 'b>) -> Room<'a, 'b> {
+	pub fn new(id: RoomId, encyclopedia: Encyclopedia, dispatcher: Option<Dispatcher<'a, 'b>>) -> Room<'a, 'b> {
 		let mut world = World::new();
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
@@ -152,20 +152,17 @@ impl <'a, 'b>Room<'a, 'b> {
 		Ok(())
 	}
 	
-	
-	pub fn create(id: RoomId, encyclopedia: &Encyclopedia, template: &RoomTemplate) -> Result<Room<'a, 'b>> {
-		let mut room = Self::new(id, encyclopedia.clone(), default_dispatcher());
-		room.load_from_template(template)?;
-		Ok(room)
-	}
-	
 	pub fn view(&self) -> HashMap<PlayerId, WorldMessage> {
 		self.world.fetch::<Output>().output.clone()
 	}
 	
-	pub fn update(&mut self, timestamp: Timestamp) {
+	pub fn update(&mut self, timestamp: Timestamp, default_dispatcher: &mut Dispatcher) {
 		self.world.fetch_mut::<Time>().time = timestamp;
-		self.dispatcher.dispatch(&self.world);
+		if let Some(dispatcher) = &mut self.dispatcher {
+			dispatcher.dispatch(&self.world);
+		} else {
+			default_dispatcher.dispatch(&self.world);
+		}
 		Create.run_now(&self.world);
 		Remove.run_now(&self.world);
 		self.world.maintain();

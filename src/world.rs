@@ -1,10 +1,13 @@
 
 use std::collections::HashMap;
 
+use specs::Dispatcher;
+
 use crate::{
 	PlayerId,
 	RoomId,
 	room::Room,
+	room,
 	worldloader::WorldLoader,
 	persistence::PersistentStorage,
 	playerstate::{PlayerState, RoomPos},
@@ -25,8 +28,10 @@ pub struct World<'a, 'b> {
 	rooms: HashMap<RoomId, Room<'a, 'b>>,
 	room_age: HashMap<RoomId, u32>,
 	encyclopedia: Encyclopedia,
-	time: Timestamp
+	time: Timestamp,
+	default_dispatcher: Dispatcher<'a, 'b>
 }
+
 
 impl <'a, 'b>World<'a, 'b> {
 	
@@ -39,7 +44,8 @@ impl <'a, 'b>World<'a, 'b> {
 			encyclopedia: encyclopedia,
 			players: HashMap::new(),
 			rooms: HashMap::new(),
-			room_age: HashMap::new()
+			room_age: HashMap::new(),
+			default_dispatcher: room::default_dispatcher()
 		}
 	}
 	
@@ -58,15 +64,17 @@ impl <'a, 'b>World<'a, 'b> {
 			let mut room: Room = if id == &purgatory::purgatory_id() {
 					purgatory::create_purgatory(&self.encyclopedia)
 				} else {
+					let mut room = Room::new(id.clone(), self.encyclopedia.clone(), None);
 					let template = self.template_loader.load_room(id.clone())?;
-					Room::create(id.clone(), &self.encyclopedia, &template)?
+					room.load_from_template(&template);
+					room
 				};
 			if let Ok(state) = self.persistence.load_room(id.clone()){
 				room.load_saved(&state);
 			}
 			let last_time = self.time - 1;
 			if room.get_time() < last_time {
-				room.update(last_time);
+				room.update(last_time, &mut self.default_dispatcher);
 			}
 			self.rooms.insert(id.clone(), room);
 		}
@@ -145,7 +153,7 @@ impl <'a, 'b>World<'a, 'b> {
 	pub fn update(&mut self) {
 		self.migrate();
 		for room in self.rooms.values_mut() {
-			room.update(self.time);
+			room.update(self.time, &mut self.default_dispatcher);
 		}
 		self.time.0 += 1;
 	}

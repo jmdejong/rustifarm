@@ -1,4 +1,5 @@
 
+
 use serde_json::json;
 use specs::{
 	DispatcherBuilder
@@ -30,7 +31,7 @@ pub fn create_purgatory<'a, 'b>(encyclopedia: &Encyclopedia) -> Room<'a, 'b> {
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Move, "move", &["controlinput", "controlai"])
 		.build();
-	let mut room = Room::new(purgatory_id(), encyclopedia.clone(), dispatcher);
+	let mut room = Room::new(purgatory_id(), encyclopedia.clone(), Some(dispatcher));
 	room.load_from_template(&RoomTemplate::from_json(&json!({
 		"width": 15,
 		"height": 20,
