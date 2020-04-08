@@ -124,13 +124,22 @@ fn main(){
 		for action in actions {
 			match action {
 				Action::Input(player, control) => {
-					let _ = world.control_player(player, control);
+					if let Err(err) = world.control_player(player.clone(), control){
+						println!("error controlling player {:?}: {:?}", player, err);
+					}
 				}
 				Action::Join(player) => {
-					world.add_player(&player).expect("can not add player");
+					if let Err(err) = world.add_player(&player) {
+						println!("Error: can not add player {:?}: {:?}", player, err);
+						if let Err(senderr) = gameserver.send_player_error(&player, "worlderror", "invalid room or savefile") {
+							println!("Error: can not send error message to {:?}: {:?}", player, senderr);
+						}
+					}
 				}
 				Action::Leave(player) => {
-					world.remove_player(&player).expect("can not remove player");
+					if let Err(err) = world.remove_player(&player) {
+						println!("Error: can not remove player {:?}: {:?}", player, err);
+					}
 					message_cache.remove(&player);
 				}
 			}
@@ -147,7 +156,9 @@ fn main(){
 				continue;
 			}
 // 			println!("m {}", message.to_json());
-			let _ = gameserver.send(&player, message.to_json());
+			if let Err(err) = gameserver.send(&player, message.to_json()) {
+				println!("Error: failed to send to {:?}: {:?}", player, err);
+			}
 		}
 		
 		count += 1;

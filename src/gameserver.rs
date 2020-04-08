@@ -93,6 +93,10 @@ impl GameServer {
 		}
 	}
 	
+	pub fn send_player_error(&mut self, player: &PlayerId, errname: &str, err_text: &str) -> Result<(), io::Error> {
+		self.send(player, json!(["error", errname, err_text]))
+	}
+	
 	fn handle_message(&mut self, (serverid, connectionid): (usize, usize), msg: Message) -> Option<Action> {
 		let id = (serverid, connectionid);
 		match msg {

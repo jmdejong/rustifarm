@@ -66,7 +66,7 @@ impl <'a, 'b>World<'a, 'b> {
 				} else {
 					let mut room = Room::new(id.clone(), self.encyclopedia.clone(), None);
 					let template = self.template_loader.load_room(id.clone())?;
-					room.load_from_template(&template);
+					room.load_from_template(&template)?;
 					room
 				};
 			if let Ok(state) = self.persistence.load_room(id.clone()){
@@ -96,6 +96,9 @@ impl <'a, 'b>World<'a, 'b> {
 			.unwrap_or_else(|_err| // todo: what if player exists but can't be loaded for another reason?
 				PlayerState::new(playerid.clone())
 			);
+		if &state.id != playerid {
+			return Err(aerr!("Player ids do not match. Wanted {:?}, got {:?}", playerid, state.id));
+		}
 		if state.room == Some(purgatory::purgatory_id()){
 			state.respawn();
 		}
