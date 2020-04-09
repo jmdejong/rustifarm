@@ -22,8 +22,8 @@ impl <'a> System<'a> for Remove {
 	
 	fn run(&mut self, (entities, removals, positions, mut ground): Self::SystemData) {
 		for (ent, _) in (&*entities, &removals, ).join() {
-			if let Err(msg) = entities.delete(ent){
-				println!("{:?}", msg);
+			if let Err(err) = entities.delete(ent){
+				println!("error deleting entity: {:?}", err);
 			}
 			if let Some(position) = positions.get(ent) {
 				ground.remove(&position.pos, ent);

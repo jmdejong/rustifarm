@@ -159,7 +159,6 @@ impl Encyclopedia {
 	
 	pub fn construct(&self, template: &Template) -> Result<PreEntity> {
 		if let Some(new_name) = self.assemblage_substitute.get(&template.name){
-			println!("substituting {:?} with {:?}", template.name, new_name);
 			let mut into = template.clone();
 			into.name = new_name.clone();
 			return self.construct(&into);

@@ -51,8 +51,8 @@ impl <'a> System<'a> for Take {
 					for ent in ents {
 						if let Some(item) = items.get(ent) {
 							inventory.add_item(item.0.clone(), &new.encyclopedia);
-							if let Err(msg) = removed.insert(ent, Removed) {
-								println!("{:?}", msg);
+							if let Err(err) = removed.insert(ent, Removed) {
+								println!("error removing entity: {}", err);
 							}
 							break;
 						}
