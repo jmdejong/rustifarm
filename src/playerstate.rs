@@ -103,7 +103,7 @@ impl PlayerState {
 
 	pub fn from_json(val: &Value) -> PResult<Self> {
 		let inventory = val.get("inventory").ok_or(perr!("player json does not have inventory"))?;
-		let items = 
+		let mut items = 
 			inventory
 			.get("items")
 			.ok_or(perr!("inventory does not have items"))?
@@ -111,23 +111,45 @@ impl PlayerState {
 			.ok_or(perr!("inventory items not an array"))?
 			.iter()
 			.map(|entry| {
-				let itemid = ItemId(
-					entry
-					.get(0)
-					.ok_or(perr!("item does not have name"))?
-					.as_str()
-					.ok_or(perr!("item name not a string"))?
-					.to_string()
-				);
-				let is_equipped =
-					entry
-					.get(1)
-					.ok_or(perr!("item does not have equipped flag"))?
-					.as_bool()
-					.ok_or(perr!("item is_equipped not a bool"))?;
-				Ok((itemid, is_equipped))
+				if entry.is_array() {
+					let itemid = ItemId(
+						entry
+						.get(0)
+						.ok_or(perr!("item does not have name"))?
+						.as_str()
+						.ok_or(perr!("item name not a string"))?
+						.to_string()
+					);
+					let is_equipped =
+						entry
+						.get(1)
+						.ok_or(perr!("item does not have equipped flag"))?
+						.as_bool()
+						.ok_or(perr!("item is_equipped not a bool"))?;
+					Ok((itemid, is_equipped))
+				} else if entry.is_string() {
+					Ok((ItemId(entry.as_str().unwrap().to_string()), false))
+				} else {
+					Err(perr!("item entry must be a string or array, not {:?}", entry))
+				}
 			})
 			.collect::<PResult<Vec<(ItemId, bool)>>>()?;
+		if let Some(equipment) = val.get("equipment") {
+			for (slot, item) in equipment.as_object().ok_or(perr!("equipment not a json object: {:?}", equipment))?.iter() {
+				if item.is_null(){
+					continue
+				}
+				let itemid = ItemId(
+					item
+					.as_str()
+					.ok_or(perr!("equipment item not a string: {:?}", item))?
+					.to_string()
+				);
+				// validate the slot, but don't do anything with it
+				Slot::from_str(slot).ok_or(perr!("invalid slot: {:?}", slot))?;
+				items.push((itemid, true))
+			}
+		}
 		Ok(Self {
 			id: PlayerId{name: val.get("name").ok_or(perr!("player json does not have name"))?.as_str().ok_or(perr!("player name not a string"))?.to_string()},
 			room: match val.get("roomname").ok_or(perr!("player json does not have room name"))? {
