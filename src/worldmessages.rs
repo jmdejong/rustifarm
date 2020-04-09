@@ -68,7 +68,7 @@ pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
 pub type HealthMessage = (i64, i64);
 pub type InventoryMessage = Vec<(String, bool)>;
 pub type GroundMessage = Vec<String>;
-pub type SoundMessage = Vec<(Option<String>, String)>;
+pub type SoundMessage = Vec<(String, String)>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct FieldMessage {

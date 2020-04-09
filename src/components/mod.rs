@@ -23,7 +23,7 @@ pub use flags::{
 	Flags
 };
 pub use ear::{
-	Sound,
+	Notification,
 	Ear
 };
 

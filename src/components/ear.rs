@@ -2,23 +2,96 @@
 use specs::{
 	HashMapStorage,
 	Component,
+	Entity,
+	WriteStorage
 };
 
 
 #[derive(Debug, Clone)]
-pub struct Sound {
-	pub source: Option<String>,
-	pub text: String
+pub enum HealthNotification {
+	Attack,
+	Damage,
+	Heal
 }
 
-impl Sound {
-	pub fn as_message(self) -> (Option<String>, String) {
-		(None, format!("{}: {}", self.source.unwrap_or("".to_string()), self.text))
+use HealthNotification::*;
+
+#[derive(Debug, Clone)]
+pub enum Notification {
+	Sound{
+		source: Option<String>,
+		text: String
+	},
+	Health {
+		actor: String,
+		target: String,
+		amount: i64,
+		typ: HealthNotification
+	},
+	Kill {
+		actor: String,
+		target: String
+	},
+	Die {
+		actor: String,
+		target: String
+	}
+}
+
+use Notification::*;
+
+
+impl Notification {
+	
+	
+	pub fn type_name(&self) -> String {
+		(match self {
+			Sound{source: _, text: _} => "sound",
+			Health{actor: _, target: _, amount: _, typ} => match typ {
+				Attack => "attack",
+				Damage => "damage",
+				Heal => "heal"
+			},
+			Kill{actor: _, target: _} => "kill",
+			Die{actor: _, target: _} => "die"
+		}).to_string()
+	}
+	
+	pub fn as_message(&self) -> (String, String) {
+		let body = match self {
+			Sound{source, text} => {
+				if let Some(name) = &source {
+					format!("{}: {}", name, &text)
+				} else {
+					text.clone()
+				}
+			}
+			Health{actor, target, amount, typ} => {
+				match typ {
+					Attack | Damage => format!("{} attacks {} for {} damage", actor, target, amount),
+					Heal => format!("{} heals {} for {} health", actor, target, amount)
+				}
+			},
+			Kill{actor, target} => {
+				format!("{} kills {}", actor, target)
+			},
+			Die{actor, target} => {
+				format!("{} was killed by {}", target, actor)
+			}
+		};
+		(self.type_name(), body)
 	}
 }
 
 #[derive(Component, Debug, Clone, Default)]
 #[storage(HashMapStorage)]
 pub struct Ear{
-	pub sounds: Vec<Sound>
+	pub sounds: Vec<Notification>
 }
+
+pub fn say(ears: &mut WriteStorage<Ear>, ent: Entity, msg: Notification){
+	if let Some(ear) = ears.get_mut(ent) {
+		ear.sounds.push(msg);
+	}
+}
+

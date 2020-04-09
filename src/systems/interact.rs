@@ -17,9 +17,10 @@ use crate::{
 		ControlCooldown,
 		Interactable,
 		Dead,
-		Sound,
+		Notification,
 		Ear,
-		Inventory
+		Inventory,
+		Visible
 	},
 	controls::{Control},
 	resources::{Ground, NewEntities}
@@ -37,10 +38,11 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, Dead>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Ear>,
-		WriteStorage<'a, Inventory>
+		WriteStorage<'a, Inventory>,
+		ReadStorage<'a, Visible>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, new, mut ears, mut inventories): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, new, mut ears, mut inventories, visibles): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(entity);
@@ -61,15 +63,16 @@ impl <'a> System<'a> for Interact {
 				_ => {}
 			}
 			if let Some((ent, interactable, arg)) = target {
+				let name = visibles.get(ent).map(|v| v.name.as_str());
 				match interactable {
 					Interactable::Harvest => {
 						deads.insert(ent, Dead).unwrap();
 					}
 					Interactable::Say(text) => {
-						say(ear, text.clone());
+						say(ear, text.clone(), name);
 					}
 					Interactable::Reply(text) => {
-						say(ear, text.replace("{}", &arg.unwrap()));
+						say(ear, text.replace("{}", &arg.unwrap()), name);
 					}
 					Interactable::Exchange(prefix, exchanges) => {
 						if let Some(txt) = arg {
@@ -79,19 +82,22 @@ impl <'a> System<'a> for Interact {
 									if let Some(exchange) = exchanges.get(action) {
 										if exchange.can_trade(inventory){
 											exchange.trade(inventory, &new.encyclopedia);
-											say(ear, format!("Success! '{}' ({})", txt, exchange.show()));
+											say(ear, format!("Success! '{}' ({})", txt, exchange.show()), name);
 										} else {
-											say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()));
+											say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()), name);
 										}
 									} else {
-										say(ear, format!("Invalid option: {}", action));
+										say(ear, format!("Invalid option: {}", action), name);
 									}
 								}
 							}
 						} else {
-							say(ear, format!("options: {:?}", exchanges.iter().map(|(id, exchange)| 
+							say(
+								ear,
+								format!("options: {:?}", exchanges.iter().map(|(id, exchange)| 
 									format!("{}{}: {}", prefix, id, exchange.show())
-								).collect::<Vec<String>>())
+								).collect::<Vec<String>>()),
+								name
 							);
 						}
 					}
@@ -102,8 +108,8 @@ impl <'a> System<'a> for Interact {
 	}
 }
 
-fn say(maybe_ear: Option<&mut Ear>, text: String){
+fn say(maybe_ear: Option<&mut Ear>, text: String, source: Option<&str>){
 	if let Some(ear) = maybe_ear {
-		ear.sounds.push(Sound{source: None, text});
+		ear.sounds.push(Notification::Sound{text, source: source.map(|s| s.to_string())});
 	}
 }
