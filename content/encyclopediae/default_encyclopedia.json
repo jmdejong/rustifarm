@@ -416,7 +416,9 @@
 	"templates":{
 		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],
 		"carrotseedling": ["seedling", {"delay": 60, "next": "youngcarrotplant"}],
-		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}],
-		"radishes": ["radish", {}]
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}]
+	},
+	"substitute": {
+		"radishes": "radish"
 	}
 }

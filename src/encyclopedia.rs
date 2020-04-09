@@ -19,7 +19,9 @@ use crate::{
 #[derive(Default, Clone)]
 pub struct Encyclopedia {
 	assemblages: HashMap<EntityType, Assemblage>,
-	items: HashMap<ItemId, Item>
+	items: HashMap<ItemId, Item>,
+	assemblage_substitute: HashMap<EntityType, EntityType>,
+	item_substitute: HashMap<ItemId, ItemId>,
 }
 
 impl Encyclopedia {
@@ -101,9 +103,51 @@ impl Encyclopedia {
 			assemblages.insert(EntityType(name.to_string()), assemblage);
 		}
 		
+		let assemblage_substitute = val
+			.get("assemblage_substitute")
+			.unwrap_or(&json!({}))
+			.as_object().ok_or(perr!("assemblage_subtitutions not a json dict"))?
+			.iter()
+			.chain(
+				val
+				.get("substitute")
+				.unwrap_or(&json!({}))
+				.as_object().ok_or(perr!("substitutions not a json dict"))?
+				.iter()
+			)
+			.map(|(from, into)| {
+				Ok((
+					EntityType(from.to_string()),
+					EntityType(into.as_str().ok_or(perr!("substitution value not a string: {:?}", into))?.to_string())
+				))
+			})
+			.collect::<PResult<HashMap<EntityType, EntityType>>>()?;
+		
+		let item_substitute = val
+			.get("assemblage_substitute")
+			.unwrap_or(&json!({}))
+			.as_object().ok_or(perr!("assemblage_subtitutions not a json dict"))?
+			.iter()
+			.chain(
+				val
+				.get("substitute")
+				.unwrap_or(&json!({}))
+				.as_object().ok_or(perr!("substitutions not a json dict"))?
+				.iter()
+			)
+			.map(|(from, into)| {
+				Ok((
+					ItemId(from.to_string()),
+					ItemId(into.as_str().ok_or(perr!("substitution value not a string: {:?}", into))?.to_string())
+				))
+			})
+			.collect::<PResult<HashMap<ItemId, ItemId>>>()?;
+		
 		Ok(Encyclopedia{
 			assemblages,
-			items
+			items,
+			assemblage_substitute,
+			item_substitute
 		})
 	}
 	
@@ -115,6 +159,12 @@ impl Encyclopedia {
 	}
 	
 	pub fn construct(&self, template: &Template) -> Result<PreEntity> {
+		if let Some(new_name) = self.assemblage_substitute.get(&template.name){
+			println!("substituting {:?} with {:?}", template.name, new_name);
+			let mut into = template.clone();
+			into.name = new_name.clone();
+			return self.construct(&into);
+		}
 		let assemblage = self.assemblages
 			.get(&template.name)
 			.ok_or(aerr!("unknown assemblage name: '{:?}' in {:?}", template.name, template))?;
@@ -122,7 +172,12 @@ impl Encyclopedia {
 	}
 	
 	pub fn get_item(&self, id: &ItemId) -> Option<Item> {
-		self.items.get(id).map(|item| item.clone())
+		let actual_id = if let Some(into) = self.item_substitute.get(id) {
+				into
+			} else {
+				id
+			};
+		self.items.get(actual_id).map(|item| item.clone())
 	}
 }
 
