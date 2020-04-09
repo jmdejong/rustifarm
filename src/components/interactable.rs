@@ -6,7 +6,6 @@ use specs::{
 	HashMapStorage
 };
 use crate::{
-	Template,
 	exchange::Exchange,
 	ItemId
 };
@@ -15,7 +14,6 @@ use crate::{
 #[storage(HashMapStorage)]
 pub enum Interactable {
 	Harvest,
-	Change(Template),
 	Say(String),
 	Reply(String),
 	Exchange(String, HashMap<String, Exchange>)
@@ -29,7 +27,6 @@ impl Interactable {
 		let arg = if val.is_string() {&Value::Null} else {val.get(1)?};
 		Some(match typ.as_str()? {
 			"harvest" => Harvest,
-			"change" => Change(Template::from_json(arg).ok()?),
 			"say" => Say(arg.as_str()?.to_string()),
 			"reply" => Reply(arg.as_str()?.to_string()),
 			"exchange" => Exchange(
@@ -53,7 +50,6 @@ impl Interactable {
 	pub fn accepts_arg(&self, arg: &Option<String>) -> bool {
 		match self {
 			Harvest => arg.is_none(),
-			Change(_) => arg.is_none(),
 			Say(_) => arg.is_none(),
 			Reply(_) => arg.is_some(),
 			Exchange(prefix, _exchanges) => {

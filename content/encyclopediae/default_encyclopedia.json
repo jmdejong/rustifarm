@@ -90,7 +90,8 @@
 			"arguments": [["health", "int", 100]],
 			"components": [
 				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-				"Mortal"
+				"Mortal",
+				["Loot", {"loot": ["list", [{"type": "stone"}]]}]
 			],
 			"sprite": "wall",
 			"height": 2,
@@ -286,7 +287,9 @@
 			"height": 2,
 			"flags": ["Blocking"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["change", {"type": "opendoor", "save": false}]]}]
+				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Loot", {"loot": ["list", [{"type": "opendoor", "save": false}]]}],
+				"Mortal"
 			]
 		},
 		"opendoor": {
@@ -294,7 +297,9 @@
 			"height": 0.8,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["change", {"type": "closeddoor", "save": false}]]}]
+				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Loot", {"loot": ["list", [{"type": "closeddoor", "save": false}]]}],
+				"Mortal"
 			]
 		},
 		"sign": {

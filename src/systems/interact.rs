@@ -17,7 +17,6 @@ use crate::{
 		ControlCooldown,
 		Interactable,
 		Dead,
-		Removed,
 		Sound,
 		Ear,
 		Inventory
@@ -36,13 +35,12 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, ControlCooldown>,
 		ReadStorage<'a, Interactable>,
 		WriteStorage<'a, Dead>,
-		WriteStorage<'a, Removed>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Ear>,
 		WriteStorage<'a, Inventory>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, mut removeds, mut new, mut ears, mut inventories): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, new, mut ears, mut inventories): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(entity);
@@ -53,7 +51,7 @@ impl <'a> System<'a> for Interact {
 						for ent in ground.cells.get(&pos).unwrap_or(&HashSet::new()) {
 							if let Some(interactable) = interactables.get(*ent) {
 								if interactable.accepts_arg(arg){
-									target = Some((*ent, interactable, pos, arg.clone()));
+									target = Some((*ent, interactable, arg.clone()));
 									break 'targets;
 								}
 							}
@@ -62,14 +60,10 @@ impl <'a> System<'a> for Interact {
 				}
 				_ => {}
 			}
-			if let Some((ent, interactable, pos, arg)) = target {
+			if let Some((ent, interactable, arg)) = target {
 				match interactable {
 					Interactable::Harvest => {
 						deads.insert(ent, Dead).unwrap();
-					}
-					Interactable::Change(into) => {
-						new.create(pos, into).unwrap();
-						removeds.insert(ent, Removed).unwrap();
 					}
 					Interactable::Say(text) => {
 						say(ear, text.clone());
