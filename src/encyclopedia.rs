@@ -142,7 +142,6 @@ impl Encyclopedia {
 				))
 			})
 			.collect::<PResult<HashMap<ItemId, ItemId>>>()?;
-		
 		Ok(Encyclopedia{
 			assemblages,
 			items,
@@ -178,6 +177,14 @@ impl Encyclopedia {
 				id
 			};
 		self.items.get(actual_id).map(|item| item.clone())
+	}
+	
+	pub fn substitute_item(&self, id: &ItemId) -> ItemId {
+		if let Some(into) = self.item_substitute.get(id) {
+			into.clone()
+		} else {
+			id.clone()
+		}
 	}
 }
 

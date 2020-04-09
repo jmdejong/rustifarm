@@ -404,6 +404,14 @@
 			"slot": "hand",
 			"stats": {"strength": 5}
 		}]},
+		"eldritch_sword": {
+			"sprite": "sword",
+			"name": "eldritch sword",
+			"action": ["equip", {
+				"slot": "hand",
+				"stats": {"strength": 500}
+			}]
+		},
 		"club": {"action": ["equip", {
 			"slot": "hand",
 			"stats": {"strength": 3}

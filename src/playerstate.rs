@@ -1,8 +1,6 @@
 
-use std::collections::HashMap;
 use serde_json::{Value, json};
 use crate::{
-	Template,
 	componentwrapper::{ComponentWrapper, PreEntity},
 	PlayerId,
 	RoomId,
@@ -28,7 +26,6 @@ use crate::{
 	Sprite,
 	Encyclopedia,
 	Pos,
-	hashmap,
 	PResult,
 	perr
 };
@@ -49,8 +46,7 @@ pub struct PlayerState {
 	pub inventory_capacity: usize,
 	pub inventory: Vec<(ItemId, bool)>,
 	pub health: i64,
-	pub maximum_health: i64,
-	pub equipment: HashMap<Slot, Option<Template>>
+	pub maximum_health: i64
 }
 
 impl PlayerState {
@@ -63,12 +59,11 @@ impl PlayerState {
 			inventory: Vec::new(),
 			inventory_capacity: 10,
 			health: 25,
-			maximum_health: 50,
-			equipment: hashmap!(Slot::Hand => None, Slot::Body => None)
+			maximum_health: 50
 		}
 	}
 
-	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<(ItemId, bool)>, inventory_capacity: usize, health: i64, maximum_health: i64, equipment: HashMap<Slot, Option<Template>>) -> Self {
+	pub fn create(id: PlayerId, room: RoomId, inventory: Vec<(ItemId, bool)>, inventory_capacity: usize, health: i64, maximum_health: i64) -> Self {
 		Self {
 			id,
 			room: Some(room),
@@ -76,8 +71,7 @@ impl PlayerState {
 			inventory,
 			health,
 			inventory_capacity,
-			maximum_health,
-			equipment
+			maximum_health
 		}
 	}
 
@@ -89,15 +83,9 @@ impl PlayerState {
 				None => json!(null)
 			},
 			"inventory": {
-				"capacity": self.inventory_capacity,
 				"items": self.inventory.iter().map(|(item, e)| (json!(item.0), *e)).collect::<Vec<(Value, bool)>>()
 			},
-			"equipment": {
-				"hand": null,
-				"body": null
-			},
-			"health": self.health,
-			"maxhealth": self.maximum_health
+			"health": self.health
 		})
 	}
 
@@ -159,9 +147,8 @@ impl PlayerState {
 			pos: RoomPos::Unknown,
 			inventory: items,
 			health: val.get("health").ok_or(perr!("player json does not have health"))?.as_i64().ok_or(perr!("player health not a number"))?,
-			inventory_capacity: inventory.get("capacity").ok_or(perr!("inventory does not have capacity"))?.as_i64().ok_or(perr!("inventory capacity not a number"))? as usize,
-			maximum_health: val.get("maxhealth").ok_or(perr!("player json does not have maxhealth"))?.as_i64().ok_or(perr!("maxhealth not a number"))?,
-			equipment: HashMap::new()
+			inventory_capacity: 12,
+			maximum_health: 50,
 		})
 	}
 	
@@ -177,8 +164,9 @@ impl PlayerState {
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map( |(itemid, is_equipped)| {
-						let item = encyclopedia.get_item(itemid).ok_or(aerr!("failed to load item '{:?} in inventory of player {:?}", itemid, self))?;
-					Ok(InventoryEntry{itemid: itemid.clone(), item, is_equipped: *is_equipped})
+						let id = encyclopedia.substitute_item(itemid);
+						let item = encyclopedia.get_item(&id).ok_or(aerr!("failed to load item '{:?} in inventory of player {:?}", itemid, self))?;
+					Ok(InventoryEntry{itemid: id, item, is_equipped: *is_equipped})
 				}).collect::<Result<Vec<InventoryEntry>>>()?,
 				capacity: self.inventory_capacity
 			}),

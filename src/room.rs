@@ -249,8 +249,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			inventory.items.iter().map(|entry| (entry.itemid.clone(), entry.is_equipped)).collect(),
 			inventory.capacity,
 			health.health,
-			health.maxhealth,
-			HashMap::new()
+			health.maxhealth
 		))
 	}
 	
