@@ -7,7 +7,7 @@ To join the game you need the [asciifarm client](https://github.com/jmdejong/asc
 
 ## About Asciifarm
 
-![asciifarm screenshot](Screenshot_2020-04-12_11-31-20.png)
+![asciifarm screenshot](img/Screenshot_2020-04-12_11-31-20.png)
 
 Asciifarm is a multiplayer RPG/farming game that is played in the terminal.
 
