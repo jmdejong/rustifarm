@@ -186,9 +186,6 @@ pub struct Home {
 	pub home: Pos
 }
 
-#[derive(Component, Debug, Clone, Default)]
-pub struct Mortal;
-
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Spawner {

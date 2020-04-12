@@ -164,7 +164,6 @@ components!(
 	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int);
-	Mortal;
 	Spawner (amount: Int, delay: Int, clan: String, template: Template, initial_spawn: Bool) {
 		Spawner{
 			amount: amount as usize,

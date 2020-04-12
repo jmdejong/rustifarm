@@ -90,7 +90,6 @@
 			"arguments": [["health", "int", 100]],
 			"components": [
 				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-				"Mortal",
 				["Loot", {"loot": ["list", [{"type": "stone"}]]}]
 			],
 			"sprite": "builtwall",
@@ -108,8 +107,7 @@
 			"sprite": "dummy",
 			"height": 1,
 			"components": [
-				["Health", {"health": ["arg", "health"], "maxhealth": 20}],
-				"Mortal"
+				["Health", {"health": ["arg", "health"], "maxhealth": 20}]
 			]
 		},
 		"wound": {
@@ -130,7 +128,6 @@
 				["Health", {"health": 8, "maxhealth": 8}],
 				["Fighter", {"damage": 2, "cooldown": 6}],
 				["Movable", {"cooldown": 3}],
-				"Mortal",
 				["Faction", {"faction": "evil"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 1.0]]
@@ -149,7 +146,6 @@
 				["Health", {"health": 15, "maxhealth": 15}],
 				["Fighter", {"damage": 5, "cooldown": 8}],
 				["Movable", {"cooldown": 4}],
-				"Mortal",
 				["Faction", {"faction": "evil"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "sword"}, 0.05]],
@@ -170,7 +166,6 @@
 				["Health", {"health": 75, "maxhealth": 75}],
 				["Fighter", {"damage": 15, "cooldown": 10}],
 				["Movable", {"cooldown": 5}],
-				"Mortal",
 				["Faction", {"faction": "evil"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "stone"}, 1.0]],
@@ -221,7 +216,6 @@
 			"height": 0.5,
 			"components": [
 				["Interactable", {"action": ["interaction", "harvest"]}],
-				"Mortal",
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
@@ -288,8 +282,7 @@
 			"flags": ["Blocking"],
 			"components": [
 				["Interactable", {"action": ["interaction", "harvest"]}],
-				["Loot", {"loot": ["list", [{"type": "opendoor", "save": false}]]}],
-				"Mortal"
+				["Loot", {"loot": ["list", [{"type": "opendoor", "save": false}]]}]
 			]
 		},
 		"opendoor": {
@@ -298,8 +291,7 @@
 			"flags": ["Occupied"],
 			"components": [
 				["Interactable", {"action": ["interaction", "harvest"]}],
-				["Loot", {"loot": ["list", [{"type": "closeddoor", "save": false}]]}],
-				"Mortal"
+				["Loot", {"loot": ["list", [{"type": "closeddoor", "save": false}]]}]
 			]
 		},
 		"sign": {
@@ -388,7 +380,6 @@
 			"height": 1.0,
 			"components": [
 				["Interactable", {"action": ["interaction", "harvest"]}],
-				"Mortal",
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "carrotseed"}, 1.0]],
 					["list", [{"type": "carrot"}, 1.0]]
