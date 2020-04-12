@@ -16,7 +16,8 @@ use crate::{
 		Position,
 		ControlCooldown,
 		Interactable,
-		Dead,
+		Trigger,
+		TriggerBox,
 		Notification,
 		Ear,
 		Inventory,
@@ -35,14 +36,14 @@ impl <'a> System<'a> for Interact {
 		Read<'a, Ground>,
 		WriteStorage<'a, ControlCooldown>,
 		ReadStorage<'a, Interactable>,
-		WriteStorage<'a, Dead>,
+		WriteStorage<'a, TriggerBox>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Ear>,
 		WriteStorage<'a, Inventory>,
 		ReadStorage<'a, Visible>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut deads, new, mut ears, mut inventories, visibles): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(entity);
@@ -66,7 +67,7 @@ impl <'a> System<'a> for Interact {
 				let name = visibles.get(ent).map(|v| v.name.as_str());
 				match interactable {
 					Interactable::Harvest => {
-						deads.insert(ent, Dead).unwrap();
+						TriggerBox::add_message(&mut triggerbox, ent, Trigger::Die);
 					}
 					Interactable::Say(text) => {
 						say(ear, text.clone(), name);

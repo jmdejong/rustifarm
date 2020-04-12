@@ -65,3 +65,22 @@ pub struct AttackMessage {
 impl Message for AttackMessage {}
 
 pub type AttackInbox = Inbox<AttackMessage>;
+
+
+
+
+
+
+
+
+#[derive(Debug, Clone)]
+pub enum Trigger {
+	Loot,
+	Die,
+	Remove
+}
+impl Message for Trigger {}
+
+pub type TriggerBox = Inbox<Trigger>;
+
+

@@ -11,7 +11,9 @@ pub mod ear;
 pub use messages::{
 	AttackMessage,
 	AttackInbox,
-	AttackType
+	AttackType,
+	Trigger,
+	TriggerBox
 };
 pub use faction::Faction;
 pub use interactable::Interactable;
@@ -124,10 +126,6 @@ pub struct RoomExit {
 #[derive(Default, Component, Debug, Clone)]
 #[storage(NullStorage)]
 pub struct Entered;
-
-#[derive(Default, Component, Debug, Clone)]
-#[storage(NullStorage)]
-pub struct Dead;
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]

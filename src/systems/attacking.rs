@@ -15,7 +15,8 @@ use crate::{
 		Health,
 		AttackInbox,
 		AttackType,
-		Dead,
+		Trigger,
+		TriggerBox,
 		Position,
 		Autofight,
 		Ear,
@@ -34,14 +35,14 @@ impl <'a> System<'a> for Attacking {
 		Entities<'a>,
 		WriteStorage<'a, AttackInbox>,
 		WriteStorage<'a, Health>,
-		WriteStorage<'a, Dead>,
+		WriteStorage<'a, TriggerBox>,
 		ReadStorage<'a, Position>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Autofight>,
 		WriteStorage<'a, Ear>,
 		ReadStorage<'a, Visible>
 	);
-	fn run(&mut self, (entities, mut attackeds, mut healths, mut deads, positions, mut new, mut autofighters, mut ears, visibles): Self::SystemData) {
+	fn run(&mut self, (entities, mut attackeds, mut healths, mut triggerboxes, positions, mut new, mut autofighters, mut ears, visibles): Self::SystemData) {
 		
 		for (entity, attacked, autofighter) in (&entities, &attackeds, &mut autofighters).join() {
 			for attack in &attacked.messages {
@@ -83,7 +84,7 @@ impl <'a> System<'a> for Attacking {
 			}
 			health.health = util::clamp(health.health, 0, health.maxhealth);
 			if health.health == 0 {
-				deads.insert(target, Dead).unwrap();
+				TriggerBox::add_message(&mut triggerboxes, target, Trigger::Die);
 				let killers = attacker_names.join(" and ");
 				say(&mut ears, target, Notification::Die{actor: killers.clone(), target: target_name.clone()});
 				for actor in attackers {
