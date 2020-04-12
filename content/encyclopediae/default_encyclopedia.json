@@ -93,7 +93,7 @@
 				"Mortal",
 				["Loot", {"loot": ["list", [{"type": "stone"}]]}]
 			],
-			"sprite": "wall",
+			"sprite": "builtwall",
 			"height": 2,
 			"extract": {"health": ["Health", "health"]},
 			"flags": ["Blocking"]

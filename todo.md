@@ -1,7 +1,7 @@
 
 # TODO
 
-- make readme
+- document assemblage and room definition
 - more tests
 - visitors
 - improved tutorial
