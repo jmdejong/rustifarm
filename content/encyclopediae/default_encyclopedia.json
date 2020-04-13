@@ -226,7 +226,7 @@
 			"flags": ["Occupied"]
 		},
 		"plantedradishseed": {
-			"arguments": [["target_time", "int", 0]],
+			"arguments": [["target_time", "int", -1]],
 			"sprite": "seed",
 			"height": 0.05,
 			"name": "seed",
@@ -244,7 +244,7 @@
 			"flags": ["Occupied"]
 		},
 		"radishseedling": {
-			"arguments": [["target_time", "int", 0]],
+			"arguments": [["target_time", "int", -1]],
 			"sprite": "seedling",
 			"height": 0.05,
 			"name": "seedling",
@@ -262,7 +262,7 @@
 			"flags": ["Occupied"]
 		},
 		"youngradishplant": {
-			"arguments": [["target_time", "int", 0]],
+			"arguments": [["target_time", "int", -1]],
 			"sprite": "youngplant",
 			"height": 0.8,
 			"name": "youngradishplant",
@@ -325,7 +325,7 @@
 			]
 		},
 		"plantedseed": {
-			"arguments": [["target_time", "int", 0], ["next", "template"], ["delay", "int"]],
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["delay", "int"]],
 			"sprite": "seed",
 			"height": 0.05,
 			"name": "plantedseed",
@@ -343,7 +343,7 @@
 			"flags": ["Occupied"]
 		},
 		"seedling": {
-			"arguments": [["target_time", "int", 0], ["next", "template"], ["delay", "int"]],
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["delay", "int"]],
 			"sprite": "seed",
 			"height": 0.09,
 			"name": "seedling",
@@ -361,7 +361,7 @@
 			"flags": ["Occupied"]
 		},
 		"youngplant": {
-			"arguments": [["target_time", "int", 0], ["next", "template"], ["crop", "string"], ["delay", "int"]],
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["crop", "string"], ["delay", "int"]],
 			"components": [
 				["Grow", {
 					"delay": ["arg", "delay"],

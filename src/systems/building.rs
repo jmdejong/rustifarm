@@ -13,7 +13,7 @@ use crate::{
 		Build,
 		Trigger,
 		TriggerBox,
-		OwnTime
+		TimeOffset
 	},
 	resources::{NewEntities},
 };
@@ -26,18 +26,18 @@ impl <'a> System<'a> for Building{
 		Write<'a, NewEntities>,
 		ReadStorage<'a, TriggerBox>,
 		ReadStorage<'a, Build>,
-		ReadStorage<'a, OwnTime>
+		ReadStorage<'a, TimeOffset>
 	);
 	
-	fn run(&mut self, (positions, mut new, triggerboxes, builds, own_times): Self::SystemData) {
-		for (position, triggerbox, build, own_time) in (&positions, &triggerboxes, &builds, (&own_times).maybe()).join(){
+	fn run(&mut self, (positions, mut new, triggerboxes, builds, time_offsets): Self::SystemData) {
+		for (position, triggerbox, build, time_offset) in (&positions, &triggerboxes, &builds, (&time_offsets).maybe()).join(){
 			for message in triggerbox.messages.iter() {
 				match message {
 					Trigger::Build | Trigger::Change => {
 						// todo: better error handling
 						let mut preent = new.encyclopedia.construct(&build.obj).unwrap();
-						if let Some(time) = own_time {
-							preent.push(ComponentWrapper::OwnTime(time.clone()));
+						if let Some(time) = time_offset {
+							preent.push(ComponentWrapper::TimeOffset(time.clone()));
 						}
 						new.to_build.push((position.pos, preent));
 					}

@@ -12,7 +12,7 @@ use specs::{
 use crate::{
 	components::{
 		Grow,
-		OwnTime,
+		TimeOffset,
 		TriggerBox
 	},
 	resources::{Time}
@@ -26,22 +26,25 @@ impl <'a> System<'a> for Growth{
 		WriteStorage<'a, Grow>,
 		WriteStorage<'a, TriggerBox>,
 		Read<'a, Time>,
-		WriteStorage<'a, OwnTime>
+		WriteStorage<'a, TimeOffset>
 	);
 	
-	fn run(&mut self, (entities, mut grows, mut triggerboxes, time, mut own_times): Self::SystemData) {
+	fn run(&mut self, (entities, mut grows, mut triggerboxes, time, mut time_offsets): Self::SystemData) {
 		for (entity, grow) in (&entities, &mut grows).join(){
 			if grow.target_time == None {
-				let creation_time = own_times.get(entity).map(|ct| ct.time).unwrap_or(time.time);
+				let creation_time = time.time + time_offsets.get(entity).map(|ct| ct.dtime).unwrap_or(0);
 				let duration = grow.delay as f64 * (1.0 + rand::random::<f64>()) / (if rand::random() {1.0} else {2.0});
 				grow.target_time = Some(creation_time + duration as i64);
 			}
 			let target_time = grow.target_time.unwrap();
 			if target_time <= time.time {
-				if target_time + 1 < time.time {
-					own_times.insert(entity, OwnTime{time: target_time + 1}).unwrap();
+				if target_time < time.time {
+					time_offsets.insert(entity, TimeOffset{dtime: target_time.0 - time.time.0}).unwrap();
+				} else {
+					time_offsets.remove(entity);
 				}
 				TriggerBox::add_message(&mut triggerboxes, entity, grow.trigger);
+				grow.target_time = None;
 			}
 		}
 	}

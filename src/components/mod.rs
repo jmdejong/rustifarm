@@ -218,8 +218,8 @@ pub struct Grow {
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
-pub struct OwnTime {
-	pub time: Timestamp
+pub struct TimeOffset {
+	pub dtime: i64
 }
 
 

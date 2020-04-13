@@ -217,11 +217,11 @@ components!(
 		Grow {
 			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
 			delay,
-			target_time: if target_time == 0 { None } else { Some(Timestamp(target_time)) }
-			// please forgive me for using 0 as null
+			target_time: if target_time == -1 { None } else { Some(Timestamp(target_time)) }
+			// please forgive me for using -1 as null
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
-	OwnTime (time: Int) {OwnTime{time: Timestamp(time)}};
+	TimeOffset (dtime: Int);
 	Flags (flags: List) {
 		Flags(
 			flags
