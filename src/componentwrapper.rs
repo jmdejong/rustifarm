@@ -236,6 +236,7 @@ components!(
 		)
 	};
 	Ear () {Ear::default()};
+	Build (obj: Template);
 );
 
 

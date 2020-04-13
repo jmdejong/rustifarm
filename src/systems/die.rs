@@ -29,7 +29,7 @@ impl <'a> System<'a> for Die {
 		for (entity, triggerbox) in (&entities, &triggerboxes).join() {
 			for trigger in triggerbox.messages.iter() {
 				match trigger {
-					Trigger::Die | Trigger::Remove => {
+					Trigger::Die | Trigger::Remove | Trigger::Change => {
 						if let Some(player) = players.get(entity) {
 							// players move to purgatory when dead
 							emigration.emigrants.push((player.id.clone(), purgatory::purgatory_id(), RoomPos::Unknown));

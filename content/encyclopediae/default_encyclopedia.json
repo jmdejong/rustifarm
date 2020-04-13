@@ -281,8 +281,8 @@
 			"height": 2,
 			"flags": ["Blocking"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
-				["Loot", {"loot": ["list", [{"type": "opendoor", "save": false}]]}]
+				["Interactable", {"action": ["interaction", ["trigger", "change"]]}],
+				["Build", {"obj": {"type": "opendoor", "save": false}}]
 			]
 		},
 		"opendoor": {
@@ -290,8 +290,8 @@
 			"height": 0.8,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
-				["Loot", {"loot": ["list", [{"type": "closeddoor", "save": false}]]}]
+				["Interactable", {"action": ["interaction", ["trigger", "change"]]}],
+				["Build", {"obj": {"type": "closeddoor", "save": false}}]
 			]
 		},
 		"sign": {

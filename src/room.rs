@@ -66,7 +66,8 @@ use crate::{
 		Interact,
 		DropLoot,
 		Growth,
-		Clear
+		Clear,
+		Building
 	}
 };
 
@@ -88,6 +89,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal", "interact"])
 		.with(Die, "die", &["attacking"])
 		.with(DropLoot, "droploot", &["attacking"])
+		.with(Building, "building", &["attacking"])
 		.with(Migrate, "migrate", &["move", "attacking", "volate", "die"])
 		.build()
 }
@@ -118,7 +120,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, CreationTime, Flags, Ear), 
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, CreationTime, Flags, Ear, Build), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		

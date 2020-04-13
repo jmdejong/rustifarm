@@ -75,9 +75,13 @@ pub type AttackInbox = Inbox<AttackMessage>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Trigger {
+	// basic triggers
 	Loot,
-	Die,
-	Remove
+	Remove,
+	Build,
+	// combination triggers
+	Die, // Remove + Loot
+	Change // Remove + Build
 }
 
 impl Trigger {
@@ -86,6 +90,8 @@ impl Trigger {
 			"loot" => Self::Loot,
 			"die" => Self::Die,
 			"remove" => Self::Remove,
+			"build" => Self::Build,
+			"change" => Self::Change,
 			_ => {return None}
 		})
 	}

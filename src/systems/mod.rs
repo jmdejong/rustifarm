@@ -21,6 +21,7 @@ mod interact;
 mod droploot;
 mod growth;
 mod clear;
+mod building;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -44,5 +45,6 @@ pub use self::{
 	interact::Interact,
 	droploot::DropLoot,
 	growth::Growth,
-	clear::Clear
+	clear::Clear,
+	building::Building
 };

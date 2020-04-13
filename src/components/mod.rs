@@ -227,4 +227,12 @@ pub struct CreationTime {
 pub struct Item(pub ItemId);
 
 
+#[derive(Component, Debug, Clone)]
+#[storage(HashMapStorage)]
+pub struct Build {
+	pub obj: Template
+}
+
+
+
 
