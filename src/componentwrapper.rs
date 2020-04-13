@@ -164,10 +164,9 @@ components!(
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int);
-	Spawner (amount: Int, delay: Int, clan: String, template: Template, initial_spawn: Bool) {
+	Spawner (amount: Int, clan: String, template: Template) {
 		Spawner{
 			amount: amount as usize,
-			delay,
 			clan: Clan{name:
 				if clan == "" {
 					format!("$random({})", rand::thread_rng().gen::<u32>())
@@ -175,8 +174,7 @@ components!(
 					clan
 				}
 			},
-			template: template.unsaved(),
-			last_spawn: if initial_spawn {Some(Timestamp(-delay))} else {None}
+			template: template.unsaved()
 		}
 	};
 	Clan (name: String);

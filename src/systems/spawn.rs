@@ -5,7 +5,6 @@ use specs::{
 	WriteStorage,
 	ReadStorage,
 	Write,
-	Read,
 	System,
 	Join
 };
@@ -15,9 +14,11 @@ use crate::{
 		Position,
 		Spawner,
 		Clan,
-		Home
+		Home,
+		TriggerBox,
+		Trigger
 	},
-	resources::{NewEntities, Time},
+	resources::{NewEntities},
 	componentwrapper::ComponentWrapper
 };
 
@@ -30,20 +31,19 @@ impl <'a> System<'a> for Spawn {
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Spawner>,
 		ReadStorage<'a, Clan>,
-		Read<'a, Time>
+		ReadStorage<'a, TriggerBox>
 	);
 	
-	fn run(&mut self, (positions, mut new, mut spawners, clans, time): Self::SystemData) {
+	fn run(&mut self, (positions, mut new, mut spawners, clans, triggerboxes): Self::SystemData) {
 		let mut clan_nums: HashMap<&Clan, usize> = HashMap::new();
 		for clan in (&clans).join() {
 			let n: usize = *clan_nums.entry(clan).or_insert(0);
 			clan_nums.insert(clan, n+1);
 		}
-		for (spawner, position) in (&mut spawners, &positions).join() {
-			if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
-				if let Some(last_spawn) = spawner.last_spawn {
-					if time.time > last_spawn + spawner.delay {
-						spawner.last_spawn = None;
+		for (spawner, position, triggerbox) in (&mut spawners, &positions, &triggerboxes).join() {
+			for message in triggerbox.messages.iter() {
+				if *message == Trigger::Spawn {
+					if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
 						match new.encyclopedia.construct(&spawner.template) {
 							Ok(mut preent) => {
 								preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
@@ -53,8 +53,6 @@ impl <'a> System<'a> for Spawn {
 							Err(err) => {println!("Error: can not spawn entity from spawner: {}", err);}
 						}
 					}
-				} else {
-					spawner.last_spawn = Some(time.time)
 				}
 			}
 		}

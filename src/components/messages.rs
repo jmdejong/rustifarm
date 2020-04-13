@@ -79,6 +79,7 @@ pub enum Trigger {
 	Loot,
 	Remove,
 	Build,
+	Spawn,
 	// combination triggers
 	Die, // Remove + Loot
 	Change // Remove + Build
@@ -88,9 +89,10 @@ impl Trigger {
 	pub fn from_str(txt: &str) -> Option<Self> {
 		Some(match txt {
 			"loot" => Self::Loot,
-			"die" => Self::Die,
 			"remove" => Self::Remove,
 			"build" => Self::Build,
+			"spawn" => Self::Spawn,
+			"die" => Self::Die,
 			"change" => Self::Change,
 			_ => {return None}
 		})

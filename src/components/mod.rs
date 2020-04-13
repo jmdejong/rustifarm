@@ -180,10 +180,8 @@ pub struct Home {
 #[storage(HashMapStorage)]
 pub struct Spawner {
 	pub amount: usize,
-	pub delay: i64,
 	pub clan: Clan,
-	pub template: Template,
-	pub last_spawn: Option<Timestamp>
+	pub template: Template
 }
 
 #[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]
