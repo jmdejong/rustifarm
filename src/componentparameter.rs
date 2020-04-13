@@ -20,6 +20,7 @@ pub enum ComponentParameter {
 	Argument(String),
 	Random(Vec<ComponentParameter>),
 	Concat(Vec<ComponentParameter>),
+	If(Box<ComponentParameter>, Box<ComponentParameter>, Box<ComponentParameter>),
 	TemplateSelf,
 	TemplateName
 }
@@ -55,6 +56,17 @@ impl ComponentParameter {
 					}
 				}
 				Some(Parameter::String(string))
+			}
+			Self::If(condition, thenval, elseval) => {
+				if let Parameter::Bool(b) = condition.evaluate_(arguments, template, nesting+1)? {
+					if b {
+						thenval.evaluate_(arguments, template, nesting+1)
+					} else {
+						elseval.evaluate_(arguments, template, nesting+1)
+					}
+				} else {
+					None
+				}
 			}
 			Self::TemplateSelf => Some(Parameter::Template(template.clone())),
 			Self::TemplateName => Some(Parameter::String(template.name.0.clone())),
@@ -94,6 +106,13 @@ impl ComponentParameter {
 					}
 					Ok(Self::Concat(options))
 				},
+				"if" => {
+					Ok(Self::If(
+						Box::new(Self::from_json(paramvalue.get(0).ok_or(perr!("if does not have condition"))?)?),
+						Box::new(Self::from_json(paramvalue.get(1).ok_or(perr!("if does not have then value"))?)?),
+						Box::new(Self::from_json(paramvalue.get(2).ok_or(perr!("if does not have else value"))?)?)
+					))
+				}
 				"self" => Ok(Self::TemplateSelf),
 				"name" => Ok(Self::TemplateName),
 				_ => Err(perr!("unknown compparam type '{}'", typename))
@@ -109,8 +128,18 @@ impl ComponentParameter {
 				let typ: ParameterType = options.get(0).ok_or(aerr!("random has no options"))?.get_type(arguments)?;
 				for param in options {
 					if param.get_type(arguments)? != typ {
-						return Err(aerr!("inconsistent parameter types"));
+						return Err(aerr!("inconsistent parameter types in random"));
 					}
+				}
+				typ
+			},
+			Self::If(condition, thenval, elseval) => {
+				if condition.get_type(arguments)? != ParameterType::Bool {
+					return Err(aerr!("if condition is not a bool"));
+				}
+				let typ: ParameterType = thenval.get_type(arguments)?;
+				if elseval.get_type(arguments)? != typ {
+					return Err(aerr!("inconsistent parameter types in if"));
 				}
 				typ
 			},

@@ -195,9 +195,9 @@
 			"components": [
 				["Timer", {
 					"delay": ["arg", "delay"],
-					"spread": 0.9,
+					"spread": 0.1,
 					"trigger": "spawn",
-					"target_time": 0
+					"target_time": ["if", [["arg", "initial_spawn"], 0, -1]]
 				}],
 				["Spawner", {
 					"template": ["arg", "template"],
