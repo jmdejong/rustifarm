@@ -12,7 +12,6 @@ mod attacking;
 mod trapping;
 mod fight;
 mod heal;
-mod volate;
 mod updatecooldowns;
 mod controlai;
 mod die;
@@ -37,7 +36,6 @@ pub use self::{
 	trapping::Trapping,
 	fight::Fight,
 	heal::Heal,
-	volate::Volate,
 	updatecooldowns::UpdateCooldowns,
 	controlai::ControlAI,
 	die::Die,

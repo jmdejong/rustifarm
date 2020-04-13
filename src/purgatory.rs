@@ -13,7 +13,6 @@ use crate::{
 	systems::{
 		Move,
 		ControlInput,
-		Volate,
 		UpdateCooldowns,
 		ControlAI,
 	}
@@ -25,7 +24,6 @@ pub fn purgatory_id() -> RoomId {
 
 pub fn create_purgatory<'a, 'b>(encyclopedia: &Encyclopedia) -> Room<'a, 'b> {
 	let dispatcher = DispatcherBuilder::new()
-		.with(Volate, "volate", &[])
 		.with(UpdateCooldowns, "cool_down", &[])
 		.with(ControlInput, "controlinput", &["cool_down"])
 		.with(ControlAI, "controlai", &["cool_down"])

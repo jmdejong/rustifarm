@@ -33,8 +33,12 @@ impl <'a> System<'a> for Growth{
 		for (entity, grow) in (&entities, &mut grows).join(){
 			if grow.target_time == None {
 				let creation_time = time.time + time_offsets.get(entity).map(|ct| ct.dtime).unwrap_or(0);
-				let duration = grow.delay as f64 * (1.0 + rand::random::<f64>()) / (if rand::random() {1.0} else {2.0});
-				grow.target_time = Some(creation_time + duration as i64);
+				let mut r = 1.0 - rand::random::<f64>() * grow.spread;
+				if rand::random() {
+					r = 1.0 / r;
+				}
+				let duration = (grow.delay as f64 * r + 0.4) as i64;
+				grow.target_time = Some(creation_time + duration);
 			}
 			let target_time = grow.target_time.unwrap();
 			if target_time <= time.time {

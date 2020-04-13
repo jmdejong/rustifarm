@@ -113,7 +113,7 @@
 		"wound": {
 			"sprite": "wound",
 			"height": 0.25,
-			"components": [["Volatile", {"delay": 3}]],
+			"components": [["Grow", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": -1}]],
 			"save": false
 		},
 		"rat": {
@@ -233,6 +233,7 @@
 			"components": [
 				["Grow", {
 					"delay": 600,
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],
@@ -251,6 +252,7 @@
 			"components": [
 				["Grow", {
 					"delay": 600,
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],
@@ -269,6 +271,7 @@
 			"components": [
 				["Grow", {
 					"delay": 600,
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],
@@ -332,6 +335,7 @@
 			"components": [
 				["Grow", {
 					"delay": ["arg", "delay"],
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],
@@ -350,6 +354,7 @@
 			"components": [
 				["Grow", {
 					"delay": ["arg", "delay"],
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],
@@ -365,6 +370,7 @@
 			"components": [
 				["Grow", {
 					"delay": ["arg", "delay"],
+					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
 					"trigger": "change"
 				}],

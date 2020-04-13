@@ -149,14 +149,6 @@ pub struct Healing {
 	pub next_heal: Option<Timestamp>
 }
 
-
-#[derive(Component, Debug, Clone)]
-#[storage(HashMapStorage)]
-pub struct Volatile {
-	pub delay: i64,
-	pub end_time: Option<Timestamp>
-}
-
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct ControlCooldown {
@@ -212,6 +204,7 @@ pub struct Loot {
 #[storage(HashMapStorage)]
 pub struct Grow {
 	pub delay: i64,
+	pub spread: f64,
 	pub target_time: Option<Timestamp>,
 	pub trigger: Trigger
 }

@@ -162,7 +162,6 @@ components!(
 	Trap (damage: Int) {Trap{attack: AttackType::Attack(damage)}};
 	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
 	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
-	Volatile (delay: Int) {Volatile{delay, end_time: None}};
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int);
 	Spawner (amount: Int, delay: Int, clan: String, template: Template, initial_spawn: Bool) {
@@ -206,6 +205,7 @@ components!(
 	Grow (
 			trigger: String (panic!("can't turn trigger to string")),
 			delay: Int (Grow.delay),
+			spread: Float (Grow.spread),
 			target_time: Int ({
 				if let Some(time) = Grow.target_time {
 					time.0
@@ -217,6 +217,7 @@ components!(
 		Grow {
 			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
 			delay,
+			spread,
 			target_time: if target_time == -1 { None } else { Some(Timestamp(target_time)) }
 			// please forgive me for using -1 as null
 		};

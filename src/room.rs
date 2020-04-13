@@ -58,7 +58,6 @@ use crate::{
 		Trapping,
 		Fight,
 		Heal,
-		Volate,
 		UpdateCooldowns,
 		ControlAI,
 		Die,
@@ -73,7 +72,6 @@ use crate::{
 
 pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 	DispatcherBuilder::new()
-		.with(Volate, "volate", &[])
 		.with(Growth, "growth", &[])
 		.with(UpdateCooldowns, "cool_down", &[])
 		.with(Spawn, "spawn", &[])
@@ -90,7 +88,7 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Die, "die", &["attacking"])
 		.with(DropLoot, "droploot", &["attacking"])
 		.with(Building, "building", &["attacking"])
-		.with(Migrate, "migrate", &["move", "attacking", "volate", "die"])
+		.with(Migrate, "migrate", &["move", "attacking", "die"])
 		.build()
 }
 
@@ -120,7 +118,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, Volatile, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, TimeOffset, Flags, Ear, Build), 
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, TimeOffset, Flags, Ear, Build), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		
