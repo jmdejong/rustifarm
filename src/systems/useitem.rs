@@ -57,15 +57,19 @@ impl <'a> System<'a> for Use {
 								inventory.items.remove(*rank);
 							}
 							Equip(equippable) => {
-								let slot = equippable.slot;
-								for otherentry in inventory.items.iter_mut() {
-									if let Equip(other) = &otherentry.item.action {
-										if other.slot == slot {
-											otherentry.is_equipped = false;
+								if entry.is_equipped {
+									inventory.items[*rank].is_equipped = false;
+								} else {
+									let slot = equippable.slot;
+									for otherentry in inventory.items.iter_mut() {
+										if let Equip(other) = &otherentry.item.action {
+											if other.slot == slot {
+												otherentry.is_equipped = false;
+											}
 										}
 									}
+									inventory.items[*rank].is_equipped = true;
 								}
-								inventory.items[*rank].is_equipped = true;
 							}
 							None => {}
 						}
