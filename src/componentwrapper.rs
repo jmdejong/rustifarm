@@ -174,7 +174,8 @@ components!(
 					clan
 				}
 			},
-			template: template.unsaved()
+			template: template.unsaved(),
+			saturated: false
 		}
 	};
 	Clan (name: String);

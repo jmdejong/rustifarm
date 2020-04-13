@@ -181,7 +181,8 @@ pub struct Home {
 pub struct Spawner {
 	pub amount: usize,
 	pub clan: Clan,
-	pub template: Template
+	pub template: Template,
+	pub saturated: bool
 }
 
 #[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]
