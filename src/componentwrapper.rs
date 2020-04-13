@@ -12,7 +12,8 @@ use crate::{
 	components::{
 		AttackType,
 		Clan,
-		Flag
+		Flag,
+		Trigger
 	},
 	parameter::{Parameter, ParameterType},
 	Timestamp,
@@ -203,7 +204,7 @@ components!(
 		}
 	};
 	Grow (
-			into: Template (Grow.into.clone()),
+			trigger: String (panic!("can't turn trigger to string")),
 			delay: Int (Grow.delay),
 			target_time: Int ({
 				if let Some(time) = Grow.target_time {
@@ -214,13 +215,13 @@ components!(
 			})
 		)
 		Grow {
-			into,
+			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
 			delay,
 			target_time: if target_time == 0 { None } else { Some(Timestamp(target_time)) }
 			// please forgive me for using 0 as null
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
-	CreationTime (time: Int) {CreationTime{time: Timestamp(time)}};
+	OwnTime (time: Int) {OwnTime{time: Timestamp(time)}};
 	Flags (flags: List) {
 		Flags(
 			flags

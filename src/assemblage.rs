@@ -142,7 +142,7 @@ impl Assemblage {
 	pub fn validate(&self) -> Result<()> {
 		for (comptype, parameters) in &self.components {
 			for (paramname, paramtype) in comptype.parameters() {
-				let param = parameters.get(paramname).ok_or(aerr!("missing parameter {} in {:?}", paramname, self))?;
+				let param = parameters.get(paramname).ok_or(aerr!("missing parameter {} for component {:?} in {:?}", paramname, comptype, self))?;
 				let actualtype = param.get_type(&self.arguments)?;
 				if actualtype != paramtype {
 					return Err(aerr!("parameter type incorrect"));

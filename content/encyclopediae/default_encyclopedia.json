@@ -234,8 +234,9 @@
 				["Grow", {
 					"delay": 600,
 					"target_time": ["arg", "target_time"],
-					"into": ["template", "radishseedling"]
-				}]
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "radishseedling"]}]
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
@@ -251,8 +252,9 @@
 				["Grow", {
 					"delay": 600,
 					"target_time": ["arg", "target_time"],
-					"into": ["template", "youngradishplant"]
-				}]
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "youngradishplant"]}]
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
@@ -268,8 +270,9 @@
 				["Grow", {
 					"delay": 600,
 					"target_time": ["arg", "target_time"],
-					"into": ["template", "radishplant"]
-				}]
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "radishplant"]}]
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
@@ -330,8 +333,9 @@
 				["Grow", {
 					"delay": ["arg", "delay"],
 					"target_time": ["arg", "target_time"],
-					"into": ["arg", "next"]
-				}]
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["arg", "next"]}]
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
@@ -347,8 +351,9 @@
 				["Grow", {
 					"delay": ["arg", "delay"],
 					"target_time": ["arg", "target_time"],
-					"into": ["arg", "next"]
-				}]
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["arg", "next"]}]
 			],
 			"extract": {
 				"target_time": ["Grow", "target_time"]
@@ -361,8 +366,9 @@
 				["Grow", {
 					"delay": ["arg", "delay"],
 					"target_time": ["arg", "target_time"],
-					"into": ["arg", "next"]
+					"trigger": "change"
 				}],
+				["Build", {"obj": ["arg", "next"]}],
 				["Visible", {
 					"name": ["concat", [["string", "young"], ["arg", "crop"], ["string", "plant"]]],
 					"sprite": "youngplant",

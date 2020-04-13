@@ -25,7 +25,7 @@
 		"1.......,,,,,VVV,,,~~~'''''''''''ffffff'''X",
 		" X/,,,,.,,,,,VVV,,,~~~''''''''''''''''''''X",
 		" XXXXX,.,XXXXXXXXXX~~~XXXXXXXXXXXXXXXXXXXXX",
-		"     %%%                                  "
+		"      %%%                                  "
 	],
 	"mapping": {
 		"#": "wall",

@@ -213,12 +213,12 @@ pub struct Loot {
 pub struct Grow {
 	pub delay: i64,
 	pub target_time: Option<Timestamp>,
-	pub into: Template
+	pub trigger: Trigger
 }
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
-pub struct CreationTime {
+pub struct OwnTime {
 	pub time: Timestamp
 }
 

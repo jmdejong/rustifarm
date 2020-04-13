@@ -49,6 +49,7 @@ use self::{
 	template::Template,
 	encyclopedia::Encyclopedia,
 	timestamp::Timestamp,
+	componentwrapper::ComponentWrapper,
 	
 	gameserver::GameServer,
 	server::Server,

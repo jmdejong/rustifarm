@@ -7,13 +7,15 @@ use specs::{
 };
 
 use crate::{
+	ComponentWrapper,
 	components::{
 		Position,
 		Build,
 		Trigger,
-		TriggerBox
+		TriggerBox,
+		OwnTime
 	},
-	resources::{NewEntities}
+	resources::{NewEntities},
 };
 
 
@@ -23,16 +25,21 @@ impl <'a> System<'a> for Building{
 		ReadStorage<'a, Position>,
 		Write<'a, NewEntities>,
 		ReadStorage<'a, TriggerBox>,
-		ReadStorage<'a, Build>
+		ReadStorage<'a, Build>,
+		ReadStorage<'a, OwnTime>
 	);
 	
-	fn run(&mut self, (positions, mut new, triggerboxes, builds): Self::SystemData) {
-		for (position, triggerbox, build) in (&positions, &triggerboxes, &builds).join(){
+	fn run(&mut self, (positions, mut new, triggerboxes, builds, own_times): Self::SystemData) {
+		for (position, triggerbox, build, own_time) in (&positions, &triggerboxes, &builds, (&own_times).maybe()).join(){
 			for message in triggerbox.messages.iter() {
 				match message {
 					Trigger::Build | Trigger::Change => {
 						// todo: better error handling
-						new.create(position.pos, &build.obj).unwrap();
+						let mut preent = new.encyclopedia.construct(&build.obj).unwrap();
+						if let Some(time) = own_time {
+							preent.push(ComponentWrapper::OwnTime(time.clone()));
+						}
+						new.to_build.push((position.pos, preent));
 					}
 					_ => {}
 				}
