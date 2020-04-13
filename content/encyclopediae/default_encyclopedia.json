@@ -215,7 +215,7 @@
 			"name": "radishplant",
 			"height": 0.5,
 			"components": [
-				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
@@ -262,8 +262,8 @@
 		"youngradishplant": {
 			"arguments": [["target_time", "int", 0]],
 			"sprite": "youngplant",
-			"height": 0.05,
-			"name": "youngradishplate",
+			"height": 0.8,
+			"name": "youngradishplant",
 			"components": [
 				["Grow", {
 					"delay": 600,
@@ -281,7 +281,7 @@
 			"height": 2,
 			"flags": ["Blocking"],
 			"components": [
-				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
 				["Loot", {"loot": ["list", [{"type": "opendoor", "save": false}]]}]
 			]
 		},
@@ -290,7 +290,7 @@
 			"height": 0.8,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
 				["Loot", {"loot": ["list", [{"type": "closeddoor", "save": false}]]}]
 			]
 		},
@@ -379,7 +379,7 @@
 			"name": "carrotplant",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"action": ["interaction", "harvest"]}],
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "carrotseed"}, 1.0]],
 					["list", [{"type": "carrot"}, 1.0]]

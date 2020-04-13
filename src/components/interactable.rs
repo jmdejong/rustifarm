@@ -7,13 +7,14 @@ use specs::{
 };
 use crate::{
 	exchange::Exchange,
-	ItemId
+	ItemId,
+	components::Trigger
 };
 
 #[derive(Component, Debug, Clone, PartialEq)]
 #[storage(HashMapStorage)]
 pub enum Interactable {
-	Harvest,
+	Trigger(Trigger),
 	Say(String),
 	Reply(String),
 	Exchange(String, HashMap<String, Exchange>)
@@ -23,10 +24,10 @@ use Interactable::*;
 
 impl Interactable {
 	pub fn from_json(val: &Value) -> Option<Self> {
-		let typ = if val.is_string() {val} else {val.get(0)?};
-		let arg = if val.is_string() {&Value::Null} else {val.get(1)?};
+		let typ = val.get(0)?;
+		let arg = val.get(1)?;
 		Some(match typ.as_str()? {
-			"harvest" => Harvest,
+			"trigger" => Trigger(Trigger::from_str(arg.as_str()?)?),
 			"say" => Say(arg.as_str()?.to_string()),
 			"reply" => Reply(arg.as_str()?.to_string()),
 			"exchange" => Exchange(
@@ -49,7 +50,7 @@ impl Interactable {
 	
 	pub fn accepts_arg(&self, arg: &Option<String>) -> bool {
 		match self {
-			Harvest => arg.is_none(),
+			Trigger(_) => arg.is_none(),
 			Say(_) => arg.is_none(),
 			Reply(_) => arg.is_some(),
 			Exchange(prefix, _exchanges) => {

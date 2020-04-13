@@ -73,12 +73,24 @@ pub type AttackInbox = Inbox<AttackMessage>;
 
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Trigger {
 	Loot,
 	Die,
 	Remove
 }
+
+impl Trigger {
+	pub fn from_str(txt: &str) -> Option<Self> {
+		Some(match txt {
+			"loot" => Self::Loot,
+			"die" => Self::Die,
+			"remove" => Self::Remove,
+			_ => {return None}
+		})
+	}
+}
+
 impl Message for Trigger {}
 
 pub type TriggerBox = Inbox<Trigger>;

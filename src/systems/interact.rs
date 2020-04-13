@@ -16,7 +16,6 @@ use crate::{
 		Position,
 		ControlCooldown,
 		Interactable,
-		Trigger,
 		TriggerBox,
 		Notification,
 		Ear,
@@ -66,8 +65,8 @@ impl <'a> System<'a> for Interact {
 			if let Some((ent, interactable, arg)) = target {
 				let name = visibles.get(ent).map(|v| v.name.as_str());
 				match interactable {
-					Interactable::Harvest => {
-						TriggerBox::add_message(&mut triggerbox, ent, Trigger::Die);
+					Interactable::Trigger(trigger) => {
+						TriggerBox::add_message(&mut triggerbox, ent, *trigger);
 					}
 					Interactable::Say(text) => {
 						say(ear, text.clone(), name);
