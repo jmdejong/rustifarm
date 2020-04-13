@@ -18,6 +18,11 @@ impl Pos {
 		Pos {x, y}
 	}
 	
+	pub fn from_tuple(p: (i64, i64)) -> Pos {
+		let (x, y) = p;
+		Pos {x, y}
+	}
+	
 	#[allow(dead_code)]
 	pub fn clamp(self, smaller: Pos, larger: Pos) -> Pos {
 		Pos {
