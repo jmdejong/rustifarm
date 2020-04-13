@@ -113,7 +113,7 @@
 		"wound": {
 			"sprite": "wound",
 			"height": 0.25,
-			"components": [["Grow", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": -1}]],
+			"components": [["Timer", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": -1}]],
 			"save": false
 		},
 		"rat": {
@@ -231,7 +231,7 @@
 			"height": 0.05,
 			"name": "seed",
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -240,7 +240,7 @@
 				["Build", {"obj": ["template", "radishseedling"]}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},
@@ -250,7 +250,7 @@
 			"height": 0.05,
 			"name": "seedling",
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -259,7 +259,7 @@
 				["Build", {"obj": ["template", "youngradishplant"]}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},
@@ -269,7 +269,7 @@
 			"height": 0.8,
 			"name": "youngradishplant",
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -278,7 +278,7 @@
 				["Build", {"obj": ["template", "radishplant"]}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},
@@ -333,7 +333,7 @@
 			"height": 0.05,
 			"name": "plantedseed",
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": ["arg", "delay"],
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -342,7 +342,7 @@
 				["Build", {"obj": ["arg", "next"]}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},
@@ -352,7 +352,7 @@
 			"height": 0.09,
 			"name": "seedling",
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": ["arg", "delay"],
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -361,14 +361,14 @@
 				["Build", {"obj": ["arg", "next"]}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},
 		"youngplant": {
 			"arguments": [["target_time", "int", -1], ["next", "template"], ["crop", "string"], ["delay", "int"]],
 			"components": [
-				["Grow", {
+				["Timer", {
 					"delay": ["arg", "delay"],
 					"spread": 0.5,
 					"target_time": ["arg", "target_time"],
@@ -382,7 +382,7 @@
 				}]
 			],
 			"extract": {
-				"target_time": ["Grow", "target_time"]
+				"target_time": ["Timer", "target_time"]
 			},
 			"flags": ["Occupied"]
 		},

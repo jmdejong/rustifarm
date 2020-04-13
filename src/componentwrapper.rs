@@ -202,19 +202,19 @@ components!(
 			.collect::<Result<Vec<(Template, f64)>>>()?
 		}
 	};
-	Grow (
+	Timer (
 			trigger: String (panic!("can't turn trigger to string")),
-			delay: Int (Grow.delay),
-			spread: Float (Grow.spread),
+			delay: Int (Timer.delay),
+			spread: Float (Timer.spread),
 			target_time: Int ({
-				if let Some(time) = Grow.target_time {
+				if let Some(time) = Timer.target_time {
 					time.0
 				} else {
 					0
 				}
 			})
 		)
-		Grow {
+		Timer {
 			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
 			delay,
 			spread,

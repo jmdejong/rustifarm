@@ -202,7 +202,7 @@ pub struct Loot {
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
-pub struct Grow {
+pub struct Timer {
 	pub delay: i64,
 	pub spread: f64,
 	pub target_time: Option<Timestamp>,

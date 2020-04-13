@@ -64,7 +64,7 @@ use crate::{
 		Spawn,
 		Interact,
 		DropLoot,
-		Growth,
+		Timeout,
 		Clear,
 		Building
 	}
@@ -72,7 +72,7 @@ use crate::{
 
 pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 	DispatcherBuilder::new()
-		.with(Growth, "growth", &[])
+		.with(Timeout, "timeout", &[])
 		.with(UpdateCooldowns, "cool_down", &[])
 		.with(Spawn, "spawn", &[])
 		.with(ControlInput, "controlinput", &["cool_down"])
@@ -118,7 +118,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Grow, Equipment, TimeOffset, Flags, Ear, Build), 
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, Equipment, TimeOffset, Flags, Ear, Build), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		

@@ -18,7 +18,7 @@ mod die;
 mod spawn;
 mod interact;
 mod droploot;
-mod growth;
+mod timeout;
 mod clear;
 mod building;
 
@@ -42,7 +42,7 @@ pub use self::{
 	spawn::Spawn,
 	interact::Interact,
 	droploot::DropLoot,
-	growth::Growth,
+	timeout::Timeout,
 	clear::Clear,
 	building::Building
 };
