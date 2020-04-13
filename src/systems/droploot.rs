@@ -30,17 +30,12 @@ impl <'a> System<'a> for DropLoot{
 	
 	fn run(&mut self, (positions, mut new, triggerboxes, loots): Self::SystemData) {
 		for (position, triggerbox, loot) in (&positions, &triggerboxes, &loots).join(){
-			for message in triggerbox.messages.iter() {
-				match message {
-					Trigger::Die | Trigger::Loot => {
-						for (template, chance) in &loot.loot {
-							if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
-								// todo: better error handling
-								new.create(position.pos, &template).unwrap();
-							}
-						}
+			if triggerbox.has_message(&[Trigger::Die, Trigger::Loot]) {
+				for (template, chance) in &loot.loot {
+					if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
+						// todo: better error handling
+						new.create(position.pos, &template).unwrap();
 					}
-					_ => {}
 				}
 			}
 		}

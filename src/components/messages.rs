@@ -11,7 +11,7 @@ use super::equipment::Stat;
 
 
 
-pub trait Message: Send + Sync + Any {}
+pub trait Message: Send + Sync + Any + PartialEq {}
 
 #[derive(Debug, Clone, Default)]
 pub struct Inbox<M: Message> {
@@ -31,6 +31,17 @@ impl <M: Message> Inbox<M> {
 			.or_insert_with(|| Self{messages: Vec::new()})
 			.messages
 			.push(message);
+	}
+	
+	pub fn has_message(&self, messages: &[M]) -> bool {
+		for message in self.messages.iter() {
+			for asked in messages {
+				if message == asked {
+					return true;
+				}
+			}
+		}
+		false
 	}
 }
 
@@ -56,7 +67,7 @@ impl AttackType {
 	}
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AttackMessage {
 	pub attacker: Option<Entity>,
 	pub typ: AttackType

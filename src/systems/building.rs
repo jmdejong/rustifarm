@@ -31,18 +31,13 @@ impl <'a> System<'a> for Building{
 	
 	fn run(&mut self, (positions, mut new, triggerboxes, builds, time_offsets): Self::SystemData) {
 		for (position, triggerbox, build, time_offset) in (&positions, &triggerboxes, &builds, (&time_offsets).maybe()).join(){
-			for message in triggerbox.messages.iter() {
-				match message {
-					Trigger::Build | Trigger::Change => {
-						// todo: better error handling
-						let mut preent = new.encyclopedia.construct(&build.obj).unwrap();
-						if let Some(time) = time_offset {
-							preent.push(ComponentWrapper::TimeOffset(time.clone()));
-						}
-						new.to_build.push((position.pos, preent));
-					}
-					_ => {}
+			if triggerbox.has_message(&[Trigger::Build, Trigger::Change]) {
+				// todo: better error handling
+				let mut preent = new.encyclopedia.construct(&build.obj).unwrap();
+				if let Some(time) = time_offset {
+					preent.push(ComponentWrapper::TimeOffset(time.clone()));
 				}
+				new.to_build.push((position.pos, preent));
 			}
 		}
 	}

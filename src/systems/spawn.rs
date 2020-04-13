@@ -41,17 +41,15 @@ impl <'a> System<'a> for Spawn {
 			clan_nums.insert(clan, n+1);
 		}
 		for (spawner, position, triggerbox) in (&mut spawners, &positions, &triggerboxes).join() {
-			for message in triggerbox.messages.iter() {
-				if *message == Trigger::Spawn {
-					if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
-						match new.encyclopedia.construct(&spawner.template) {
-							Ok(mut preent) => {
-								preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
-								preent.push(ComponentWrapper::Home(Home{home: position.pos}));
-								new.to_build.push((position.pos, preent));
-							}
-							Err(err) => {println!("Error: can not spawn entity from spawner: {}", err);}
+			if triggerbox.has_message(&[Trigger::Spawn]) {
+				if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
+					match new.encyclopedia.construct(&spawner.template) {
+						Ok(mut preent) => {
+							preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
+							preent.push(ComponentWrapper::Home(Home{home: position.pos}));
+							new.to_build.push((position.pos, preent));
 						}
+						Err(err) => {println!("Error: can not spawn entity from spawner: {}", err);}
 					}
 				}
 			}

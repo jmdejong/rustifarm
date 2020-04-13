@@ -27,18 +27,13 @@ impl <'a> System<'a> for Die {
 	);
 	fn run(&mut self, (entities, triggerboxes, mut removeds, mut emigration, players): Self::SystemData) {
 		for (entity, triggerbox) in (&entities, &triggerboxes).join() {
-			for trigger in triggerbox.messages.iter() {
-				match trigger {
-					Trigger::Die | Trigger::Remove | Trigger::Change => {
-						if let Some(player) = players.get(entity) {
-							// players move to purgatory when dead
-							emigration.emigrants.push((player.id.clone(), purgatory::purgatory_id(), RoomPos::Unknown));
-						} else {
-							// npcs etc get removed when dead
-							removeds.insert(entity, Removed).unwrap();
-						}
-					}
-					_ => {}
+			if triggerbox.has_message(&[Trigger::Die, Trigger::Remove, Trigger::Change]){
+				if let Some(player) = players.get(entity) {
+					// players move to purgatory when dead
+					emigration.emigrants.push((player.id.clone(), purgatory::purgatory_id(), RoomPos::Unknown));
+				} else {
+					// npcs etc get removed when dead
+					removeds.insert(entity, Removed).unwrap();
 				}
 			}
 		}
