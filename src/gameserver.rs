@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::io;
 
 use serde_json::{Value, json};
+use unicode_categories::UnicodeCategories;
 
 use crate::{
 	controls::{Control, Action},
@@ -18,6 +19,17 @@ enum Message {
 	Chat(String),
 	Input(Value),
 	Invalid(String)
+}
+
+struct MessageError {
+	typ: String,
+	text: String
+}
+
+macro_rules! merr {
+	(name, $text: expr) => {merr!("invalidname", $text)};
+	(action, $text: expr) => {merr!("invalidaction", $text)};
+	($typ: expr, $text: expr) => {MessageError{typ: $typ.to_string(), text: $text.to_string()}};
 }
 
 
@@ -49,9 +61,10 @@ impl GameServer {
 		}
 		for (serverid, messages, left) in input {
 			for (id, message) in messages {
-				let r = self.handle_message((serverid, id), parse_message(&message));
-				if let Some(action) = r {
-					actions.push(action);
+				match self.handle_message((serverid, id), parse_message(&message)){
+					Ok(Some(action)) => {actions.push(action);}
+					Ok(None) => {}
+					Err(err) => {let _ = self.send_error((serverid, id), &err.typ, &err.text);}
 				}
 			}
 			for id in left {
@@ -97,68 +110,56 @@ impl GameServer {
 		self.send(player, json!(["error", errname, err_text]))
 	}
 	
-	fn handle_message(&mut self, (serverid, connectionid): (usize, usize), msg: Message) -> Option<Action> {
+	fn handle_message(&mut self, (serverid, connectionid): (usize, usize), msg: Message) -> Result<Option<Action>, MessageError> {
 		let id = (serverid, connectionid);
 		match msg {
 			Message::Name(name) => {
-				if name.len() > 256 {
-					let _ = self.send_error(id, "invalidname", "A name can not be longer than 256 bytes");
-					return None
+				if name.len() > 99 {
+					return Err(merr!(name, "A name can not be longer than 99 bytes"));
 				}
 				if name.len() == 0 {
-					let _ = self.send_error(id, "invalidname", "A name must have at least one character");
-					return None
+					return Err(merr!(name, "A name must have at least one character"));
 				}
 				let (firstchar, username) = name.split_at(1);
 				if firstchar == "~" {
 					if Some(username.to_string()) != self.servers[serverid].get_name(connectionid) {
-						let _ = self.send_error(id, "invalidname", "A tilde name must match your username");
-						return None;
+						return Err(merr!(name, "A tilde name must match your username"));
+					}
+				} else {
+					for chr in name.chars() {
+						if !(chr.is_letter() || chr.is_number() || chr.is_punctuation_connector()){
+							return Err(merr!(name, "A name can only contain letters, numbers and underscores"));
+						}
 					}
 				}
 				if self.players.contains_key(&id) {
-					let _ = self.send_error(id, "invalidaction", "You can not change your name");
-					return None;
+					return Err(merr!(action, "You can not change your name"));
 				}
 				let player = PlayerId{name};
 				if self.connections.contains_key(&player) {
-					let _ = self.send_error(id, "nametaken", "Another connections to this player exists already");
-					return None;
+					return Err(merr!("nametaken", "Another connection to this player exists already"));
 				}
 				self.broadcast_message(&format!("{} connected", player.name));
 				self.players.insert(id, player.clone());
 				self.connections.insert(player.clone(), id);
-				Some(Action::Join(player))
+				Ok(Some(Action::Join(player)))
 			}
 			Message::Chat(text) => {
-				if let Some(player) = self.players.get(&id) {
-					let name = player.name.clone();
-					self.broadcast_message(&format!("{}: {}", name, text));
-				} else {
-					let _ = self.send_error(id, "invalidaction", "Set a name before you send other messages");
-				}
-				None
+				let player = self.players.get(&id).ok_or(merr!(action, "Set a name before you send any other messages"))?;
+				let name = player.name.clone();
+				self.broadcast_message(&format!("{}: {}", name, text));
+				Ok(None)
 			}
 			Message::Input(inp) => {
-				if let Some(player) = self.players.get(&id) {
-					if let Some(control) = Control::from_json(&inp) {
-						Some(Action::Input(player.clone(), control))
-					} else {
-						let _ = self.send_error(id, "invalidaction", &format!("unknown action: {}", inp));
-						None
-					}
-				} else {
-					let _ = self.send_error(id, "invalidaction", "Set a name before you send other messages");
-					None
-				}
+				let player = self.players.get(&id).ok_or(merr!(action, "Set a name before you send any other messages"))?;
+				let control = Control::from_json(&inp).ok_or(merr!(action, &format!("unknown action: {}", inp)))?;
+				Ok(Some(Action::Input(player.clone(), control)))
 			}
 			Message::Invalid(text) => {
-				let _ = self.send_error(id, "invalidmessage", &format!("Invalid: {}", text));
-				None
+				Err(merr!("invalidmessage", &format!("Invalid: {}", text)))
 			}
 		}
 	}
-	
 }
 
 
