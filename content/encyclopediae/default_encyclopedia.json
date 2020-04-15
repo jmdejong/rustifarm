@@ -80,6 +80,13 @@
 			],
 			"flags": ["Floor"]
 		},
+		"homeportal": {
+			"components": [
+				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
+				["Interactable", {"action": ["interaction", ["visit", "_home+{player}"]]}]
+			],
+			"flags": ["Floor"]
+		},
 		"img": {
 			"arguments": [["sprite", "string", ""], ["height", "float", 1.0]],
 			"components": [

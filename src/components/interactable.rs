@@ -8,7 +8,8 @@ use specs::{
 use crate::{
 	exchange::Exchange,
 	ItemId,
-	components::Trigger
+	components::Trigger,
+	RoomId
 };
 
 #[derive(Component, Debug, Clone, PartialEq)]
@@ -17,7 +18,8 @@ pub enum Interactable {
 	Trigger(Trigger),
 	Say(String),
 	Reply(String),
-	Exchange(String, HashMap<String, Exchange>)
+	Exchange(String, HashMap<String, Exchange>),
+	Visit(RoomId)
 }
 
 use Interactable::*;
@@ -44,6 +46,7 @@ impl Interactable {
 					})
 					.collect::<Option<HashMap<String, Exchange>>>()?
 			),
+			"visit" => Visit(RoomId::from_str(arg.as_str()?)),
 			_ => None?
 		})
 	}
@@ -58,6 +61,13 @@ impl Interactable {
 					 txt.starts_with(prefix)
 				} else {
 					true
+				}
+			}
+			Visit(_) => {
+				if let Some(txt) = arg {
+					 txt.starts_with("visit")
+				} else {
+					false
 				}
 			}
 		}

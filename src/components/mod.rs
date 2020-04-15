@@ -29,6 +29,8 @@ pub use ear::{
 	Ear
 };
 
+use std::collections::HashMap;
+
 use specs::{
 	DenseVecStorage,
 	VecStorage,
@@ -223,6 +225,11 @@ pub struct Item(pub ItemId);
 #[storage(HashMapStorage)]
 pub struct Build {
 	pub obj: Template
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Whitelist{
+	pub allowed: HashMap<String, PlayerId>
 }
 
 

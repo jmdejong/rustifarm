@@ -70,10 +70,7 @@
             "type": "portal",
             "kwargs": {"destination": "town", "destpos": "gate"}
         }, "floor"],
-        "3": [{
-            "type": "portal",
-            "kwargs": {"destination": "_home+{player}"}
-        }, "floor"],
+        "3": ["homeportal", "floor"],
         "4": [{
             "type": "portal",
             "kwargs": {"destination": "room"}

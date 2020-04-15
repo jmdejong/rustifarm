@@ -20,10 +20,13 @@ use crate::{
 		Notification,
 		Ear,
 		Inventory,
-		Visible
+		Visible,
+		Player
 	},
 	controls::{Control},
-	resources::{Ground, NewEntities}
+	resources::{Ground, NewEntities, Emigration},
+	hashmap,
+	playerstate::RoomPos
 };
 
 pub struct Interact;
@@ -39,10 +42,12 @@ impl <'a> System<'a> for Interact {
 		Write<'a, NewEntities>,
 		WriteStorage<'a, Ear>,
 		WriteStorage<'a, Inventory>,
-		ReadStorage<'a, Visible>
+		ReadStorage<'a, Visible>,
+		ReadStorage<'a, Player>,
+		Write<'a, Emigration>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(entity);
@@ -99,6 +104,16 @@ impl <'a> System<'a> for Interact {
 								).collect::<Vec<String>>()),
 								name
 							);
+						}
+					}
+					Interactable::Visit(dest) => {
+						if let Some(player) = players.get(entity){
+							let argument = arg.unwrap();
+							if argument.starts_with("visit") {
+								let playername = argument.split_at("visit ".len()).1;
+								let destination = dest.format(hashmap!("{player}" => playername));
+								emigration.emigrants.push((player.id.clone(), destination, RoomPos::Unknown));
+							}
 						}
 					}
 				}
