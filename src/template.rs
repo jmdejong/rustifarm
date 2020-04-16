@@ -11,12 +11,19 @@ use crate::{
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct EntityType(pub String);
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+enum SaveOption {
+	Default,
+	False,
+	Always
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Template {
 	pub name: EntityType,
 	pub args: Vec<Parameter>,
 	pub kwargs: HashMap<String, Parameter>,
-	pub save: bool
+	save: SaveOption,
 }
 
 
@@ -27,7 +34,7 @@ impl Template {
 			name: EntityType(name.to_string()),
 			args: Vec::new(),
 			kwargs,
-			save: true
+			save: SaveOption::Default
 		}
 	}
 	
@@ -35,17 +42,26 @@ impl Template {
 		Self::new(name, HashMap::new())
 	}
 	
+	pub fn should_save(&self) -> bool {
+		match self.save {
+			SaveOption::Default | SaveOption::Always => true,
+			SaveOption::False => false
+		}
+	}
+	
 	pub fn from_entity_type(typ: EntityType) -> Self {
 		Self {
 			name: typ,
 			args: Vec::new(),
 			kwargs: HashMap::new(),
-			save: true
+			save: SaveOption::Default
 		}
 	}
 	
 	pub fn unsaved(mut self) -> Self {
-		self.save = false;
+		if self.save == SaveOption::Default {
+			self.save = SaveOption::False
+		}
 		self
 	}
 	
@@ -69,7 +85,16 @@ impl Template {
 		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object().ok_or(perr!("template kwargs not a json object"))? {
 			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg).ok_or(perr!("template kwarg {}: {:?} not a parameter", key, arg))?);
 		}
-		let save = val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(perr!("save not a bool"))?;
+		let save = 
+			if let Some(saveval) = val.get("save") {
+				if saveval.as_bool().ok_or(perr!("save not a bool"))? {
+					SaveOption::Always
+				} else {
+					SaveOption::False
+				}
+			} else {
+				SaveOption::Default
+			};
 		Ok(Template {name, args, kwargs, save})
 	}
 	

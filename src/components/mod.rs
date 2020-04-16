@@ -29,7 +29,7 @@ pub use ear::{
 	Ear
 };
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use specs::{
 	DenseVecStorage,
@@ -229,9 +229,13 @@ pub struct Build {
 
 #[derive(Component, Debug, Clone)]
 pub struct Whitelist{
-	pub allowed: HashMap<String, PlayerId>
+	pub allowed: HashMap<String, HashSet<PlayerId>>
 }
 
 
-
+#[derive(Component, Debug, Clone)]
+pub struct Dedup {
+	pub id: String,
+	pub priority: i64
+}
 

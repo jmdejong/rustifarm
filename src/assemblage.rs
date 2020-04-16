@@ -192,7 +192,7 @@ impl Assemblage {
 			}
 			components.push(ComponentWrapper::load_component(*comptype, compargs)?);
 		}
-		if template.save && self.save {
+		if template.should_save() && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: self.extract.clone() }));
 		}
 		Ok(components)

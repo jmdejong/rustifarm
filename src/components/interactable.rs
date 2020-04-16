@@ -65,7 +65,7 @@ impl Interactable {
 			}
 			Visit(_) => {
 				if let Some(txt) = arg {
-					 txt.starts_with("visit")
+					 txt.starts_with("visit ") || txt.starts_with("disallow ") || txt.starts_with("allow ") || txt.starts_with("whitelist")
 				} else {
 					false
 				}

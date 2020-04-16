@@ -21,6 +21,7 @@ mod droploot;
 mod timeout;
 mod clear;
 mod building;
+mod deduplicate;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -44,5 +45,6 @@ pub use self::{
 	droploot::DropLoot,
 	timeout::Timeout,
 	clear::Clear,
-	building::Building
+	building::Building,
+	deduplicate::Deduplicate
 };

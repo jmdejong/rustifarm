@@ -21,12 +21,14 @@ use crate::{
 		Ear,
 		Inventory,
 		Visible,
-		Player
+		Player,
+		Whitelist
 	},
 	controls::{Control},
 	resources::{Ground, NewEntities, Emigration},
 	hashmap,
-	playerstate::RoomPos
+	playerstate::RoomPos,
+	PlayerId
 };
 
 pub struct Interact;
@@ -44,10 +46,11 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, Inventory>,
 		ReadStorage<'a, Visible>,
 		ReadStorage<'a, Player>,
-		Write<'a, Emigration>
+		Write<'a, Emigration>,
+		WriteStorage<'a, Whitelist>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists): Self::SystemData) {
 		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(entity);
@@ -107,12 +110,34 @@ impl <'a> System<'a> for Interact {
 						}
 					}
 					Interactable::Visit(dest) => {
-						if let Some(player) = players.get(entity){
+						if let (Some(player), Some(whitelist)) = (players.get(entity), whitelists.get_mut(ent)){
 							let argument = arg.unwrap();
-							if argument.starts_with("visit") {
+							if argument.starts_with("visit ") {
 								let playername = argument.split_at("visit ".len()).1;
 								let destination = dest.format(hashmap!("{player}" => playername));
-								emigration.emigrants.push((player.id.clone(), destination, RoomPos::Unknown));
+								if let Some(set) = whitelist.allowed.get(&destination.name) {
+									if set.contains(&player.id){
+										emigration.emigrants.push((player.id.clone(), destination, RoomPos::Unknown));
+									} else {
+										say(ear, format!("not allowed to visit {}", playername), name);
+									}
+								} else {
+									say(ear, format!("unknown destination {}", playername), name);
+								}
+							} else if argument.starts_with("allow ") {
+								let playername = argument.split_at("allow ".len()).1;
+								let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
+								whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).insert(PlayerId{name: playername.to_string()});
+								say(ear, format!("allowed {} to enter your home", playername), name);
+							} else if argument.starts_with("disallow ") {
+								let playername = argument.split_at("disallow ".len()).1;
+								let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
+								whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).remove(&PlayerId{name: playername.to_string()});
+								say(ear, format!("disallowed {} to enter your home", playername), name);
+							} else if argument.starts_with("whitelist") {
+								let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
+								let allowed = whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).iter().map(|id| id.name.as_str()).collect::<Vec<&str>>();
+								say(ear, format!("allowed players: {}", allowed.join(", ")), name);
 							}
 						}
 					}

@@ -132,10 +132,10 @@ macro_rules! components {
 	(pre: ($($done: tt)*)) => {
 		components!(post: $($done)*);
 	};
-	($($all: tt)*) => {components!(pre: () $($all)*);};
+	(all: $($all: tt)*) => {components!(pre: () $($all)*);};
 }
 
-components!(
+components!(all: 
 	Visible (name: String, sprite: String, height: Float) {
 		Visible {
 			sprite: Sprite{name: sprite},
@@ -238,6 +238,52 @@ components!(
 	};
 	Ear () {Ear::default()};
 	Build (obj: Template);
+	Whitelist (
+		allowed: List ({
+			Whitelist.allowed.iter().map(|(item, players)|{
+				Parameter::List(vec![
+					Parameter::String(item.clone()),
+					Parameter::List(
+						players
+							.iter()
+							.map(|playerid| Parameter::String(playerid.name.clone()))
+							.collect()
+					)
+				])
+			}).collect()
+		})
+	) {
+		Whitelist {
+			allowed: allowed
+				.iter()
+				.map(|p| {
+					if let Parameter::List(e) = p {
+						if e.len() != 2 {
+							Err(aerr!("whitelist must be a list of pairs"))?
+						}
+						if let (Parameter::String(s), Parameter::List(l)) = (e[0].clone(), e[1].clone()) {
+							let names = l
+								.iter()
+								.map(|n| {
+									if let Parameter::String(name) = n {
+										Ok(PlayerId{name: name.clone()})
+									} else {
+										Err(aerr!("whitelisted players must be strings"))?
+									}
+								})
+								.collect::<Result<HashSet<PlayerId>>>()?;
+							Ok((s, names))
+						} else {
+							Err(aerr!("whitelist entries must be a string and a list"))?
+						}
+					} else {
+						Err(aerr!("whitelist must be a list of pairs"))?
+					}
+				})
+				.collect::<Result<HashMap<String, HashSet<PlayerId>>>>()?
+		}
+	};
+	Dedup (id: String, priority: Int);
 );
 
 

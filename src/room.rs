@@ -66,12 +66,14 @@ use crate::{
 		DropLoot,
 		Timeout,
 		Clear,
-		Building
+		Building,
+		Deduplicate
 	}
 };
 
 pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 	DispatcherBuilder::new()
+		.with(Deduplicate, "deduplicate", &[])
 		.with(Timeout, "timeout", &[])
 		.with(UpdateCooldowns, "cool_down", &[])
 		.with(Spawn, "spawn", &[])
@@ -118,7 +120,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, Equipment, TimeOffset, Flags, Ear, Build, Whitelist), 
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, Equipment, TimeOffset, Flags, Ear, Build, Whitelist, Dedup), 
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
 		);	
 		
