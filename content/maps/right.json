@@ -93,11 +93,6 @@
 		"*": ["grass", "pebble"],
 		"d": ["ground", "dummy"],
 		"#": "wall",
-		":": ["floor", {
-			"type": "spawner",
-			"args": ["seed", 1, 600],
-			"kwargs": {"initialSpawn": true}
-		}],
 		";": ["floor", "seed"],
 		".": "ground",
 		"+": "floor",

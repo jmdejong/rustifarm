@@ -82,26 +82,19 @@
 		"=": ["water", "bridge"],
 		"m": ["rock"],
 		"^": [{"type": "spiketrap", "kwargs": {"damage": 3}}
-			, "ground"],
-		"d": ["ground", {
-			"type": "spawner",
-			"args": [{"type": "dummy"}, 1, 600],
-			"kwargs": {"initial_spawn": true}
-		}],
+			, "floor"],
 		"%": ["floor", "closeddoor"],
 		"&": [{
 			"type": "spawner",
-			"args": [{"type": "dummy"}, 1, 300],
-			"kwargs": {"initial_spawn": true}
-		}],
+			"kwargs": {"template": {"type": "dummy"}, "delay": 300, "initial_spawn": true}
+		}, "floor"],
 		"1": [{
 			"type": "portal",
-			"args": ["begin","cavebridge"]
+			"kwargs": {"destination": "begin", "destpos": "cavebridge"}
 		}, "floor"],
 		";": ["floor", {
 			"type": "spawner",
-			"args": [{"type": "radishseed"}, 1, 600],
-			"kwargs": {"initial_spawn": true}
+			"kwargs": {"template": {"type": "radishseed"}, "delay": 600, "initial_spawn": true}
 		}],
 		"A": [{"type": "letter", "args": ["A"]}],
 		"B": [{"type": "letter", "args": ["B"]}],

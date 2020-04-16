@@ -36,13 +36,11 @@
 		],
 		"a": ["floor", {
 			"type": "spawner",
-			"args": [{"type": "rat"}, 1, 300],
-			"kwargs": {"initialSpawn": true, "setHome": true}
+			"kwargs": {"template": {"type": "rat"}, "delay": 300, "initial_spawn": true}
 		}],
 		":": ["floor", {
 			"type": "spawner",
-			"args": [{"type": "carrotseed"}, 1, 1200],
-			"kwargs": {"initialSpawn": false}
+			"kwargs": {"template": {"type": "carrotseed"}, "delay": 1200, "initial_spawn": false}
 		}],
 		" ": []
 	}

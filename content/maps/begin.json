@@ -94,15 +94,13 @@
 		"*": ["grass", "pebble"],
 		"d": ["ground", {
 			"type": "spawner",
-			"args": [{"type": "dummy"}, 1, 600],
-			"kwargs": {"initialSpawn": true}
+			"kwargs": {"template": {"type": "dummy"}, "delay": 600, "initialSpawn": true}
 		}],
 		"D": ["ground", "opendoor"],
 		"#": "wall",
 		":": ["ground", {
 			"type": "spawner",
-			"args": ["radishseed", 1, 600],
-			"kwargs": {"initialSpawn": false}
+			"kwargs": {"template": {"type": "radishseed"}, "delay": 600, "initialSpawn": false}
 		}],
 		";": ["floor", "radishseed"],
 		".": "ground",
