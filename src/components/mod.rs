@@ -197,6 +197,7 @@ pub struct Clan {
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
 pub struct Loot {
+	pub spread: bool,
 	pub loot: Vec<(Template, f64)>
 }
 

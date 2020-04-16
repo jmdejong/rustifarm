@@ -39,8 +39,10 @@ impl <'a> System<'a> for DropLoot{
 			if triggerbox.has_message(&[Trigger::Die, Trigger::Loot]) {
 				for (template, chance) in &loot.loot {
 					if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
+						let pos = if loot.spread {
+							pick_position(position.pos, &ground, &flags)
+						} else {position.pos};
 						// todo: better error handling
-						let pos = pick_position(position.pos, &ground, &flags);
 						new.create(pos, &template).unwrap();
 					}
 				}

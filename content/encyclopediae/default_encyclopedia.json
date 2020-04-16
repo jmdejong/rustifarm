@@ -101,7 +101,7 @@
 			"arguments": [["health", "int", 100]],
 			"components": [
 				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-				["Loot", {"loot": ["list", [{"type": "stone"}]]}]
+				["Loot", {"spread": false, "loot": ["list", [{"type": "stone"}]]}]
 			],
 			"sprite": "builtwall",
 			"height": 2,
@@ -140,7 +140,7 @@
 				["Fighter", {"damage": 2, "cooldown": 6}],
 				["Movable", {"cooldown": 3}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
+				["Loot", {"spread": true, "loot": ["list", [
 					["list", [{"type": "radishseed"}, 1.0]]
 				]]}]
 			]
@@ -158,7 +158,7 @@
 				["Fighter", {"damage": 5, "cooldown": 8}],
 				["Movable", {"cooldown": 4}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
+				["Loot", {"spread": true, "loot": ["list", [
 					["list", [{"type": "sword"}, 0.05]],
 					["list", [{"type": "club"}, 0.1]],
 					["list", [{"type": "radish"}, 0.25]]
@@ -178,7 +178,7 @@
 				["Fighter", {"damage": 15, "cooldown": 10}],
 				["Movable", {"cooldown": 5}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
+				["Loot", {"spread": true, "loot": ["list", [
 					["list", [{"type": "stone"}, 1.0]],
 					["list", [{"type": "stone"}, 0.3]],
 					["list", [{"type": "pebble"}, 0.5]],
@@ -231,7 +231,7 @@
 			"height": 0.5,
 			"components": [
 				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
-				["Loot", {"loot": ["list", [
+				["Loot", {"spread": true, "loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
 					["list", [{"type": "radish"}, 0.8]],
@@ -407,7 +407,7 @@
 			"height": 1.0,
 			"components": [
 				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
-				["Loot", {"loot": ["list", [
+				["Loot", {"spread": true, "loot": ["list", [
 					["list", [{"type": "carrotseed"}, 1.0]],
 					["list", [{"type": "carrot"}, 1.0]]
 				]]}]

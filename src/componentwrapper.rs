@@ -182,8 +182,8 @@ components!(all:
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
 	Interactable (action: Interaction) {action};
-	Loot (loot: List) {
-		Loot { loot:
+	Loot (loot: List, spread: Bool) {
+		Loot {spread, loot:
 			loot
 			.iter()
 			.map(|param| {match param {
