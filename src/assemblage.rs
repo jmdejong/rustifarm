@@ -51,12 +51,12 @@ impl Assemblage {
 		let mut components = Vec::new();
 		for tup in comps {
 			if let Some(name) = tup.as_str() {
-				components.push((ComponentType::from_str(name).ok_or(perr!("not a valid componenttype"))?, HashMap::new()));
+				components.push((ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?, HashMap::new()));
 			} else {
-				let comptype = ComponentType::from_str(tup
+				let name = tup
 					.get(0).ok_or(perr!("index 0 not in component"))?
-					.as_str().ok_or(perr!("component name not a string"))?
-				).ok_or(perr!("not a valid componenttype"))?;
+					.as_str().ok_or(perr!("component name not a string"))?;
+				let comptype = ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?;
 				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
 				for (key, value) in tup.get(1).ok_or(perr!("index 1 not in component"))?.as_object().ok_or(perr!("component parameters not a json object"))? {
 					let param = ComponentParameter::from_json(value)?;

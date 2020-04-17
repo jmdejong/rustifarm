@@ -284,6 +284,13 @@ components!(all:
 		}
 	};
 	Dedup (id: String, priority: Int);
+	Minable (trigger: String, total: Int) {
+		Minable {
+			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
+			progress: 0,
+			total
+		}
+	};
 );
 
 

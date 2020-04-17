@@ -413,6 +413,17 @@
 				]]}]
 			],
 			"flags": ["Occupied"]
+		},
+		"quarry": {
+			"sprite": "quarry",
+			"height": 2,
+			"components": [
+				["Interactable", {"action": ["interaction", ["mine", "mining"]]}],
+				["Minable", {"total": 20, "trigger": "loot"}],
+				["Loot", {"spread": true, "loot": ["list", [
+					["list", [{"type": "stone"}, 1.0]]
+				]]}]
+			]
 		}
 	},
 	"items": {
@@ -442,7 +453,14 @@
 		"armour": {"action": ["equip", {
 			"slot": "body",
 			"stats": {"defence": 3}
-		}]}
+		}]},
+		"pickaxe": {
+			"sprite": "sword",
+			"action": ["equip", {
+				"slot": "hand",
+				"stats": {"mining": 5}
+			}]
+		}
 	},
 	"templates":{
 		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],

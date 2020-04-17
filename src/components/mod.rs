@@ -240,3 +240,10 @@ pub struct Dedup {
 	pub priority: i64
 }
 
+
+#[derive(Component, Debug, Clone)]
+pub struct Minable {
+	pub progress: i64,
+	pub total: i64,
+	pub trigger: Trigger
+}

@@ -27,7 +27,8 @@ impl Slot {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Stat {
 	Strength,
-	Defence
+	Defence,
+	Mining
 }
 
 impl Stat {
@@ -35,6 +36,7 @@ impl Stat {
 		match txt {
 			"strength" => Some(Self::Strength),
 			"defence" => Some(Self::Defence),
+			"mining" => Some(Self::Mining),
 			_ => None
 		}
 	}

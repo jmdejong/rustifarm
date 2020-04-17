@@ -8,7 +8,7 @@ use specs::{
 use crate::{
 	exchange::Exchange,
 	ItemId,
-	components::Trigger,
+	components::{Trigger, equipment::Stat},
 	RoomId
 };
 
@@ -19,7 +19,8 @@ pub enum Interactable {
 	Say(String),
 	Reply(String),
 	Exchange(String, HashMap<String, Exchange>),
-	Visit(RoomId)
+	Visit(RoomId),
+	Mine(Stat)
 }
 
 use Interactable::*;
@@ -47,6 +48,7 @@ impl Interactable {
 					.collect::<Option<HashMap<String, Exchange>>>()?
 			),
 			"visit" => Visit(RoomId::from_str(arg.as_str()?)),
+			"mine" => Mine(Stat::from_str(arg.as_str()?)?),
 			_ => None?
 		})
 	}
@@ -62,7 +64,7 @@ impl Interactable {
 				} else {
 					true
 				}
-			}
+			},
 			Visit(_) => {
 				if let Some(txt) = arg {
 					 txt.starts_with("visit ") || txt.starts_with("disallow ") || txt.starts_with("allow ") || txt.starts_with("whitelist")
@@ -70,6 +72,7 @@ impl Interactable {
 					false
 				}
 			}
+			Mine(_) => arg.is_none()
 		}
 	}
 }

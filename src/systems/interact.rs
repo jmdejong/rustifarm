@@ -1,5 +1,7 @@
 
 use std::collections::HashSet;
+use rand::Rng;
+
 use specs::{
 	Entities,
 	ReadStorage,
@@ -22,7 +24,8 @@ use crate::{
 		Inventory,
 		Visible,
 		Player,
-		Whitelist
+		Whitelist,
+		Minable
 	},
 	controls::{Control},
 	resources::{Ground, NewEntities, Emigration},
@@ -47,13 +50,14 @@ impl <'a> System<'a> for Interact {
 		ReadStorage<'a, Visible>,
 		ReadStorage<'a, Player>,
 		Write<'a, Emigration>,
-		WriteStorage<'a, Whitelist>
+		WriteStorage<'a, Whitelist>,
+		WriteStorage<'a, Minable>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists): Self::SystemData) {
-		for (entity, controller, position) in (&entities, &controllers, &positions).join(){
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists, mut minables): Self::SystemData) {
+		for (actor, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
-			let ear = ears.get_mut(entity);
+			let ear = ears.get_mut(actor);
 			match &controller.control {
 				Control::Interact(directions, arg) => {
 					'targets: for direction in directions {
@@ -71,6 +75,7 @@ impl <'a> System<'a> for Interact {
 				_ => {}
 			}
 			if let Some((ent, interactable, arg)) = target {
+				let mut cooldown = 2;
 				let name = visibles.get(ent).map(|v| v.name.as_str());
 				match interactable {
 					Interactable::Trigger(trigger) => {
@@ -84,7 +89,7 @@ impl <'a> System<'a> for Interact {
 					}
 					Interactable::Exchange(prefix, exchanges) => {
 						if let Some(txt) = arg {
-							if let Some(inventory) = inventories.get_mut(entity) {
+							if let Some(inventory) = inventories.get_mut(actor) {
 								if txt.starts_with(prefix){
 									let action = txt.split_at(prefix.len()).1;
 									if let Some(exchange) = exchanges.get(action) {
@@ -110,7 +115,7 @@ impl <'a> System<'a> for Interact {
 						}
 					}
 					Interactable::Visit(dest) => {
-						if let (Some(player), Some(whitelist)) = (players.get(entity), whitelists.get_mut(ent)){
+						if let (Some(player), Some(whitelist)) = (players.get(actor), whitelists.get_mut(ent)){
 							let argument = arg.unwrap();
 							if argument.starts_with("visit ") {
 								let playername = argument.split_at("visit ".len()).1;
@@ -141,8 +146,22 @@ impl <'a> System<'a> for Interact {
 							}
 						}
 					}
+					Interactable::Mine(skill) => {
+						if let (Some(inventory), Some(minable)) = (inventories.get(actor), minables.get_mut(ent)) {
+							let stats = inventory.equipment_bonuses();
+							if let Some(skill_value) = stats.get(skill) {
+								// todo: give player feedback
+								cooldown = 20;
+								minable.progress += rand::thread_rng().gen_range(0, skill_value+1);
+								if minable.progress >= minable.total {
+									TriggerBox::add_message(&mut triggerbox, ent, minable.trigger);
+									minable.progress = 0;
+								}
+							}
+						}
+					}
 				}
-				cooldowns.insert(entity, ControlCooldown{amount: 2}).unwrap();
+				cooldowns.insert(actor, ControlCooldown{amount: cooldown}).unwrap();
 			}
 		}
 	}
