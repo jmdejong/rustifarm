@@ -13,6 +13,7 @@ use crate::{
 	playerstate::{PlayerState, RoomPos},
 	Encyclopedia,
 	controls::Control,
+	errors::{AnyError},
 	Result,
 	aerr,
 	worldmessages::WorldMessage,
@@ -32,6 +33,11 @@ pub struct World<'a, 'b> {
 	default_dispatcher: Dispatcher<'a, 'b>
 }
 
+#[derive(Debug)]
+pub enum MigrationError {
+	PlayerError(AnyError),
+	RoomError(AnyError)
+}
 
 impl <'a, 'b>World<'a, 'b> {
 	
@@ -91,16 +97,35 @@ impl <'a, 'b>World<'a, 'b> {
 			}
 			self.rooms.insert(id.clone(), room);
 		}
-		// todo: log any that occurs (and still return it)
-		self.rooms.get_mut(id).ok_or(aerr!("can't get room after loading it"))
+		Ok(self.rooms.get_mut(id).expect("can't get room after loading it"))
 	}
 	
-	fn add_loaded_player(&mut self, state: PlayerState) -> Result<()> {
+	fn add_loaded_player(&mut self, state: PlayerState) -> std::result::Result<(), MigrationError> {
 		let roomid = state.clone().room.unwrap_or_else(|| self.default_room.clone());
-		let room = self.get_room_mut(&roomid)?;
-		room.add_player(&state)?;
+		let room = self.get_room_mut(&roomid).map_err(|e| MigrationError::RoomError(e))?;
+		room.add_player(&state).map_err(|e| MigrationError::PlayerError(e))?;
 		self.players.insert(state.id, roomid);
 		Ok(())
+	}
+	
+	fn try_add_loaded_player(&mut self, mut state: PlayerState, backups: &[Option<RoomId>]) -> Result<()> {
+		match self.add_loaded_player(state.clone()){
+			Err(MigrationError::RoomError(e)) => {
+				println!("could not add player {:?} to room {:?}: {:?}", state.id, state.room, e);
+				if let Some((first, rest)) = backups.split_first(){
+					state.room = first.clone();
+					state.pos = RoomPos::Unknown;
+					self.try_add_loaded_player(state, rest)
+				} else {
+					Err(e)
+				}
+			}
+			Err(MigrationError::PlayerError(e)) => {
+				println!("could not load player {:?} to room {:?}: {:?}", state.id, state.room, e);
+				Err(e)
+			}
+			Ok(()) => Ok(())
+		}
 	}
 	
 	pub fn add_player(&mut self, playerid: &PlayerId) -> Result<()> {
@@ -118,15 +143,7 @@ impl <'a, 'b>World<'a, 'b> {
 			state.respawn();
 		}
 		
-		if let Err(_e) = self.add_loaded_player(state.clone()){
-			state.room = None;
-			state.pos = RoomPos::Unknown;
-			if let Err(_e) = self.add_loaded_player(state.clone()) {
-				state.room = Some(purgatory::purgatory_id());
-				self.add_loaded_player(state)?;
-			}
-		}
-		Ok(())
+		self.try_add_loaded_player(state, &[None])
 	}
 	
 	fn discorporate_player(&mut self, playerid: &PlayerId) -> Result<PlayerState> {
@@ -153,18 +170,7 @@ impl <'a, 'b>World<'a, 'b> {
 		let old_room = state.room;
 		state.room = Some(destination);
 		state.pos = roompos;
-		if let Err(_e) = self.add_loaded_player(state.clone()){
-			state.room = old_room;
-			state.pos = RoomPos::Unknown;
-			if let Err(_e) = self.add_loaded_player(state.clone()) {
-				state.room = None;
-				if let Err(_e) = self.add_loaded_player(state.clone()) {
-					state.room = Some(purgatory::purgatory_id());
-					self.add_loaded_player(state)?;
-				}
-			}
-		}
-		Ok(())
+		self.try_add_loaded_player(state, &[old_room, None])
 	}
 	
 	
