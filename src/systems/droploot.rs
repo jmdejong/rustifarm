@@ -13,12 +13,15 @@ use crate::{
 	components::{
 		Position,
 		Loot,
+		LootHolder,
 		Trigger,
 		TriggerBox,
 		Flags,
-		Flag
+		Flag,
+		Removed
 	},
 	resources::{NewEntities, Ground},
+	componentwrapper::ComponentWrapper,
 	Pos
 };
 
@@ -31,20 +34,25 @@ impl <'a> System<'a> for DropLoot{
 		ReadStorage<'a, TriggerBox>,
 		ReadStorage<'a, Loot>,
 		Read<'a, Ground>,
-		ReadStorage<'a, Flags>
+		ReadStorage<'a, Flags>,
+		ReadStorage<'a, LootHolder>
 	);
 	
-	fn run(&mut self, (positions, mut new, triggerboxes, loots, ground, flags): Self::SystemData) {
+	fn run(&mut self, (positions, mut new, triggerboxes, loots, ground, flags, lootholders): Self::SystemData) {
 		for (position, triggerbox, loot) in (&positions, &triggerboxes, &loots).join(){
 			if triggerbox.has_message(&[Trigger::Die, Trigger::Loot]) {
-				for (template, chance) in &loot.loot {
-					if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
-						let pos = if loot.spread {
-							pick_position(position.pos, &ground, &flags)
-						} else {position.pos};
-						// todo: better error handling
-						new.create(pos, &template).unwrap();
-					}
+				new.to_build.push((position.pos, vec![
+					ComponentWrapper::LootHolder(LootHolder{loot: loot.loot.clone()}),
+					ComponentWrapper::Removed(Removed)
+				]));
+			}
+		}
+		for (position, loot) in (&positions, &lootholders).join() {
+			for (template, chance) in &loot.loot {
+				if *chance > rand::thread_rng().gen_range(0.0, 1.0) {
+					let pos = pick_position(position.pos, &ground, &flags);
+					// todo: better error handling
+					new.create(pos, &template).unwrap();
 				}
 			}
 		}

@@ -182,8 +182,8 @@ components!(all:
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
 	Interactable (action: Interaction) {action};
-	Loot (loot: List, spread: Bool) {
-		Loot {spread, loot:
+	Loot (loot: List) {
+		Loot {loot:
 			loot
 			.iter()
 			.map(|param| {match param {
@@ -291,6 +291,8 @@ components!(all:
 			total
 		}
 	};
+	Removed;
+	LootHolder () {panic!("LootHolder from parameters not implemented")};
 );
 
 
