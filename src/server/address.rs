@@ -38,7 +38,13 @@ impl FromStr for Address {
 		match typename {
 			"inet" => Ok(Address::Inet(text.parse()?)),
 			"unix" => Ok(Address::Unix(PathBuf::new().join(text))),
-			"abstract" => Ok(Address::Unix(PathBuf::new().join(&format!("\0{}", text)))),
+			"abstract" => {
+					if cfg!(target_os = "linux") {
+						Ok(Address::Unix(PathBuf::new().join(&format!("\0{}", text))))
+					} else {
+						Err(aerr!("abstract adresses are only for linux"))
+					}
+				}
 			_ => Err(aerr!("'{}' is not a valid address type", typename))
 		}
 	}

@@ -94,17 +94,20 @@ impl Server for UnixServer {
 		}
 	}
 	
-	
+	#[cfg(any(target_os = "linux", target_os = "android"))]
 	fn get_name(&self, id: usize) -> Option<String> {
 		let connection = self.connections.get(id)?;
 		let fd = connection.stream.as_raw_fd();
-		if let Ok(peercred) = getsockopt(fd, sockopt::PeerCredentials) {
-			let uid = peercred.uid();
-			let user = users::get_user_by_uid(uid)?;
-			let name = user.name();
-			Some(name.to_string_lossy().to_string())
-		} else { None }
+		let peercred = getsockopt(fd, sockopt::PeerCredentials).ok()?;
+		let uid = peercred.uid();
+		let user = users::get_user_by_uid(uid)?;
+		let name = user.name();
+		Some(name.to_string_lossy().to_string())
 	}
-
+	
+	#[cfg(not(any(target_os = "linux", target_os = "android")))]
+	fn get_name(&self, id: usize) -> Option<String> {
+		None
+	}
 }
 

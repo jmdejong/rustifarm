@@ -66,7 +66,10 @@ fn main(){
 	let config = config::Config::from_args();
 	
 	let adresses = config.address
-		.unwrap_or(vec!["abstract:rustifarm".parse().unwrap(), "inet:127.0.0.1:1234".parse().unwrap()]);
+		.unwrap_or(vec![
+			(if cfg!(target_os = "linux") {"abstract:rustifarm"} else {"unix:/tmp/rustifarm"}).parse().unwrap(),
+			"inet:127.0.0.1:1234".parse().unwrap()
+		]);
 	println!("adresses: {:?}", adresses);
 	let servers: Vec<Box<dyn Server>> = 
 		adresses
