@@ -43,7 +43,6 @@ impl RoomTemplate {
 		let mut field = Vec::new();
 		field.resize_with(width * height, Vec::new);
 		let jsonfield: &Vec<Value> = jsonroom.get("field").ok_or(perr!("no field"))?.as_array().ok_or(perr!("field not an array"))?;
-		// todo: what if size doesn't match actual dimensions
 		for (y, row) in jsonfield.iter().take(height).enumerate() {
 			for (x, ch) in row.as_str().ok_or(perr!("field row not a string"))?.chars().take(width).enumerate() {
 				field[x + y * width] = mapping.get(&ch).ok_or(perr!("char not found in mapping"))?.clone();

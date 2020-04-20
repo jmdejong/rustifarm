@@ -3,8 +3,6 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::path::PathBuf;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
-use std::fs;
-use serde_json;
 use structopt::StructOpt;
 
 mod server;
@@ -56,7 +54,7 @@ use self::{
 	server::address::Address,
 	persistence::FileStorage,
 	controls::Action,
-	worldloader::WorldLoader,
+	worldloader::{WorldLoader, WorldMeta},
 	world::World,
 	worldmessages::MessageCache
 };
@@ -84,25 +82,18 @@ fn main(){
 			.join("content/")
 	);
 	println!("content directory: {:?}", content_dir);
-	let loader = WorldLoader::new(content_dir.join("maps"));
-	let encyclopedia = Encyclopedia::from_json(
-		serde_json::from_str(
-			&fs::read_to_string(
-				content_dir
-					.join("encyclopediae")
-					.join("default_encyclopedia.json")
-			).expect("can not load default_encyclopedia.json")
-		).expect("default_encyclopedia is invalid json")
-	).expect("can not load encyclopedia from json");
-	encyclopedia.validate().expect("invalid encyclopedia");
+	let loader = WorldLoader::new(content_dir);
+	let WorldMeta{encyclopedia_name, default_room} = loader.load_world_meta().expect("Failed to load world meta information");
+	
+	let encyclopedia = loader.load_encyclopedia(&encyclopedia_name).expect("Failed to load encyclopedia");
 	
 	let save_dir = config.save_dir.unwrap_or(
 		FileStorage::default_save_dir().expect("couldn't find any save directory")
 	);
-	println!("save directory: {:?}", content_dir);
+	println!("save directory: {:?}", save_dir);
 	let storage = FileStorage::new(save_dir);
 
-	let mut world = World::new(encyclopedia, loader, Box::new(storage), RoomId::from_str("room"));
+	let mut world = World::new(encyclopedia, loader, Box::new(storage), default_room);
 	
 	let mut message_cache = MessageCache::default();
 	
