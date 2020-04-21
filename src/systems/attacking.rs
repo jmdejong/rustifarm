@@ -61,7 +61,9 @@ impl <'a> System<'a> for Attacking {
 			let mut attackers = Vec::new();
 			let mut attacker_names = Vec::new();
 			for attack in attacked.messages.drain(..) {
-				let actor_name = attack.attacker.map(|ae| visibles.get(ae)).flatten().map(|v| v.name.as_str()).unwrap_or("?").to_string();
+				let actor_name = (
+					if let Some(Some(n)) = attack.attacker.map(|ae| visibles.get(ae).map(|v| v.name.as_str())) {n} else {"?"}
+				).to_string();
 				match attack.typ {
 					AttackType::Attack(strength) => {
 						let damage = rand::thread_rng().gen_range(0, strength+1);

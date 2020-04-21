@@ -82,7 +82,15 @@ impl Control {
 				)),
 				"interact" => Some(Control::Interact(
 					parse_directions(val.get(1)?)?,
-					val.get(2).map(|v| Some(v.as_str()?.to_string())).flatten()
+					if let Some(argument) = val.get(2) {
+						match argument {
+							Value::String(arg) => Some(arg.to_string()),
+							Value::Null => None,
+							_ => {return None}
+						}
+					} else {
+						None
+					}
 				)),
 				_ => None
 			}
