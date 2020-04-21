@@ -17,8 +17,7 @@ use crate::{
 enum Message {
 	Name(String),
 	Chat(String),
-	Input(Value),
-	Invalid(String)
+	Input(Value)
 }
 
 struct MessageError {
@@ -29,6 +28,7 @@ struct MessageError {
 macro_rules! merr {
 	(name, $text: expr) => {merr!("invalidname", $text)};
 	(action, $text: expr) => {merr!("invalidaction", $text)};
+	(msg, $text: expr) => {merr!("invalidmessage", $text)};
 	($typ: expr, $text: expr) => {MessageError{typ: $typ.to_string(), text: $text.to_string()}};
 }
 
@@ -61,10 +61,17 @@ impl GameServer {
 		}
 		for (serverid, messages, left) in input {
 			for (id, message) in messages {
-				match self.handle_message((serverid, id), parse_message(&message)){
-					Ok(Some(action)) => {actions.push(action);}
-					Ok(None) => {}
-					Err(err) => {let _ = self.send_error((serverid, id), &err.typ, &err.text);}
+				match parse_message(&message) {
+					Ok(msg) => {
+						match self.handle_message((serverid, id), msg){
+							Ok(Some(action)) => {actions.push(action);}
+							Ok(None) => {}
+							Err(err) => {let _ = self.send_error((serverid, id), &err.typ, &err.text);}
+						}
+					}
+					Err(err) => {
+						{let _ = self.send_error((serverid, id), &err.typ, &err.text);}
+					}
 				}
 			}
 			for id in left {
@@ -155,48 +162,35 @@ impl GameServer {
 				let control = Control::from_json(&inp).ok_or(merr!(action, &format!("unknown action: {}", inp)))?;
 				Ok(Some(Action::Input(player.clone(), control)))
 			}
-			Message::Invalid(text) => {
-				Err(merr!("invalidmessage", &format!("Invalid: {}", text)))
-			}
 		}
 	}
 }
 
 
 
-fn parse_message(msg: &str) -> Message {
-	if let Ok(data) = serde_json::from_str(msg) {
-		if let Value::Array(arr) = data {
-			if arr.len() < 2 {
-				return Message::Invalid("array not long enough".to_string());
-			}
-			if let Some(msgtype) = arr[0].as_str() {
-				match msgtype {
-					"name" => {
-						if let Some(name) = arr[1].as_str(){
-							Message::Name(name.to_string())
-						} else {
-							Message::Invalid("name is not a string".to_string())
-						}
-					}
-					"chat" => {
-						if let Some(text) = arr[1].as_str(){
-							Message::Chat(text.escape_debug().to_string())
-						} else {
-							Message::Invalid("chat text is not a string".to_string())
-						}
-						
-					}
-					"input" => {
-						Message::Input(arr[1].clone())
-					}
-					_ => {
-						Message::Invalid(format!("unknown messsage type {:?}", msgtype))
-					}
-				}
-			} else { Message::Invalid(format!("first array value not string: {:?}", arr[0].to_string())) }
-		} else { Message::Invalid("not json array".to_string()) }
-	} else { Message::Invalid("not json message".to_string()) }
+fn parse_message(msg: &str) -> Result<Message, MessageError> {
+	let data: Value = serde_json::from_str(msg).map_err(|e| merr!(msg, format!("Invalid JSON: {}", e)))?;
+	let arr = data.as_array().ok_or(merr!(msg, "message not a json array"))?;
+	if arr.len() < 2 {
+		return Err(merr!(msg, "array not long enough"));
+	}
+	let msgtype = arr[0].as_str().ok_or(merr!(msg, "first message element not a string"))?;
+	Ok(match msgtype {
+		"name" => {
+			let name = arr[1].as_str().ok_or(merr!(msg, "name not a string"))?;
+			Message::Name(name.to_string())
+		}
+		"chat" => {
+			let text = arr[1].as_str().ok_or(merr!(msg, "chat text not a string"))?;
+			Message::Chat(text.escape_debug().to_string())
+		}
+		"input" => {
+			Message::Input(arr[1].clone())
+		}
+		_ => {
+			return Err(merr!(msg, format!("unknown messsage type {:?}", msgtype)))
+		}
+	})
 }
 
 
