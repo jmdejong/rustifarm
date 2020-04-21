@@ -6,6 +6,14 @@ pub fn clamp<T: Ord>(val: T, lower: T, upper: T) -> T{
 }
 
 
+pub fn strip_prefix<'a>(txt: &'a str, prefix: &'a str) -> Option<&'a str> {
+	if txt.starts_with(prefix) {
+		Some(txt.split_at(prefix.len()).1)
+	} else {
+		None
+	}
+}
+
 #[macro_export]
 macro_rules! hashmap {
 	( $($key:expr => $value:expr ),* ) => {{

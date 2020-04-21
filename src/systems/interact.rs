@@ -31,7 +31,8 @@ use crate::{
 	resources::{Ground, NewEntities, Emigration},
 	hashmap,
 	playerstate::RoomPos,
-	PlayerId
+	PlayerId,
+	util::strip_prefix
 };
 
 pub struct Interact;
@@ -89,19 +90,16 @@ impl <'a> System<'a> for Interact {
 					}
 					Interactable::Exchange(prefix, exchanges) => {
 						if let Some(txt) = arg {
-							if let Some(inventory) = inventories.get_mut(actor) {
-								if txt.starts_with(prefix){
-									let action = txt.split_at(prefix.len()).1;
-									if let Some(exchange) = exchanges.get(action) {
-										if exchange.can_trade(inventory){
-											exchange.trade(inventory, &new.encyclopedia);
-											say(ear, format!("Success! '{}' ({})", txt, exchange.show()), name);
-										} else {
-											say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()), name);
-										}
+							if let (Some(inventory), Some(action)) = (inventories.get_mut(actor), strip_prefix(&txt, prefix)) {
+								if let Some(exchange) = exchanges.get(action) {
+									if exchange.can_trade(inventory){
+										exchange.trade(inventory, &new.encyclopedia);
+										say(ear, format!("Success! '{}' ({})", txt, exchange.show()), name);
 									} else {
-										say(ear, format!("Invalid option: {}", action), name);
+										say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()), name);
 									}
+								} else {
+									say(ear, format!("Invalid option: {}", action), name);
 								}
 							}
 						} else {
@@ -117,8 +115,7 @@ impl <'a> System<'a> for Interact {
 					Interactable::Visit(dest) => {
 						if let (Some(player), Some(whitelist)) = (players.get(actor), whitelists.get_mut(ent)){
 							let argument = arg.unwrap();
-							if argument.starts_with("visit ") {
-								let playername = argument.split_at("visit ".len()).1;
+							if let Some(playername) = strip_prefix(&argument, "visit ") {
 								let destination = dest.format(hashmap!("{player}" => playername));
 								if let Some(set) = whitelist.allowed.get(&destination.name) {
 									if set.contains(&player.id){
@@ -129,13 +126,11 @@ impl <'a> System<'a> for Interact {
 								} else {
 									say(ear, format!("unknown destination {}", playername), name);
 								}
-							} else if argument.starts_with("allow ") {
-								let playername = argument.split_at("allow ".len()).1;
+							} else if let Some(playername) = strip_prefix(&argument, "allow ") {
 								let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
 								whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).insert(PlayerId{name: playername.to_string()});
 								say(ear, format!("allowed {} to enter your home", playername), name);
-							} else if argument.starts_with("disallow ") {
-								let playername = argument.split_at("disallow ".len()).1;
+							} else if let Some(playername) = strip_prefix(&argument, "disallow ") {
 								let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
 								whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).remove(&PlayerId{name: playername.to_string()});
 								say(ear, format!("disallowed {} to enter your home", playername), name);
