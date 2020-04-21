@@ -35,6 +35,10 @@ pub enum Notification {
 	Die {
 		actor: String,
 		target: String
+	},
+	Options {
+		description: String,
+		options: Vec<(String, String)>
 	}
 }
 
@@ -53,7 +57,8 @@ impl Notification {
 				Heal => "heal"
 			},
 			Kill{actor: _, target: _} => "kill",
-			Die{actor: _, target: _} => "die"
+			Die{actor: _, target: _} => "die",
+			Options{description: _, options: _} => "options"
 		}).to_string()
 	}
 	
@@ -77,6 +82,9 @@ impl Notification {
 			},
 			Die{actor, target} => {
 				format!("{} was killed by {}", target, actor)
+			},
+			Options{description, options} => {
+				format!("{}. Options: {}", description, options.iter().map(|(command, desc)| format!("'{}': {};", command, desc)).collect::<Vec<String>>().join(" "))
 			}
 		};
 		(self.type_name(), body)
