@@ -1,4 +1,5 @@
 
+use serde_json::{json, Value};
 use specs::{
 	HashMapStorage,
 	Component,
@@ -62,32 +63,37 @@ impl Notification {
 		}).to_string()
 	}
 	
-	pub fn as_message(&self) -> (String, String) {
-		let body = match self {
-			Sound{source, text} => {
+	pub fn as_message(&self) -> (String, String, Value) {
+		let (body, payload) = match self {
+			Sound{source, text} => {(
 				if let Some(name) = &source {
 					format!("{}: {}", name, &text)
 				} else {
 					text.clone()
-				}
-			}
-			Health{actor, target, amount, typ} => {
+				},
+				json!({"source": source, "text": text})
+			)}
+			Health{actor, target, amount, typ} => {(
 				match typ {
 					Attack | Damage => format!("{} attacks {} for {} damage", actor, target, amount),
 					Heal => format!("{} heals {} for {} health", actor, target, amount)
-				}
-			},
-			Kill{actor, target} => {
-				format!("{} kills {}", actor, target)
-			},
-			Die{actor, target} => {
-				format!("{} was killed by {}", target, actor)
-			},
-			Options{description, options} => {
-				format!("{}. Options: {}", description, options.iter().map(|(command, desc)| format!("'{}': {};", command, desc)).collect::<Vec<String>>().join(" "))
-			}
+				},
+				json!({"actor": actor.clone(), "target": target.clone(), "amount": amount})
+			)},
+			Kill{actor, target} => {(
+				format!("{} kills {}", actor, target),
+				json!({"actor": actor.clone(), "target": target.clone()})
+			)},
+			Die{actor, target} => {(
+				format!("{} was killed by {}", target, actor),
+				json!({"actor": actor.clone(), "target": target.clone()})
+			)},
+			Options{description, options} => {(
+				format!("{}. Options: {}", description, options.iter().map(|(command, desc)| format!("'{}': {};", command, desc)).collect::<Vec<String>>().join(" ")),
+				json!({"description": description.clone(), "options": options.clone()})
+			)}
 		};
-		(self.type_name(), body)
+		(self.type_name(), body, payload)
 	}
 }
 

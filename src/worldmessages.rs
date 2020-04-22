@@ -11,7 +11,7 @@ use crate::{
 macro_rules! worldmessages {
 	($($name: ident, $typ: ident, $strname: expr, $filter: expr);*;) => {
 	
-		#[derive(Debug, Clone, Default, PartialEq, Eq)]
+		#[derive(Debug, Clone, Default, PartialEq)]
 		pub struct WorldMessage {
 			$(
 				pub $name: Option<$typ>,
@@ -68,7 +68,7 @@ pub type ChangeMessage = Vec<(Pos, Vec<Sprite>)>;
 pub type HealthMessage = (i64, i64);
 pub type InventoryMessage = Vec<(String, bool)>;
 pub type GroundMessage = Vec<String>;
-pub type SoundMessage = Vec<(String, String)>;
+pub type SoundMessage = Vec<(String, String, Value)>;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct FieldMessage {
