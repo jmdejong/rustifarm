@@ -44,16 +44,18 @@ pub struct GameServer {
 	players: HashMap<(usize, usize), PlayerId>,
 	connections: HashMap<PlayerId, (usize, usize)>,
 	users: Box<dyn UserRegistry>,
-	servers: Vec<Box<dyn Server>>
+	servers: Vec<Box<dyn Server>>,
+	admins: String
 }
 
 impl GameServer {
-	pub fn new(servers: Vec<Box<dyn Server>>, users: Box<dyn UserRegistry>) -> GameServer {
+	pub fn new(servers: Vec<Box<dyn Server>>, users: Box<dyn UserRegistry>, admins: String) -> GameServer {
 		GameServer {
 			players: HashMap::new(),
 			connections: HashMap::new(),
 			servers,
-			users
+			users,
+			admins
 		}
 	}
 	
@@ -147,7 +149,7 @@ impl GameServer {
 					return Err(merr!(action, "You can not change your name"));
 				}
 				let player = PlayerId{name};
-				self.authenticate(&player, auth, id)?;
+				self.authenticate(&player, auth.clone(), id)?;
 				if self.connections.contains_key(&player) {
 					return Err(merr!("nametaken", "Another connection to this player exists already"));
 				}
@@ -156,6 +158,13 @@ impl GameServer {
 				self.connections.insert(player.clone(), id);
 				if let Err(_) = self.send(&player, json!(["connected", format!("successfully connected as {}", &player.name)])){
 					return Err(merr!("server", "unable to send connected message"))
+				}
+				if auth == Authentication::Guest {
+					let _ = self.send(&player, json!([
+						"message",
+						format!("You are connected as guest account. Anyone could log in to this account. To register an account for yourself ask one of the server admins: {}", &self.admins),
+						"server"
+					]));
 				}
 				Ok(Some(Action::Join(player)))
 			}

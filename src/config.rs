@@ -19,4 +19,8 @@ pub struct Config {
 	#[structopt(short, long, env="ASCIIFARM_USER_DIR", help="The directory in which the user sign-in data lives")]
 	pub user_dir: Option<PathBuf>,
 	
+	
+	#[structopt(long, env="USER", help="The name(s) of the server admin(s)")]
+	pub admins: String,
+	
 }

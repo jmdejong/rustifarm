@@ -66,6 +66,8 @@ fn main(){
 	
 	let config = config::Config::from_args();
 	
+	println!("Server admin(s): {}", config.admins);
+	
 	let adresses = config.address
 		.unwrap_or(
 			(if cfg!(target_os = "linux") {
@@ -90,7 +92,7 @@ fn main(){
 	println!("user auth directory: {:?}", user_dir);
 	let users = auth::FileRegister::new(user_dir);
 	
-	let mut gameserver = GameServer::new(servers, Box::new(users));
+	let mut gameserver = GameServer::new(servers, Box::new(users), config.admins);
 	
 	let content_dir = config.content_dir.unwrap_or(
 		PathBuf::new()
