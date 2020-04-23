@@ -6,6 +6,8 @@ import threading
 import json
 import getpass
 
+# A simple asciifarm client that can only join the chat.
+
 
 def send(sock, msg):
 	length = len(msg)
@@ -14,7 +16,7 @@ def send(sock, msg):
 	sock.sendall(totalmsg)
 
 def receive(sock):
-	header = recvall(sock, 4) #sock.recv(4)
+	header = recvall(sock, 4)
 	length = int.from_bytes(header, byteorder="big")
 	return recvall(sock, length)
 
@@ -30,10 +32,15 @@ def recvall(sock, length):
 		bytes_recd = bytes_recd + len(chunk)
 	return b''.join(chunks)
 	
+inet = "inet" in sys.argv
+join = "join" in sys.argv
 
-
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect("\0rustifarm")#("localhost", 1234))
+if inet:
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.connect(("localhost", 9021))
+else:
+	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+	sock.connect("\0rustifarm")
 
 def listen():
 	while True:
@@ -48,10 +55,10 @@ threading.Thread(target=listen, daemon=True).start()
 if len(sys.argv) >= 2:
 	name = sys.argv[1]
 else:
-	name = "~" + getpass.getuser()
+	name = getpass.getuser()
 print(name)
 
-send(sock, bytes(json.dumps(["name", name]), "utf-8"))
+send(sock, bytes(json.dumps(["auth", {"name": name, "join": join, "type": "guest"}]), "utf-8"))
 
 for line in sys.stdin:
 	send(sock, bytes(json.dumps(["chat", line.strip()]), "utf-8"))

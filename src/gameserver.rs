@@ -22,7 +22,7 @@ enum Authentication {
 
 #[derive(Debug)]
 enum Message {
-	Auth(String, Authentication),
+	Auth(String, Authentication, bool),
 	Chat(String),
 	Input(Value)
 }
@@ -131,7 +131,7 @@ impl GameServer {
 	fn handle_message(&mut self, (serverid, connectionid): (usize, usize), msg: Message) -> Result<Option<Action>, MessageError> {
 		let id = (serverid, connectionid);
 		match msg {
-			Message::Auth(name, auth) => {
+			Message::Auth(name, auth, join) => {
 				if name.len() > 99 {
 					return Err(merr!(name, "A name can not be longer than 99 bytes"));
 				}
@@ -166,7 +166,11 @@ impl GameServer {
 						"server"
 					]));
 				}
-				Ok(Some(Action::Join(player)))
+				Ok(if join {
+					Some(Action::Join(player))
+				} else {
+					None
+				})
 			}
 			Message::Chat(text) => {
 				let player = self.players.get(&id).ok_or(merr!(action, "Set a valid name before you send any other messages"))?;
@@ -243,7 +247,8 @@ fn parse_message(msg: &str) -> Result<Message, MessageError> {
 					Authentication::Tilde
 				} else {
 					Authentication::Guest
-				}
+				},
+				true
 			)
 		}
 		"chat" => {
@@ -256,6 +261,7 @@ fn parse_message(msg: &str) -> Result<Message, MessageError> {
 		"auth" => {
 			let name = arg.get("name").ok_or(merr!(msg, "auth message does not have name"))?.as_str().ok_or(merr!(msg, "auth name not a string"))?.to_string();
 			let typ = arg.get("type").ok_or(merr!(msg, "auth message does not have type"))?.as_str().ok_or(merr!(msg, "auth type not a string"))?;
+			let join = arg.get("join").unwrap_or(&json!(true)).as_bool().ok_or(merr!(msg, "join flag not a bool"))?;
 			Message::Auth(
 				name,
 				match typ {
@@ -270,7 +276,8 @@ fn parse_message(msg: &str) -> Result<Message, MessageError> {
 						.to_string()
 					),
 					_ => {return Err(merr!(msg, "invalid authentication type"))}
-				}
+				},
+				join
 			)
 		}
 		_ => {
