@@ -209,8 +209,7 @@ impl GameServer {
 							println!("Name mismatch: user entry for {:?} has name {}", player, user.name);
 							return Err(merr!("server", "name mismatch"));
 						}
-						if token != user.pass_token {
-							println!("password mismatch: '{}' '{}'", token, user.pass_token);
+						if !user.validate_token(&token) {
 							return Err(merr!("invalidtoken", "invalid pass token"));
 						}
 						()

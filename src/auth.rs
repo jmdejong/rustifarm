@@ -3,9 +3,12 @@ use std::path::{PathBuf};
 use std::fs;
 use std::env;
 use std::io::ErrorKind;
-use serde_json;
 
+use serde_json;
 use serde::{Serialize, Deserialize};
+use sha2::{Sha256, Digest};
+use base64::decode;
+
 use crate::{
 	PlayerId,
 	errors::AnyError,
@@ -29,6 +32,17 @@ pub struct User {
 	pub name: String,
 	pub pass_token: String,
 	pub role: UserRole
+}
+
+impl User {
+	pub fn validate_token(&self, token: &str) -> bool {
+		if let (Ok(saved), Ok(given)) = (decode(&self.pass_token), decode(token)) {
+			let hashed: Vec<u8> = Sha256::digest(&given)[..].to_vec();
+			hashed == saved
+		} else {
+			false
+		}
+	}
 }
 
 macro_rules! inv {
