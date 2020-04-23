@@ -1,6 +1,7 @@
 
 use std::cmp::{min, max};
 
+
 pub fn clamp<T: Ord>(val: T, lower: T, upper: T) -> T{
 	max(min(val, upper), lower)
 }
@@ -13,6 +14,30 @@ pub fn strip_prefix<'a>(txt: &'a str, prefix: &'a str) -> Option<&'a str> {
 		None
 	}
 }
+
+use std::fs;
+use std::path::Path;
+use crate::{
+	errors::AnyError,
+	aerr
+};
+
+pub fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> Result<(), AnyError> {
+	let temppath = path
+		.as_ref()
+		.with_file_name(
+			format!(
+				"tempfile_{}_{}.tmp",
+				path.as_ref().file_name().ok_or(aerr!("writing to directory"))?.to_str().unwrap_or("invalid"),
+				rand::random::<u64>()
+			)
+		);
+	fs::write(&temppath, contents)?;
+	fs::rename(&temppath, path)?;
+	Ok(())
+}
+
+
 
 #[macro_export]
 macro_rules! hashmap {

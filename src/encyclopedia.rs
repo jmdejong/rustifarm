@@ -106,13 +106,13 @@ impl Encyclopedia {
 		let assemblage_substitute = val
 			.get("assemblage_substitute")
 			.unwrap_or(&json!({}))
-			.as_object().ok_or(perr!("assemblage_subtitutions not a json dict"))?
+			.as_object().ok_or(perr!("assemblage_subtitute not a json dict"))?
 			.iter()
 			.chain(
 				val
 				.get("substitute")
 				.unwrap_or(&json!({}))
-				.as_object().ok_or(perr!("substitutions not a json dict"))?
+				.as_object().ok_or(perr!("substitute not a json dict"))?
 				.iter()
 			)
 			.map(|(from, into)| {
@@ -124,15 +124,15 @@ impl Encyclopedia {
 			.collect::<PResult<HashMap<EntityType, EntityType>>>()?;
 		
 		let item_substitute = val
-			.get("assemblage_substitute")
+			.get("item_substitute")
 			.unwrap_or(&json!({}))
-			.as_object().ok_or(perr!("assemblage_subtitutions not a json dict"))?
+			.as_object().ok_or(perr!("item_subtitute not a json dict"))?
 			.iter()
 			.chain(
 				val
 				.get("substitute")
 				.unwrap_or(&json!({}))
-				.as_object().ok_or(perr!("substitutions not a json dict"))?
+				.as_object().ok_or(perr!("substitute not a json dict"))?
 				.iter()
 			)
 			.map(|(from, into)| {

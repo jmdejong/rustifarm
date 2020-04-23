@@ -36,6 +36,7 @@ mod config;
 mod item;
 mod exchange;
 mod errors;
+mod auth;
 
 use self::{
 	pos::Pos,
@@ -77,7 +78,13 @@ fn main(){
 		.map(|a| a.to_server().unwrap())
 		.collect();
 	
-	let mut gameserver = GameServer::new(servers);
+	let user_dir = config.user_dir.unwrap_or(
+		auth::FileRegister::default_register_dir().expect("couldn't find any save directory")
+	);
+	println!("user auth directory: {:?}", user_dir);
+	let users = auth::FileRegister::new(user_dir);
+	
+	let mut gameserver = GameServer::new(servers, Box::new(users));
 	
 	let content_dir = config.content_dir.unwrap_or(
 		PathBuf::new()

@@ -1,5 +1,5 @@
 
-use std::path::{PathBuf, Path};
+use std::path::{PathBuf};
 use std::fs;
 use std::env;
 use std::io::ErrorKind;
@@ -12,7 +12,8 @@ use crate::{
 	playerstate::PlayerState,
 	Timestamp,
 	aerr,
-	errors::AnyError
+	errors::AnyError,
+	util::write_file_safe
 };
 
 
@@ -153,18 +154,4 @@ impl PersistentStorage for FileStorage {
 	}
 }
 
-fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> Result<(), AnyError> {
-	let temppath = path
-		.as_ref()
-		.with_file_name(
-			format!(
-				"tempfile_{}_{}.tmp",
-				path.as_ref().file_name().ok_or(aerr!("writing to directory"))?.to_str().unwrap_or("invalid"),
-				rand::random::<u64>()
-			)
-		);
-	fs::write(&temppath, contents)?;
-	fs::rename(&temppath, path)?;
-	Ok(())
-}
 
