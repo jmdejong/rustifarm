@@ -20,14 +20,13 @@ pub enum LoaderError {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum UserRole {
-	User,
+	Player,
 	Bridge
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct User {
 	pub name: String,
-	pub email: String,
 	pub pass_token: String,
 	pub role: UserRole
 }
