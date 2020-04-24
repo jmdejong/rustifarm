@@ -6,8 +6,8 @@ use std::io::ErrorKind;
 
 use serde_json;
 use serde::{Serialize, Deserialize};
-use sha2::{Sha256, Digest};
-use base64::decode;
+use ring::digest;
+use base64;
 
 use crate::{
 	PlayerId,
@@ -31,13 +31,15 @@ pub enum UserRole {
 pub struct User {
 	pub name: String,
 	pub pass_token: String,
+	pub salt: String,
 	pub role: UserRole
 }
 
 impl User {
 	pub fn validate_token(&self, token: &str) -> bool {
-		if let (Ok(saved), Ok(given)) = (decode(&self.pass_token), decode(token)) {
-			let hashed: Vec<u8> = Sha256::digest(&given)[..].to_vec();
+		if let (Ok(saved), Ok(mut given), Ok(mut salt)) = (base64::decode(&self.pass_token), base64::decode(token), base64::decode(&self.salt)) {
+			given.append(&mut salt);
+			let hashed: Vec<u8> = digest::digest(&digest::SHA256, &given).as_ref().to_vec();
 			hashed == saved
 		} else {
 			false
