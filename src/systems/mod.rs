@@ -22,6 +22,8 @@ mod timeout;
 mod clear;
 mod building;
 mod deduplicate;
+mod spawntrigger;
+mod replace;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -46,5 +48,7 @@ pub use self::{
 	timeout::Timeout,
 	clear::Clear,
 	building::Building,
-	deduplicate::Deduplicate
+	deduplicate::Deduplicate,
+	spawntrigger::SpawnTrigger,
+	replace::Replace
 };

@@ -164,9 +164,8 @@ impl PlayerState {
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map( |(itemid, is_equipped)| {
-						let id = encyclopedia.substitute_item(itemid);
-						let item = encyclopedia.get_item(&id).ok_or(aerr!("failed to load item '{:?} in inventory of player {:?}", itemid, self))?;
-					Ok(InventoryEntry{itemid: id, item, is_equipped: *is_equipped})
+						let item = encyclopedia.get_item(&itemid).ok_or(aerr!("failed to load item '{:?} in inventory of player {:?}", itemid, self))?;
+					Ok(InventoryEntry{itemid: itemid.clone(), item, is_equipped: *is_equipped})
 				}).collect::<Result<Vec<InventoryEntry>>>()?,
 				capacity: self.inventory_capacity
 			}),

@@ -58,7 +58,7 @@ impl Assemblage {
 					.as_str().ok_or(perr!("component name not a string"))?;
 				let comptype = ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?;
 				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
-				for (key, value) in tup.get(1).ok_or(perr!("index 1 not in component"))?.as_object().ok_or(perr!("component parameters not a json object"))? {
+				for (key, value) in tup.get(1).ok_or(perr!("index 1 not in component"))?.as_object().ok_or(perr!("component parameters not a json object: {:?}", tup.get(1)))? {
 					let param = ComponentParameter::from_json(value)?;
 					parameters.insert(key.clone(), param);
 				}
@@ -100,6 +100,9 @@ impl Assemblage {
 			}]));
 		}
 		
+		if let Some(substitute) = val.get("substitute") {
+			components.push(json!(["Substitute", {"into": ["template", substitute]}]));
+		}
 		Ok(components)
 	}
 	

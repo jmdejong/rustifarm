@@ -12,7 +12,7 @@ use crate::{
 pub struct EntityType(pub String);
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-enum SaveOption {
+pub enum SaveOption {
 	Default,
 	False,
 	Always
@@ -23,7 +23,7 @@ pub struct Template {
 	pub name: EntityType,
 	pub args: Vec<Parameter>,
 	pub kwargs: HashMap<String, Parameter>,
-	save: SaveOption,
+	pub save: SaveOption,
 }
 
 
@@ -61,6 +61,16 @@ impl Template {
 	pub fn unsaved(mut self) -> Self {
 		if self.save == SaveOption::Default {
 			self.save = SaveOption::False
+		}
+		self
+	}
+	
+	pub fn merge(mut self, other: Template) -> Self {
+		if self.save == SaveOption::Default {
+			self.save = other.save;
+		}
+		for (key, value) in other.kwargs {
+			self.kwargs.entry(key).or_insert(value);
 		}
 		self
 	}

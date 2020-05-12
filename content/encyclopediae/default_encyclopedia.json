@@ -424,6 +424,9 @@
 					["list", [{"type": "stone"}, 1.0]]
 				]]}]
 			]
+		},
+		"radishes": {
+			"substitute": "radish"
 		}
 	},
 	"items": {
@@ -431,6 +434,7 @@
 		"stone": {"action": ["build", ["builtwall", ["Floor"], ["Blocking"]]]},
 		"radishseed": {"sprite": "seed", "action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
 		"radish": {"sprite": "food", "action": ["eat", 3]},
+		"radishes": {"sprite": "food", "name": "radish", "entity": "radish", "action": ["eat", 3]},
 		"eldritch_radish": {"sprite": "food", "name": "eldritch_radish", "action": ["eat", 20]},
 		"carrotseed": {"sprite": "seed", "action": ["build", ["plantedcarrotseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
 		"carrot": {"sprite": "food", "action": ["eat", 5]},
@@ -466,8 +470,5 @@
 		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],
 		"carrotseedling": ["seedling", {"delay": 60, "next": "youngcarrotplant"}],
 		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}]
-	},
-	"substitute": {
-		"radishes": "radish"
 	}
 }

@@ -253,3 +253,15 @@ pub struct Minable {
 	pub total: i64,
 	pub trigger: Trigger
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct OnSpawn {
+	pub trigger: Trigger
+}
+
+
+#[derive(Component, Debug, Clone)]
+pub struct Substitute {
+	pub into: Template
+}
+

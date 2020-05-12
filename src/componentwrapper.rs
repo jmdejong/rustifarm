@@ -293,6 +293,12 @@ components!(all:
 	};
 	Removed;
 	LootHolder () {panic!("LootHolder from parameters not implemented")};
+	OnSpawn (trigger: String) {
+		OnSpawn {
+			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?
+		}
+	};
+	Substitute (into: Template);
 );
 
 

@@ -1,7 +1,7 @@
 
 # TODO
 
-- document assemblage and room definition
+- make content creation tutorial
 - more tests
 - improved tutorial
 - timer resource?

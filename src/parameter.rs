@@ -67,7 +67,7 @@ parameters!(
 	Int (i64) int, v (v.as_i64()?) (json!(v));
 	Pos (Pos) pos, v (Pos::from_json(v)?) (json!(v));
 	Float (f64) float, v (v.as_f64()?) (json!(v));
-	Template (Template) template, v (Template::from_json(v).ok()?) (v.to_json());
+	Template (Template) template, v (Template::from_json(v).ok()?) (json!(["template", v.to_json()]));
 	Interaction (Interactable) interaction, _v (Interactable::from_json(_v)?) (panic!("interactions can't be serialized"));
 	Bool (bool) bool, v (v.as_bool()?) (json!(v));
 	List (Vec<Parameter>) list, v 
