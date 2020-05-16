@@ -1,0 +1,91 @@
+{
+	"assemblages": {
+		"wall": {
+			"sprite": "wall",
+			"height": 2,
+			"flags": ["Blocking"]
+		},
+		"rock": {
+			"sprite": "rock",
+			"height": 10,
+			"flags": ["Blocking"]
+		},
+		"tree": {
+			"sprite": "tree",
+			"height": 3,
+			"flags": ["Blocking"]
+		},
+		"fence": {
+			"sprite": "fence",
+			"height": 1,
+			"flags": ["Blocking"]
+		},
+		"grass": {
+			"components": [
+				["Visible", {
+					"sprite": ["random", [
+						"grass1",
+						"grass2",
+						"grass3",
+						"grass1",
+						"grass2",
+						"grass3",
+						"ground"
+					]],
+					"height": 0.1,
+					"name": "grass"
+				}]
+			],
+			"flags": ["Floor", "Soil"]
+		},
+		"greengrass": {
+			"components": [
+				["Visible", {
+					"sprite": ["random", [
+						"grass1",
+						"grass2",
+						"grass3"
+					]],
+					"height": 0.1,
+					"name": "grass"
+				}]
+			],
+			"flags": ["Floor", "Soil"]
+		},
+		"ground": {
+			"sprite": "ground",
+			"height": 0.1,
+			"flags": ["Floor", "Soil"]
+		},
+		"floor": {
+			"sprite": "floor",
+			"height": 0.1,
+			"flags": ["Floor"]
+		},
+		"bridge": {
+			"sprite": "bridge",
+			"height": 0.1,
+			"flags": ["Floor"]
+		},
+		"water": {
+			"sprite": "water",
+			"height": 0.0
+		},
+		"house": {"height": 3.0, "sprite": "house"},
+		"freeland": {},
+		"img": {
+			"arguments": [["sprite", "string", ""], ["height", "float", 1.0]],
+			"components": [
+				["Visible", {"name": ["arg", "sprite"], "sprite": ["arg", "sprite"], "height": ["arg", "height"]}]
+			]
+		},
+		"letter": {
+			"arguments": [["char", "string"]],
+			"components": [["Visible", {
+				"name": ["concat", ["letter_", ["arg", "char"]]],
+				"sprite": ["concat", ["emptyletter-", ["arg", "char"]]],
+				"height": 1.0
+			}]]
+		}
+	}
+}

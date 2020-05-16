@@ -1,0 +1,78 @@
+{
+	"assemblages": {
+		"rat": {
+			"sprite": "rat",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 3,
+					"move_chance": 0.08,
+					"homesickness": 0.1
+				}],
+				["Health", {"health": 8, "maxhealth": 8}],
+				["Fighter", {"damage": 2, "cooldown": 6}],
+				["Movable", {"cooldown": 3}],
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "radishseed"}, 1.0]]
+				]]}]
+			]
+		},
+		"goblin": {
+			"sprite": "goblin",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 8,
+					"move_chance": 0.02,
+					"homesickness": 0.1
+				}],
+				["Health", {"health": 15, "maxhealth": 15}],
+				["Fighter", {"damage": 5, "cooldown": 8}],
+				["Movable", {"cooldown": 4}],
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "sword"}, 0.05]],
+					["list", [{"type": "club"}, 0.1]],
+					["list", [{"type": "radish"}, 0.25]]
+				]]}]
+			]
+		},
+		"troll": {
+			"sprite": "troll",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 8,
+					"move_chance": 0.01,
+					"homesickness": 0.1
+				}],
+				["Health", {"health": 75, "maxhealth": 75}],
+				["Fighter", {"damage": 15, "cooldown": 10}],
+				["Movable", {"cooldown": 5}],
+				["Faction", {"faction": "evil"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "stone"}, 1.0]],
+					["list", [{"type": "stone"}, 0.3]],
+					["list", [{"type": "pebble"}, 0.5]],
+					["list", [{"type": "pebble"}, 0.5]],
+					["list", [{"type": "pebble"}, 0.5]]
+				]]}]
+				
+			]
+		},
+		"rabbit": {
+			"sprite": "rabbit",
+			"height": 1.0,
+			"components": [
+				["MonsterAI", {
+					"view_distance": 3,
+					"move_chance": 0.08,
+					"homesickness": 0.1
+				}],
+				["Movable", {"cooldown": 3}],
+				["Faction", {"faction": "neutral"}]
+			]
+		}
+	}
+}

@@ -1,0 +1,164 @@
+{
+	"assemblages": {
+		"radishplant": {
+			"sprite": "smallplant",
+			"name": "radishplant",
+			"height": 0.5,
+			"components": [
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "radishseed"}, 0.92]],
+					["list", [{"type": "radishseed"}, 0.20]],
+					["list", [{"type": "radish"}, 0.8]],
+					["list", [{"type": "radish"}, 0.4]]
+				]]}]
+			],
+			"flags": ["Occupied"]
+		},
+		"plantedradishseed": {
+			"arguments": [["target_time", "int", -1]],
+			"sprite": "seed",
+			"height": 0.05,
+			"name": "seed",
+			"components": [
+				["Timer", {
+					"delay": 600,
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "radishseedling"]}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"radishseedling": {
+			"arguments": [["target_time", "int", -1]],
+			"sprite": "seedling",
+			"height": 0.05,
+			"name": "seedling",
+			"components": [
+				["Timer", {
+					"delay": 600,
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "youngradishplant"]}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"youngradishplant": {
+			"arguments": [["target_time", "int", -1]],
+			"sprite": "youngplant",
+			"height": 0.8,
+			"name": "youngradishplant",
+			"components": [
+				["Timer", {
+					"delay": 600,
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["template", "radishplant"]}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"plantedseed": {
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["delay", "int"]],
+			"sprite": "seed",
+			"height": 0.05,
+			"name": "plantedseed",
+			"components": [
+				["Timer", {
+					"delay": ["arg", "delay"],
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["arg", "next"]}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"seedling": {
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["delay", "int"]],
+			"sprite": "seed",
+			"height": 0.09,
+			"name": "seedling",
+			"components": [
+				["Timer", {
+					"delay": ["arg", "delay"],
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["arg", "next"]}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"youngplant": {
+			"arguments": [["target_time", "int", -1], ["next", "template"], ["crop", "string"], ["delay", "int"]],
+			"components": [
+				["Timer", {
+					"delay": ["arg", "delay"],
+					"spread": 0.5,
+					"target_time": ["arg", "target_time"],
+					"trigger": "change"
+				}],
+				["Build", {"obj": ["arg", "next"]}],
+				["Visible", {
+					"name": ["concat", [["string", "young"], ["arg", "crop"], ["string", "plant"]]],
+					"sprite": "youngplant",
+					"height": 0.8
+				}]
+			],
+			"extract": {
+				"target_time": ["Timer", "target_time"]
+			},
+			"flags": ["Occupied"]
+		},
+		"carrotplant": {
+			"sprite": "smallplant",
+			"name": "carrotplant",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "carrotseed"}, 1.0]],
+					["list", [{"type": "carrot"}, 1.0]]
+				]]}]
+			],
+			"flags": ["Occupied"]
+		},
+		"radishes": {
+			"substitute": "radish"
+		}
+	},
+	"items": {
+		"radishseed": {"sprite": "seed", "action": ["build", ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"radish": {"sprite": "food", "action": ["eat", 3]},
+		"radishes": {"sprite": "food", "name": "radish", "entity": "radish", "action": ["eat", 3]},
+		"eldritch_radish": {"sprite": "food", "name": "eldritch_radish", "action": ["eat", 20]},
+		"carrotseed": {"sprite": "seed", "action": ["build", ["plantedcarrotseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"carrot": {"sprite": "food", "action": ["eat", 5]}
+	},
+	"templates":{
+		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],
+		"carrotseedling": ["seedling", {"delay": 60, "next": "youngcarrotplant"}],
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}]
+	}
+}

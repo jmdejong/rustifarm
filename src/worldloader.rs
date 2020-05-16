@@ -34,16 +34,22 @@ impl WorldLoader {
 				.as_str()
 				.ok_or(aerr!("world meta default_room is not a string"))?
 		);
-		let encyclopedia_name = 
+		let encyclopediae = 
 			json
-				.get("encyclopedia")
-				.ok_or(aerr!("world meta does not have encyclopedia"))?
-				.as_str()
-				.ok_or(aerr!("world meta encyclopedia is not a string"))?
-				.to_string();
+				.get("encyclopediae")
+				.ok_or(aerr!("world meta does not have encyclopediae"))?
+				.as_array()
+				.ok_or(aerr!("world meta encyclopediae is not a list"))?
+				.iter()
+				.map(|v| Ok(v
+					.as_str()
+					.ok_or(aerr!("world meta encyclopediae item {:?} is not a string", v))?
+					.to_string()
+				))
+				.collect::<Result<Vec<String>>>()?;
 		Ok(WorldMeta{
 			default_room,
-			encyclopedia_name
+			encyclopediae
 		})
 	}
 	
@@ -73,7 +79,7 @@ impl WorldLoader {
 }
 
 pub struct WorldMeta {
-	pub encyclopedia_name: String,
+	pub encyclopediae: Vec<String>,
 	pub default_room: RoomId
 }
 

@@ -101,9 +101,14 @@ fn main(){
 	);
 	println!("content directory: {:?}", content_dir);
 	let loader = WorldLoader::new(content_dir);
-	let WorldMeta{encyclopedia_name, default_room} = loader.load_world_meta().expect("Failed to load world meta information");
+	let WorldMeta{encyclopediae, default_room} = loader.load_world_meta().expect("Failed to load world meta information");
 	
-	let encyclopedia = loader.load_encyclopedia(&encyclopedia_name).expect("Failed to load encyclopedia");
+	let mut encyclopedia = Encyclopedia::default();
+	for enc in encyclopediae {
+		encyclopedia = encyclopedia.merge(
+			loader.load_encyclopedia(&enc).expect(&format!("Failed to load encyclopedia {}", enc))
+		)
+	}
 	
 	let save_dir = config.save_dir.unwrap_or(
 		FileStorage::default_save_dir().expect("couldn't find any save directory")

@@ -37,7 +37,7 @@ impl Encyclopedia {
 		let items =
 			val
 			.get("items")
-			.ok_or(perr!("no items in encyclopedia json"))?
+			.unwrap_or(&json!({}))
 			.as_object()
 			.ok_or(perr!("encyclopedia items not a json object"))?
 			.into_iter()
@@ -105,7 +105,6 @@ impl Encyclopedia {
 			assemblages,
 			items
 		})
-		
 	}
 	
 	pub fn validate(&self) -> Result<()> {
@@ -124,6 +123,12 @@ impl Encyclopedia {
 	
 	pub fn get_item(&self, id: &ItemId) -> Option<Item> {
 		self.items.get(id).map(|item| item.clone())
+	}
+	
+	pub fn merge(mut self, mut other: Encyclopedia) -> Encyclopedia {
+		self.assemblages.extend(other.assemblages.drain());
+		self.items.extend(other.items.drain());
+		self
 	}
 }
 
