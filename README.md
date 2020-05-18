@@ -1,7 +1,7 @@
 # Rustifarm
-This is the rust version of the [asciifarm](https://github.com/jmdejong/asciifarm) server.
+This is the rust version of the asciifarm server.
 
-This server is intended to replace the python server soon as the main server.
+This server is the replacement for the [python asciifarm server](https://github.com/jmdejong/asciifarm).
 
 To join the game you need the [asciifarm client](https://github.com/jmdejong/asciifarm-client).
 

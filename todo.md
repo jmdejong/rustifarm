@@ -9,3 +9,4 @@
 - data encapsulation
 - secure login
 - bot connection
+- queue for control actions after cooldown
