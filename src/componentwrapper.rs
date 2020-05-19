@@ -17,7 +17,8 @@ use crate::{
 		Trigger,
 		interactable::Interactable
 	},
-	parameter::{Parameter, FromToParameter},
+	parameter::{Parameter},
+	fromtoparameter::FromToParameter,
 	Timestamp,
 	Template,
 	Pos,
@@ -143,16 +144,10 @@ macro_rules! components {
 }
 
 components!(all: 
-	Visible (name: String, sprite: String, height: f64) {
-		Visible {
-			sprite: Sprite{name: sprite},
-			height,
-			name
-		}
-	};
+	Visible (name: String, sprite: Sprite, height: f64);
 	Movable (cooldown: i64);
-	Player (name: String) {Player::new(PlayerId{name})};
-	Item (item: String) {Item(ItemId(item))};
+	Player (name: PlayerId) {Player::new(name)};
+	Item (item: ItemId) {Item(item)};
 	Inventory () {panic!("inventory from parameters not implemented")};
 	Health (health: i64, maxhealth: i64);
 	Serialise () {panic!("serialise from parameters not implemented")};
@@ -225,7 +220,7 @@ components!(all:
 		allowed: Vec<(String, Vec<String>)>, ({
 			Whitelist.allowed.iter().map(|(item, players)|
 				(item.clone(), players.iter().map(|playerid| playerid.name.clone()).collect())
-			).collect::<Vec<(String, Vec<String>)>>()
+			).collect()
 		})
 	) {
 		Whitelist {

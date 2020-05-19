@@ -37,6 +37,7 @@ mod item;
 mod exchange;
 mod errors;
 mod auth;
+mod fromtoparameter;
 
 use self::{
 	pos::Pos,
