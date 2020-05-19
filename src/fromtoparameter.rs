@@ -1,5 +1,6 @@
 
-
+use std::collections::{HashSet, HashMap};
+use std::hash::Hash;
 use crate::{
 	parameter::Parameter,
 	Template,
@@ -106,6 +107,32 @@ where
 		Parameter::List(self.into_iter().map(|item| item.to_parameter()).collect())
 	}
 }
+
+impl<T> FromToParameter for HashSet<T>
+where
+	T: FromToParameter + Eq + Hash,
+{
+	fn from_parameter(p: Parameter) -> Option<Self>{
+		Some(<Vec<T>>::from_parameter(p)?.into_iter().collect())
+	}
+	fn to_parameter(self) -> Parameter {
+		self.into_iter().collect::<Vec<T>>().to_parameter()
+	}
+}
+
+impl<T, U> FromToParameter for HashMap<T, U>
+where
+	T: FromToParameter + Eq + Hash,
+	U: FromToParameter,
+{
+	fn from_parameter(p: Parameter) -> Option<Self>{
+		Some(<Vec<(T, U)>>::from_parameter(p)?.into_iter().collect())
+	}
+	fn to_parameter(self) -> Parameter {
+		self.into_iter().collect::<Vec<(T, U)>>().to_parameter()
+	}
+}
+
 
 impl<T, U> FromToParameter for (T, U)
 where

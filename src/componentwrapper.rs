@@ -216,26 +216,7 @@ components!(all:
 	};
 	Ear () {Ear::default()};
 	Build (obj: Template);
-	Whitelist (
-		allowed: Vec<(String, Vec<String>)>, ({
-			Whitelist.allowed.iter().map(|(item, players)|
-				(item.clone(), players.iter().map(|playerid| playerid.name.clone()).collect())
-			).collect()
-		})
-	) {
-		Whitelist {
-			allowed: allowed
-				.into_iter()
-				.map(|(item, names)| (
-					item,
-					names
-						.into_iter()
-						.map(|name| PlayerId{name})
-						.collect::<HashSet<PlayerId>>()
-				))
-				.collect()
-		}
-	};
+	Whitelist (allowed: HashMap<String, HashSet<PlayerId>>);
 	Dedup (id: String, priority: i64);
 	Minable (trigger: String, total: i64) {
 		Minable {
