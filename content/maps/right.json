@@ -2,6 +2,7 @@
 	"width": 64,
 	"height": 64,
 	"spawn": [10, 10],
+	"permissions": {"build": true},
 	"places": {
 		"left": [1, 12],
 		"bottomleft": [1, 39],

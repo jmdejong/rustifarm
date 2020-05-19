@@ -1,11 +1,12 @@
 
 use std::collections::HashMap;
-use serde_json::{json, Value};
+use serde_json::{json, Value, value};
 use crate::{
 	Pos,
 	Template,
 	PResult,
-	perr
+	perr,
+	resources::RoomPermissions
 };
 
 #[derive(Debug, Clone)]
@@ -13,7 +14,8 @@ pub struct RoomTemplate {
 	pub size: (i64, i64),
 	pub spawn: Pos,
 	pub field: Vec<Vec<Template>>,
-	pub places: HashMap<String, Pos>
+	pub places: HashMap<String, Pos>,
+	pub permissions: RoomPermissions
 }
 
 impl RoomTemplate {
@@ -54,11 +56,19 @@ impl RoomTemplate {
 			places.insert(name.to_string(), Pos::from_json(jsonpos).ok_or(perr!("pos of places invalid"))?);
 		}
 		
+		let permissions: RoomPermissions = value::from_value::<RoomPermissions>(
+			jsonroom
+				.get("permissions")
+				.unwrap_or(&json!({}))
+				.clone()
+			).map_err(|e| perr!("can't deserialise permissions: {:?}", e))?;
+		
 		Ok(RoomTemplate {
 			size,
 			spawn,
 			field,
-			places
+			places,
+			permissions
 		})
 	}
 }

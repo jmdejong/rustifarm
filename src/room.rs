@@ -22,7 +22,8 @@ use crate::{
 		Spawn as SpawnPosition,
 		Players,
 		Emigration,
-		Time
+		Time,
+		RoomPermissions
 	},
 	components::{
 		Position,
@@ -125,7 +126,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		register_insert!(
 			world,
 			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, Equipment, TimeOffset, Flags, Ear, Build, Whitelist, Dedup, Minable, LootHolder, OnSpawn, Substitute),
-			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time)
+			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time, RoomPermissions)
 		);
 		
 		Room {
@@ -143,6 +144,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch_mut::<Size>().height = height;
 		
 		self.world.fetch_mut::<SpawnPosition>().pos = template.spawn;
+		self.world.insert::<RoomPermissions>(template.permissions.clone());
 		
 		for (idx, templates) in template.field.iter().enumerate() {
 			let x = (idx as i64) % width;

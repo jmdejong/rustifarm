@@ -20,7 +20,7 @@ use crate::{
 		AttackType,
 		Flags
 	},
-	resources::{NewEntities, Ground},
+	resources::{NewEntities, Ground, RoomPermissions},
 	item::ItemAction::{None, Build, Eat, Equip},
 	controls::Control,
 };
@@ -36,10 +36,11 @@ impl <'a> System<'a> for Use {
 		Write<'a, NewEntities>,
 		WriteStorage<'a, AttackInbox>,
 		Read<'a, Ground>,
-		ReadStorage<'a, Flags>
+		ReadStorage<'a, Flags>,
+		Read<'a, RoomPermissions>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, ground, flags): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, ground, flags, roompermissions): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Use(rank) => {
@@ -47,7 +48,7 @@ impl <'a> System<'a> for Use {
 						match &entry.item.action {
 							Build(template, required_flags, blocking_flags) => {
 								let ground_flags = ground.flags_on(position.pos, &flags);
-								if required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
+								if roompermissions.build && required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
 									new.create(position.pos, &template).unwrap();
 									inventory.items.remove(*rank);
 								}

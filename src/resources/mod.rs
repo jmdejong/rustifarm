@@ -1,9 +1,11 @@
 
 mod ground;
 mod newentities;
+mod roompermissions;
 
 pub use ground::Ground;
 pub use newentities::NewEntities;
+pub use roompermissions::RoomPermissions;
 
 use std::collections::{HashMap};
 use specs::{Entity};
@@ -55,3 +57,4 @@ pub struct Emigration {
 pub struct Time {
 	pub time: Timestamp
 }
+

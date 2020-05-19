@@ -2,6 +2,7 @@
 	"width": 42,
 	"height": 23,
 	"spawn": [5, 15],
+	"permissions": {"build": true},
 	"places": {
 		"northentry": [6, 1]
 	},
