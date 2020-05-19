@@ -1,19 +1,30 @@
 
 
 use std::collections::HashSet;
+use std::str::FromStr;
+use serde;
+use serde::Deserialize;
 use serde_json::{Value};
 use crate::{
 	Template,
 	components::{
 		Flag,
 		equipment::Equippable
-	}
+	},
+	errors::{ParseError}
 };
 
 
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Hash, Deserialize)]
 pub struct ItemId(pub String);
+
+impl FromStr for ItemId {
+	type Err = ParseError;
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		Ok(Self(s.to_string()))
+	}
+}
 
 #[derive(Debug, Clone)]
 pub struct Item {

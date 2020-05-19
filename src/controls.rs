@@ -1,15 +1,18 @@
 
 
+use serde::{Serialize, Deserialize};
 use serde_json::{Value, json};
 use specs::Entity;
 use crate::{PlayerId, Pos};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all="lowercase")]
 pub enum Direction {
 	North,
 	South,
 	East,
 	West,
+	#[serde(rename="")]
 	None
 }
 

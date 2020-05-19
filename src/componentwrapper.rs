@@ -1,5 +1,6 @@
 
 use std::collections::{HashMap, HashSet};
+use serde::Deserialize;
 use specs::Builder;
 use rand::Rng;
 
@@ -58,7 +59,7 @@ macro_rules! components {
 				}
 			}
 		}
-		#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+		#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize)]
 		pub enum ComponentType {
 			$(
 				$comp,

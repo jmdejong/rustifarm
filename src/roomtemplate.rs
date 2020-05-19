@@ -22,7 +22,7 @@ impl RoomTemplate {
 
 	pub fn from_json(jsonroom: &Value) -> PResult<RoomTemplate>{
 		let size = (
-			jsonroom.get("width").ok_or(perr!("no with"))?.as_i64().ok_or(perr!("with not a number"))?,
+			jsonroom.get("width").ok_or(perr!("no width"))?.as_i64().ok_or(perr!("width not a number"))?,
 			jsonroom.get("height").ok_or(perr!("no height"))?.as_i64().ok_or(perr!("height not a number"))?
 		);
 		let spawn = Pos::from_json(jsonroom.get("spawn").ok_or(perr!("no spawn"))?).ok_or(perr!("spawn not a pos"))?;

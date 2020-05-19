@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use serde_json::{Value, json};
+use serde_json::{Value, json, value};
 use crate::{
 	componentparameter::ComponentParameter,
 	parameter::{Parameter, ParameterType},
@@ -53,14 +53,12 @@ impl Assemblage {
 			if let Some(name) = tup.as_str() {
 				components.push((ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?, HashMap::new()));
 			} else {
-				let name = tup
-					.get(0).ok_or(perr!("index 0 not in component"))?
-					.as_str().ok_or(perr!("component name not a string"))?;
-				let comptype = ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?;
+				let (name, params) = value::from_value::<(String, HashMap<String, Value>)>(tup.clone()).map_err(|e| perr!("invalid component definition: {:?}", e))?;
+				let comptype = ComponentType::from_str(&name).ok_or(perr!("{} not a valid componenttype", name))?;
 				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
-				for (key, value) in tup.get(1).ok_or(perr!("index 1 not in component"))?.as_object().ok_or(perr!("component parameters not a json object: {:?}", tup.get(1)))? {
-					let param = ComponentParameter::from_json(value)?;
-					parameters.insert(key.clone(), param);
+				for (key, value) in params.into_iter() {
+					let param = ComponentParameter::from_json(&value)?;
+					parameters.insert(key, param);
 				}
 				components.push((comptype, parameters));
 			}
@@ -118,25 +116,12 @@ impl Assemblage {
 			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
 			components: Self::parse_definition_components(&json_components)?,
 			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(perr!("assemblage save not a bool"))?,
-			extract: val
-				.get("extract")
-				.unwrap_or(&json!({}))
-				.as_object().ok_or(perr!("assemblage extract not a bool"))?
+			extract: value::from_value::<HashMap<String, (ComponentType, String)>>(
+					val.get("extract").unwrap_or(&json!({})).clone()
+				).map_err(|e| perr!("invalid assemblage extract: {:?}", e))?
 				.into_iter()
-				.map(|(argname, val)| {
-					Ok((
-						argname.to_string(),
-						ComponentType::from_str(
-							val
-								.get(0).ok_or(perr!("index 0 not in extract value"))?
-								.as_str().ok_or(perr!("extract component name not a string"))?
-						).ok_or(perr!("extract invalid component name"))?,
-						val.get(1)
-							.ok_or(perr!("index 1 not in extract value"))?
-							.as_str().ok_or(perr!("extract member name not a string"))?.to_string()
-					))
-				})
-				.collect::<PResult<Vec<(String, ComponentType, String)>>>()?
+				.map(|(name, (comp, field))| (name, comp, field))
+				.collect()
 		};
 		Ok(assemblage)
 	}
