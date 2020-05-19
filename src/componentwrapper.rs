@@ -14,18 +14,20 @@ use crate::{
 		AttackType,
 		Clan,
 		Flag,
-		Trigger
+		Trigger,
+		interactable::Interactable
 	},
-	parameter::{Parameter, ParameterType},
+	parameter::{Parameter, FromToParameter},
 	Timestamp,
 	Template,
+	Pos,
 	Result,
 	aerr
 };
 
 
 macro_rules! components {
-	(post: $($comp: ident ($($paramname: ident : $paramtype: ident, $extraction: expr),*) $creation: expr);*;) => {
+	(post: $($comp: ident ($($paramname: ident : $paramtype: ty, $extraction: expr),*) $creation: expr);*;) => {
 		#[derive(Clone)]
 		pub enum ComponentWrapper{
 			$(
@@ -47,11 +49,13 @@ macro_rules! components {
 						ComponentType::$comp => Ok(Self::$comp({
 							use crate::components::$comp;
 							$(
-								let $paramname = match parameters.remove(stringify!($paramname))
-										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))? {
-									Parameter::$paramtype(p) => p,
-									x => Err(aerr!("parameter type mismatch for parameter {}: {} {:?}", stringify!($paramname), stringify!($paramtype), x))?
-								};
+								let $paramname = <$paramtype>::from_parameter(
+										parameters
+										.remove(stringify!($paramname))
+										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?
+									)
+									.ok_or(aerr!("parameter {} is invalid type", stringify!($paramname)))?;
+
 							)*
 							$creation
 						})),
@@ -74,14 +78,14 @@ macro_rules! components {
 					_ => None
 				}
 			}
-			pub fn parameters(&self) -> HashMap<&str, ParameterType> {
+			pub fn parameters(&self) -> Vec<&str> {
 				match self {
 					$(
 						Self::$comp => {
 							#[allow(unused_mut)]
-							let mut h = HashMap::new();
+							let mut h = Vec::new();
 							$(
-								h.insert(stringify!($paramname), ParameterType::$paramtype);
+								h.push(stringify!($paramname));
 							)*
 							h
 						},
@@ -100,12 +104,14 @@ macro_rules! components {
 						$(
 							if parameter == stringify!($paramname) {
 								#[allow(unreachable_code, non_snake_case)]
-								return Some(Parameter::$paramtype({
+								return Some({
 									let components = world.read_component::<crate::components::$comp>();
 									#[allow(unused_variables)]
 									let $comp = components.get(ent)?;
-									$extraction
-								}))
+									#[allow(unused_variables)]
+									let extracted: $paramtype = ({$extraction});
+									return Some(extracted.to_parameter())
+								})
 							}
 						)*
 						None::<Parameter> 
@@ -119,15 +125,15 @@ macro_rules! components {
 		components!(pre: ($($done)* $comp () {$comp};) $($tail)*);
 	};
 	// struct is just parameters
-	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident),*);$($tail:tt)*) => {
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ty),*);$($tail:tt)*) => {
 		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {$comp.$paramname.clone()}),*) {$comp{$($paramname,)*}};) $($tail)*);
 	};
 	// full definition minus variable exraction
-	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident),*) $creation: expr; $($tail:tt)*) => {
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ty),*) $creation: expr; $($tail:tt)*) => {
 		components!(pre: ($($done)* $comp ($($paramname : $paramtype, {None?}),*) $creation;) $($tail)*);
 	};
 	// full definition
-	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ident ($extraction: expr)),*) $creation: expr; $($tail:tt)*) => {
+	(pre: ($($done: tt)*) $comp: ident ($($paramname: ident : $paramtype: ty, ($extraction: expr)),*) $creation: expr; $($tail:tt)*) => {
 		components!(pre: ($($done)* $comp ($($paramname : $paramtype, $extraction),*) $creation;) $($tail)*);
 	};
 	(pre: ($($done: tt)*)) => {
@@ -137,18 +143,18 @@ macro_rules! components {
 }
 
 components!(all: 
-	Visible (name: String, sprite: String, height: Float) {
+	Visible (name: String, sprite: String, height: f64) {
 		Visible {
 			sprite: Sprite{name: sprite},
 			height,
 			name
 		}
 	};
-	Movable (cooldown: Int);
+	Movable (cooldown: i64);
 	Player (name: String) {Player::new(PlayerId{name})};
 	Item (item: String) {Item(ItemId(item))};
 	Inventory () {panic!("inventory from parameters not implemented")};
-	Health (health: Int, maxhealth: Int);
+	Health (health: i64, maxhealth: i64);
 	Serialise () {panic!("serialise from parameters not implemented")};
 	RoomExit (destination: String, dest_pos: String) {
 		RoomExit {
@@ -160,12 +166,12 @@ components!(all:
 				}
 		}
 	};
-	Trap (damage: Int) {Trap{attack: AttackType::Attack(damage)}};
-	Fighter (damage: Int, cooldown: Int) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
-	Healing (delay: Int, health: Int) {Healing{delay, health, next_heal: None}};
+	Trap (damage: i64) {Trap{attack: AttackType::Attack(damage)}};
+	Fighter (damage: i64, cooldown: i64) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
+	Healing (delay: i64, health: i64) {Healing{delay, health, next_heal: None}};
 	Autofight () {Autofight::default()};
-	MonsterAI (move_chance: Float, homesickness: Float, view_distance: Int);
-	Spawner (amount: Int, clan: String, template: Template) {
+	MonsterAI (move_chance: f64, homesickness: f64, view_distance: i64);
+	Spawner (amount: i64, clan: String, template: Template) {
 		Spawner{
 			amount: amount as usize,
 			clan: Clan{name:
@@ -182,31 +188,13 @@ components!(all:
 	Clan (name: String);
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
-	Interactable (action: Interaction) {action};
-	Loot (loot: List) {
-		Loot {loot:
-			loot
-			.iter()
-			.map(|param| {match param {
-				Parameter::Template(template) => Ok((template.clone(), 1.0)),
-				Parameter::List(l) => {
-					if l.len() == 2 {
-						if let (Parameter::Template(template), Parameter::Float(chance)) = (l[0].clone(), l[1].clone()) {
-							return Ok((template.clone(), chance))
-						}
-					}
-					Err(aerr!("loot list elements as list must only contain a template and a float: {:?}", l))?
-				},
-				_ => Err(aerr!("loot list elements must be a template or a list: {:?}", param))?
-			}})
-			.collect::<Result<Vec<(Template, f64)>>>()?
-		}
-	};
+	Interactable (action: Interactable) {action};
+	Loot (loot: Vec<(Template, f64)>);
 	Timer (
-			trigger: String (panic!("can't turn trigger to string")),
-			delay: Int (Timer.delay),
-			spread: Float (Timer.spread),
-			target_time: Int ({
+			trigger: String, (panic!("can't turn trigger to string")),
+			delay: i64, (Timer.delay),
+			spread: f64, (Timer.spread),
+			target_time: i64, ({
 				if let Some(time) = Timer.target_time {
 					time.0
 				} else {
@@ -222,70 +210,39 @@ components!(all:
 			// please forgive me for using -1 as null
 		};
 	Equipment () {panic!("equipment from parameters not implemented")};
-	TimeOffset (dtime: Int);
-	Flags (flags: List) {
+	TimeOffset (dtime: i64);
+	Flags (flags: Vec<String>) {
 		Flags(
 			flags
 				.iter()
-				.map(|param| {
-					if let Parameter::String(f) = param {
-						Flag::from_str(f)
-					} else {
-						None
-					}
-				})
+				.map(|s| Flag::from_str(s))
 				.collect::<Option<HashSet<Flag>>>().ok_or(aerr!("invalid flag name"))?
 		)
 	};
 	Ear () {Ear::default()};
 	Build (obj: Template);
 	Whitelist (
-		allowed: List ({
-			Whitelist.allowed.iter().map(|(item, players)|{
-				Parameter::List(vec![
-					Parameter::String(item.clone()),
-					Parameter::List(
-						players
-							.iter()
-							.map(|playerid| Parameter::String(playerid.name.clone()))
-							.collect()
-					)
-				])
-			}).collect()
+		allowed: Vec<(String, Vec<String>)>, ({
+			Whitelist.allowed.iter().map(|(item, players)|
+				(item.clone(), players.iter().map(|playerid| playerid.name.clone()).collect())
+			).collect::<Vec<(String, Vec<String>)>>()
 		})
 	) {
 		Whitelist {
 			allowed: allowed
-				.iter()
-				.map(|p| {
-					if let Parameter::List(e) = p {
-						if e.len() != 2 {
-							Err(aerr!("whitelist must be a list of pairs"))?
-						}
-						if let (Parameter::String(s), Parameter::List(l)) = (e[0].clone(), e[1].clone()) {
-							let names = l
-								.iter()
-								.map(|n| {
-									if let Parameter::String(name) = n {
-										Ok(PlayerId{name: name.clone()})
-									} else {
-										Err(aerr!("whitelisted players must be strings"))?
-									}
-								})
-								.collect::<Result<HashSet<PlayerId>>>()?;
-							Ok((s, names))
-						} else {
-							Err(aerr!("whitelist entries must be a string and a list"))?
-						}
-					} else {
-						Err(aerr!("whitelist must be a list of pairs"))?
-					}
-				})
-				.collect::<Result<HashMap<String, HashSet<PlayerId>>>>()?
+				.into_iter()
+				.map(|(item, names)| (
+					item,
+					names
+						.into_iter()
+						.map(|name| PlayerId{name})
+						.collect::<HashSet<PlayerId>>()
+				))
+				.collect()
 		}
 	};
-	Dedup (id: String, priority: Int);
-	Minable (trigger: String, total: Int) {
+	Dedup (id: String, priority: i64);
+	Minable (trigger: String, total: i64) {
 		Minable {
 			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
 			progress: 0,
