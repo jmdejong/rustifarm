@@ -1,0 +1,4 @@
+{
+	"default_room": "island",
+	"encyclopediae": ["default_encyclopedia", "crops", "base", "npcs"]
+}
