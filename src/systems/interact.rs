@@ -82,12 +82,6 @@ impl <'a> System<'a> for Interact {
 					Interactable::Trigger(trigger) => {
 						TriggerBox::add_message(&mut triggerbox, ent, *trigger);
 					}
-					Interactable::Say(text) => {
-						say(ear, text.clone(), name);
-					}
-					Interactable::Reply(text) => {
-						say(ear, text.replace("{}", &arg.unwrap()), name);
-					}
 					Interactable::Exchange(prefix, exchanges) => {
 						if let Some(txt) = arg {
 							if let (Some(inventory), Some(action)) = (inventories.get_mut(actor), strip_prefix(&txt, prefix)) {

@@ -17,8 +17,6 @@ use crate::{
 #[storage(HashMapStorage)]
 pub enum Interactable {
 	Trigger(Trigger),
-	Say(String),
-	Reply(String),
 	Exchange(String, HashMap<String, Exchange>),
 	Visit(RoomId),
 	Mine(Stat)
@@ -32,8 +30,6 @@ impl Interactable {
 		let arg = val.get(1)?;
 		Some(match typ.as_str()? {
 			"trigger" => Trigger(Trigger::from_str(arg.as_str()?)?),
-			"say" => Say(arg.as_str()?.to_string()),
-			"reply" => Reply(arg.as_str()?.to_string()),
 			"exchange" => {
 				let (prefix, change) = serde_json::value::from_value::<
 						(String, HashMap<String, (Vec<ItemId>, Vec<ItemId>)>)
@@ -54,8 +50,6 @@ impl Interactable {
 	pub fn accepts_arg(&self, arg: &Option<String>) -> bool {
 		match self {
 			Trigger(_) => arg.is_none(),
-			Say(_) => arg.is_none(),
-			Reply(_) => arg.is_some(),
 			Exchange(prefix, _exchanges) => {
 				if let Some(txt) = arg {
 					 txt.starts_with(prefix)
