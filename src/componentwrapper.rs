@@ -21,6 +21,7 @@ use crate::{
 	fromtoparameter::FromToParameter,
 	Timestamp,
 	Template,
+	exchange::Exchange,
 	Pos,
 	Result,
 	aerr
@@ -235,6 +236,17 @@ components!(all:
 	};
 	Substitute (into: Template);
 	Talkable (text: String);
+	Exchanger (prefix: String, exchanges: Vec<(String, Vec<ItemId>, Vec<ItemId>)>) {
+		Exchanger {
+			prefix,
+			exchanges: exchanges
+				.into_iter()
+				.map(|(key, cost, offer)|
+					(key, Exchange{cost, offer})
+				)
+				.collect()
+		}
+	};
 );
 
 

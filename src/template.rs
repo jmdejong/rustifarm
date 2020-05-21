@@ -89,11 +89,11 @@ impl Template {
 		let name = EntityType(val.get("type").ok_or(perr!("template doesn't have 'type'"))?.as_str().ok_or(perr!("template type not a string"))?.to_string());
 		let mut args = Vec::new();
 		for arg in val.get("args").unwrap_or(&json!([])).as_array().ok_or(perr!("template args not an array"))? {
-			args.push(Parameter::guess_from_json(arg).ok_or(perr!("template arg {:?} not a parameter", arg))?);
+			args.push(Parameter::guess_from_json(arg)?);
 		}
 		let mut kwargs = HashMap::new();
 		for (key, arg) in val.get("kwargs").unwrap_or(&json!({})).as_object().ok_or(perr!("template kwargs not a json object"))? {
-			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg).ok_or(perr!("template kwarg {}: {:?} not a parameter", key, arg))?);
+			kwargs.insert(key.to_string(), Parameter::guess_from_json(arg)?);
 		}
 		let save = 
 			if let Some(saveval) = val.get("save") {

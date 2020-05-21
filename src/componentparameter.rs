@@ -76,14 +76,12 @@ impl ComponentParameter {
 	
 	pub fn from_json(value: &Value) -> PResult<Self> {
 		if !value.is_array() {
-			return Ok(Self::Constant(Parameter::guess_from_json(value).ok_or(perr!("invalid component parameter {:?}", value))?));
+			return Ok(Self::Constant(Parameter::guess_from_json(value)?));
 		}
 		let paramvalue = value.get(1).ok_or(perr!("index 1 not in component parameter"))?;
 		let typename = value.get(0).ok_or(perr!("index 0 not in component parameter"))?.as_str().ok_or(perr!("compparam type not a string"))?;
 		if let Some(paramtype) = ParameterType::from_str(typename) {
-			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue).ok_or_else(||
-				perr!("failed to parse parameter constant: {:?} {:?}", paramtype, paramvalue)
-			)?))
+			Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue)?))
 		} else {
 			match typename {
 				"A" | "arg" => {

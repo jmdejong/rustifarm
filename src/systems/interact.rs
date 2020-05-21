@@ -28,7 +28,7 @@ use crate::{
 		Minable
 	},
 	controls::{Control},
-	resources::{Ground, NewEntities, Emigration},
+	resources::{Ground, Emigration},
 	hashmap,
 	playerstate::RoomPos,
 	PlayerId,
@@ -45,7 +45,6 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, ControlCooldown>,
 		ReadStorage<'a, Interactable>,
 		WriteStorage<'a, TriggerBox>,
-		Write<'a, NewEntities>,
 		WriteStorage<'a, Ear>,
 		WriteStorage<'a, Inventory>,
 		ReadStorage<'a, Visible>,
@@ -55,21 +54,16 @@ impl <'a> System<'a> for Interact {
 		WriteStorage<'a, Minable>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, new, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists, mut minables): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, mut ears, inventories, visibles, players, mut emigration, mut whitelists, mut minables): Self::SystemData) {
 		for (actor, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(actor);
 			match &controller.control {
 				Control::Interact(directions, arg) => {
-					'targets: for direction in directions {
-						let pos = position.pos + direction.to_position();
-						for ent in ground.cells.get(&pos).unwrap_or(&HashSet::new()) {
-							if let Some(interactable) = interactables.get(*ent) {
-								if interactable.accepts_arg(arg){
-									target = Some((*ent, interactable, arg.clone()));
-									break 'targets;
-								}
-							}
+					for (ent, interactable) in ground.components_near(position.pos, directions, &interactables) {
+						if interactable.accepts_arg(arg){
+							target = Some((ent, interactable, arg.clone()));
+							break;
 						}
 					}
 				}
@@ -81,27 +75,6 @@ impl <'a> System<'a> for Interact {
 				match interactable {
 					Interactable::Trigger(trigger) => {
 						TriggerBox::add_message(&mut triggerbox, ent, *trigger);
-					}
-					Interactable::Exchange(prefix, exchanges) => {
-						if let Some(txt) = arg {
-							if let (Some(inventory), Some(action)) = (inventories.get_mut(actor), strip_prefix(&txt, prefix)) {
-								if let Some(exchange) = exchanges.get(action) {
-									if exchange.can_trade(inventory){
-										exchange.trade(inventory, &new.encyclopedia);
-										say(ear, format!("Success! '{}' ({})", txt, exchange.show()), name);
-									} else {
-										say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()), name);
-									}
-								} else {
-									say(ear, format!("Invalid option: {}", action), name);
-								}
-							}
-						} else if let Some(ear) = ear {
-							ear.sounds.push(Notification::Options{
-								description: "".to_string(),
-								options: exchanges.iter().map(|(id, exchange)| (format!("{}{}", prefix, id), exchange.show())).collect()
-							})
-						}
 					}
 					Interactable::Visit(dest) => {
 						if let Some(argument) = arg {

@@ -1,5 +1,4 @@
 
-use std::collections::HashSet;
 
 use specs::{
 	ReadStorage,
@@ -37,15 +36,10 @@ impl <'a> System<'a> for Talk {
 		for (controller, position, ear) in (&controllers, &positions, &mut ears).join(){
 			match &controller.control {
 				Control::Interact(directions, None) => {
-					'targets: for direction in directions {
-						let pos = position.pos + direction.to_position();
-						for ent in ground.cells.get(&pos).unwrap_or(&HashSet::new()) {
-							if let Some(Talkable{text}) = talkables.get(*ent) {
-								let name = visibles.get(*ent).map(|v| v.name.clone());
-								ear.sounds.push(Notification::Sound{text: text.clone(), source: name});
-								break 'targets;
-							}
-						}
+					for (ent, Talkable{text}) in ground.components_near(position.pos, directions, &talkables) {
+						let name = visibles.get(ent).map(|v| v.name.clone());
+						ear.sounds.push(Notification::Sound{text: text.clone(), source: name});
+						break;
 					}
 				}
 				_ => {}

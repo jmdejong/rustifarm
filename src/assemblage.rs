@@ -37,7 +37,7 @@ impl Assemblage {
 					(
 						key.clone(),
 						typ,
-						Some(Parameter::from_typed_json(typ, def).ok_or(perr!("invalid argument default {:?} {:?}", typ, def))?)
+						Some(Parameter::from_typed_json(typ, def)?)
 					)
 				);
 			} else  {

@@ -94,7 +94,7 @@ impl Encyclopedia {
 			let mut assemblage = assemblages.get(&enttype).ok_or(perr!("template name '{:?}' does not point to not an assemblage", enttype))?.clone();
 			for arg in assemblage.arguments.iter_mut() {
 				if let Some(x) = values.get(&arg.0) {
-					let param = Parameter::from_typed_json(arg.1, x).ok_or(perr!("subtitution parameter has wrong type"))?;
+					let param = Parameter::from_typed_json(arg.1, x)?;
 					arg.2 = Some(param);
 				}
 			}
