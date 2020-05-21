@@ -74,3 +74,9 @@ impl Interactable {
 		}
 	}
 }
+
+#[derive(Component, Debug, Clone, PartialEq)]
+#[storage(HashMapStorage)]
+pub struct Talkable {
+	pub text: String
+}

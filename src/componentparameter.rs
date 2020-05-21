@@ -120,6 +120,7 @@ impl ComponentParameter {
 		}
 	}
 	
+	#[allow(dead_code)]
 	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),

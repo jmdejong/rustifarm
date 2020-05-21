@@ -50,12 +50,13 @@ macro_rules! components {
 						ComponentType::$comp => Ok(Self::$comp({
 							use crate::components::$comp;
 							$(
-								let $paramname = <$paramtype>::from_parameter(
-										parameters
+								let $paramname = {
+									let param = parameters
 										.remove(stringify!($paramname))
-										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?
-									)
-									.ok_or(aerr!("parameter {} is invalid type", stringify!($paramname)))?;
+										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?;
+									<$paramtype>::from_parameter(param.clone())
+										.ok_or(aerr!("parameter {} is invalid type: {:?} is not of type {}", stringify!($paramname), param, stringify!($paramtype)))?
+								};
 
 							)*
 							$creation
@@ -233,6 +234,7 @@ components!(all:
 		}
 	};
 	Substitute (into: Template);
+	Talkable (text: String);
 );
 
 

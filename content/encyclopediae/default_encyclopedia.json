@@ -22,7 +22,7 @@
 			"arguments": [["health", "int", 100]],
 			"components": [
 				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-				["Loot", {"loot": ["list", [{"type": "stone"}]]}]
+				["Loot", {"loot": ["list", [["list", [{"type": "stone"}, 1.0]]]]}]
 			],
 			"sprite": "builtwall",
 			"height": 2,
@@ -87,7 +87,7 @@
 			"height": 1,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["say", "Good morning there, World"]]}]
+				["Talkable", {"text": "Good morning there, World"}]
 			]
 		},
 		"quarry": {
