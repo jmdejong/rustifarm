@@ -87,6 +87,7 @@ The water object is defined in the encyclopedia.
 Similarily, the ',' corresponds to a tile with grass.
 
 Sometimes it is necessary to have more that one object on the same tile, like for the door. In this case the entry can be a list of tiles.
+In fact, `"X": "rock"` is just a shortcut for `"X": ["rock"]`.
 
 ## Tile definitions
 
