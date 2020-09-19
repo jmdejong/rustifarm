@@ -45,14 +45,10 @@
 		"^": ["grass", "spiketrap"],
 		"d": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "dummy"}, "delay": 100, "initial_spawn": true}}],
 		"r": ["grass", {"type": "spawner", "kwargs": {"template": {"type": "rat"}, "amount": 3, "clan": "rats", "delay": 200, "initial_spawn": true}}],
-		"V": ["grass", "radishplant"],
-		"/": ["grass", "sword"],
 		"D": ["ground", "closeddoor"],
 		"s": ["ground", "sign"],
 		"u": ["ground", "dude"],
 		"t": ["ground", "trader"],
-		"P": ["ground", "pickaxe"],
-		"u": ["ground", "radishes"],
 		"Q": "quarry",
 		" ": []
 	}

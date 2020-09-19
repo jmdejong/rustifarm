@@ -77,7 +77,6 @@
 		"#": ["wall"],
 		".": ["ground"],
 		"+": ["floor"],
-		"$": ["grass", "radishplant"],
 		"~": ["water"],
 		"=": ["water", "bridge"],
 		"m": ["rock"],

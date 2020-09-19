@@ -21,7 +21,6 @@
 	],
 	"mapping": {
 		",": "grass",
-		"Y": ["grass", "radishplant"],
 		"~": "water",
 		"#": "wall",
 		"X": "rock",
