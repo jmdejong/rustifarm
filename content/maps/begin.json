@@ -29,7 +29,7 @@
 		",~~~~~~,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'1",
 		",~~~~~,,,,,,,,,''''''''T'''''''''''''''''''''''T'''''''''''''''1",
 		"~~~~~~,,,,,,,'''''''''''''T''''''''''''''''''''''''''''''''''''1",
-		"~~~~~''''T''''.................................................1",
+		"~~~~~*'''T''''.................................................1",
 		"~~~~~.'''''''.'''''''''''''''''''''''''''''''''''''''''''''''''1",
 		"~~~~~........''''''''''''''''''''''''''''''''''''''''''''''''''1",
 		"~~~~~.'''...'''',,,,,,,,,,,,,,,,,,,,,,,,,,'''''''',,,,,,,,,,,,'1",
@@ -85,13 +85,13 @@
 	"mapping": {
 		",": ["grass", "freeland"],
 		"'": ["grass"],
-		"Y": ["grass", "radishplant"],
 		"T": ["grass", "tree"],
 		"~": "water",
 		"=": ["water", "bridge"],
-		"o": ["grass", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-		"W": ["grass", "hardwood", "hardwood", "hardwood", "hardwood", "hardwood", "hardwood", "hardwood", "hardwood"],
-		"*": ["grass", "pebble"],
+		"*": ["ground", {
+			"type": "spawner",
+			"kwargs": {"template": {"type": "pebble"}, "delay": 600, "initialSpawn": false}
+		}],
 		"d": ["ground", {
 			"type": "spawner",
 			"kwargs": {"template": {"type": "dummy"}, "delay": 600, "initialSpawn": true}
@@ -102,7 +102,6 @@
 			"type": "spawner",
 			"kwargs": {"template": {"type": "radishseed"}, "delay": 600, "initialSpawn": false}
 		}],
-		";": ["floor", "radishseed"],
 		".": "ground",
 		"+": "floor",
 		"X": "rock",
@@ -118,9 +117,6 @@
 			"floor"
 		],
 		"r": ["grass", "rabbit"],
-		"/": ["grass", "sword"],
-		"!": ["grass", "club"],
-		"]": ["grass", "armour"],
 		"1": [{
 			"type": "portal",
 			"kwargs": {"destination": "right", "destpos": "left"}
@@ -134,11 +130,6 @@
 			"kwargs": {"destination": "tutorial", "destpos": "tunnelout"}
 		}, "floor"],
 		"E": ["grass", "trader"],
-		"B": ["grass", "freeland", "builtwall"],
-		"5": ["grass", "plantedradishseed"],
-		"6": ["grass", "radishseedling"],
-		"7": ["grass", "youngradishplant"],
-		"8": ["grass", "radishplant"],
 		" ": []
 	}
 }

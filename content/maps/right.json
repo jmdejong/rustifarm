@@ -86,15 +86,10 @@
 	"mapping": {
 		",": ["grass", "freeland"],
 		"'": ["grass"],
-		"Y": ["grass", "plant"],
 		"T": ["grass", "tree"],
 		"~": "water",
 		"=": ["water", "bridge"],
-		"o": ["grass", "stone"],
-		"*": ["grass", "pebble"],
-		"d": ["ground", "dummy"],
 		"#": "wall",
-		";": ["floor", "seed"],
 		".": "ground",
 		"+": "floor",
 		"X": "rock",
@@ -112,9 +107,6 @@
 			"kwargs": {"destination": "smallview", "destpos": "begin"}
 		}, "bridge", "water"],
 		"r": ["grass", "rabbit"],
-		"/": ["grass", "sword"],
-		"!": ["grass", "club"],
-		"]": ["grass", "armour"],
 		" ": []
 	}
 }
