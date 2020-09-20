@@ -73,6 +73,12 @@ impl <'a> System<'a> for Interact {
 				let mut cooldown = 2;
 				let name = visibles.get(ent).map(|v| v.name.as_str());
 				match interactable {
+					Interactable::Say(text) => {
+						say(ear, text.clone(), name);
+					}
+					Interactable::Reply(text) => {
+						say(ear, text.replace("{}", &arg.unwrap()), name);
+					}
 					Interactable::Trigger(trigger) => {
 						TriggerBox::add_message(&mut triggerbox, ent, *trigger);
 					}

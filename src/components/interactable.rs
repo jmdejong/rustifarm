@@ -16,7 +16,9 @@ use crate::{
 pub enum Interactable {
 	Trigger(Trigger),
 	Visit(RoomId),
-	Mine(Stat)
+	Mine(Stat),
+	Say(String),
+	Reply(String)
 }
 
 use Interactable::*;
@@ -28,6 +30,8 @@ impl Interactable {
 			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
 			("visit", Parameter::String(s)) => Visit(RoomId::from_str(s)),
 			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
+			("say", Parameter::String(s)) => Say(s.clone()),
+			("reply", Parameter::String(s)) => Reply(s.clone()),
 			_ => None?
 		})
 	}
@@ -42,15 +46,11 @@ impl Interactable {
 					true
 				}
 			}
-			Mine(_) => arg.is_none()
+			Mine(_) => arg.is_none(),
+			Say(_) => arg.is_none(),
+			Reply(_) => arg.is_some(),
 		}
 	}
-}
-
-#[derive(Component, Debug, Clone, PartialEq)]
-#[storage(HashMapStorage)]
-pub struct Talkable {
-	pub text: String
 }
 
 

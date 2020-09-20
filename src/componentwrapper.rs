@@ -234,7 +234,6 @@ components!(all:
 		}
 	};
 	Substitute (into: Template);
-	Talkable (text: String);
 	Exchanger (prefix: String, exchanges: Vec<(String, Vec<ItemId>, Vec<ItemId>)>) {
 		Exchanger {
 			prefix,

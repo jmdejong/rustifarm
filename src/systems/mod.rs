@@ -24,7 +24,6 @@ mod building;
 mod deduplicate;
 mod spawntrigger;
 mod replace;
-mod talk;
 mod exchange;
 
 pub use self::{
@@ -53,6 +52,5 @@ pub use self::{
 	deduplicate::Deduplicate,
 	spawntrigger::SpawnTrigger,
 	replace::Replace,
-	talk::Talk,
 	exchange::Exchange
 };

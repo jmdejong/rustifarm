@@ -87,7 +87,7 @@
 			"height": 1,
 			"flags": ["Occupied"],
 			"components": [
-				["Talkable", {"text": "Good morning there, World"}]
+				["Interactable", {"typ": "say", "arg": "Good morning there, World"}]
 			]
 		},
 		"quarry": {

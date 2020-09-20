@@ -79,7 +79,7 @@
 			"height": 1.5,
 			"flags": ["Occupied"],
 			"components": [
-				["Talkable", {"text": "Hey there, welcome to Asciifarm"}]
+				["Interactable", {"typ": "say", "arg": "Hey there, welcome to Asciifarm"}]
 			]
 		},
 		"trader": {
