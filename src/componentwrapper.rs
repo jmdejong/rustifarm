@@ -185,7 +185,7 @@ components!(all:
 	Clan (name: String);
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
-	Interactable (action: Interactable) {action};
+	Interactable (typ: String, arg: Parameter) {Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction"))?};
 	Loot (loot: Vec<(Template, f64)>);
 	Timer (
 			trigger: String, (panic!("can't turn trigger to string")),

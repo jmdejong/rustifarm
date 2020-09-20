@@ -4,12 +4,13 @@ use serde_json;
 use serde_json::{Value};
 use specs::{
 	Component,
-	HashMapStorage
+	HashMapStorage,
 };
 use crate::{
 	exchange::Exchange,
 	components::{Trigger, equipment::Stat},
-	RoomId
+	RoomId,
+	parameter::Parameter
 };
 
 #[derive(Component, Debug, Clone, PartialEq)]
@@ -23,6 +24,16 @@ pub enum Interactable {
 use Interactable::*;
 
 impl Interactable {
+	
+	pub fn parse_from_parameter(typ: &str, arg: &Parameter) -> Option<Self> {
+		Some(match (typ, arg) {
+			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
+			("visit", Parameter::String(s)) => Visit(RoomId::from_str(s)),
+			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
+			_ => None?
+		})
+	}
+
 	pub fn from_json(val: &Value) -> Option<Self> {
 		let typ = val.get(0)?;
 		let arg = val.get(1)?;
