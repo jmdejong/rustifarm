@@ -14,8 +14,7 @@ use crate::{
 		AttackType,
 		Clan,
 		Flag,
-		Trigger,
-		interactable::Interactable
+		Trigger
 	},
 	parameter::{Parameter},
 	fromtoparameter::FromToParameter,

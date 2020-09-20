@@ -101,7 +101,7 @@ impl ParameterExpression {
 		let paramvalue = value.get(1).ok_or(perr!("index 1 not in component parameter"))?;
 		let typename = value.get(0).ok_or(perr!("index 0 not in component parameter"))?.as_str().ok_or(perr!("compparam type not a string"))?;
 		match typename {
-			"string" | "int" | "float" | "bool" | "pos" | "interaction" => {
+			"string" | "int" | "float" | "bool" | "pos" => {
 				let paramtype = ParameterType::from_str(typename).expect(&format!("unknown parameter type {:?}", typename));
 				Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue)?))
 			}

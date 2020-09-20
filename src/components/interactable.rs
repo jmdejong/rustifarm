@@ -1,7 +1,5 @@
 
 use std::collections::HashMap;
-use serde_json;
-use serde_json::{Value};
 use specs::{
 	Component,
 	HashMapStorage,
@@ -30,17 +28,6 @@ impl Interactable {
 			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
 			("visit", Parameter::String(s)) => Visit(RoomId::from_str(s)),
 			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
-			_ => None?
-		})
-	}
-
-	pub fn from_json(val: &Value) -> Option<Self> {
-		let typ = val.get(0)?;
-		let arg = val.get(1)?;
-		Some(match typ.as_str()? {
-			"trigger" => Trigger(Trigger::from_str(arg.as_str()?)?),
-			"visit" => Visit(RoomId::from_str(arg.as_str()?)),
-			"mine" => Mine(Stat::from_str(arg.as_str()?)?),
 			_ => None?
 		})
 	}
