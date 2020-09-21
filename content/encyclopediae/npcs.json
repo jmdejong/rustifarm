@@ -91,9 +91,16 @@
 					["list", [
 						["list", ["pebble", ["list", ["radish", "radish"]], ["list", ["pebble"]]]],
 						["list", ["radishseed", ["list", ["radish"]], ["list", ["radishseed", "radishseed"]]]],
-						["list", ["carrotseed", ["list", ["radish"]], ["list", ["carrotseed"]]]]
+						["list", ["carrotseed", ["list", ["radish"]], ["list", ["carrotseed"]]]],
+						["list", ["cottonseed", ["list", ["stone"]], ["list", ["cottonseed"]]]]
 					]]
-				]]}]
+				]]}],
+				["MonsterAI", {
+					"view_distance": 1,
+					"move_chance": 0.01,
+					"homesickness": 0.3
+				}],
+				["Movable", {"cooldown": 3}]
 			]
 		},
 		"toolsmith": {

@@ -133,13 +133,15 @@
 		},
 		"carrotplant": {
 			"sprite": "smallplant",
-			"name": "carrotplant",
+			"name": "cottonplant",
 			"height": 1.0,
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "die"}],
 				["Loot", {"loot": ["list", [
-					["list", [{"type": "carrotseed"}, 1.0]],
-					["list", [{"type": "carrot"}, 1.0]]
+					["list", [{"type": "cottonseed"}, 0.92]],
+					["list", [{"type": "cottonseed"}, 0.20]],
+					["list", [{"type": "cotton"}, 0.8]],
+					["list", [{"type": "cotton"}, 0.4]]
 				]]}]
 			],
 			"flags": ["Occupied"]
@@ -154,11 +156,18 @@
 		"radishes": {"sprite": "food", "name": "radish", "entity": "radish", "action": ["eat", 3]},
 		"eldritch_radish": {"sprite": "food", "name": "eldritch_radish", "action": ["eat", 20]},
 		"carrotseed": {"sprite": "seed", "action": ["build", ["plantedcarrotseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
-		"carrot": {"sprite": "food", "action": ["eat", 5]}
+		"carrot": {"sprite": "food", "action": ["eat", 5]},
+		"cottonseed": {"sprite": "seed", "action": ["build", ["plantedcottonseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]]},
+		"cotton": {"sprite": "cotton"},
+		"cottonyarn": {"sprite": "cottonyarn"},
+		"cottoncloth": {"sprite": "cottoncloth"}
 	},
 	"templates":{
-		"plantedcarrotseed": ["plantedseed", {"delay": 60, "next": "carrotseedling"}],
-		"carrotseedling": ["seedling", {"delay": 60, "next": "youngcarrotplant"}],
-		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 60, "next": "carrotplant"}]
+		"plantedcarrotseed": ["plantedseed", {"delay": 1800, "next": "carrotseedling"}],
+		"carrotseedling": ["seedling", {"delay": 3000, "next": "youngcarrotplant"}],
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 6000, "next": "carrotplant"}],
+		"plantedcottonseed": ["plantedseed", {"delay": 6000, "next": "cottonseedling"}],
+		"cottonseedling": ["seedling", {"delay": 18000, "next": "youngcottonplant"}],
+		"youngcottonplant": ["youngplant", {"crop": "cotton", "delay": 36000, "next": "cottonplant"}]
 	}
 }

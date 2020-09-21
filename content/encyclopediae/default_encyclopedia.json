@@ -100,6 +100,30 @@
 					["list", [{"type": "stone"}, 1.0]]
 				]]}]
 			]
+		},
+		"spinningwheel": {
+			"sprite": "spinningwheel",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"spin ",
+					["list", [
+						["list", ["cotton yarn", ["list", ["cotton", "cotton"]], ["list", ["cottonyarn"]]]]
+					]]
+				]]}]
+			]
+		},
+		"loom": {
+			"sprite": "loom",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"weave ",
+					["list", [
+						["list", ["cotton cloth", ["list", ["cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn"]], ["list", ["cottoncloth"]]]]
+					]]
+				]]}]
+			]
 		}
 	},
 	"items": {
