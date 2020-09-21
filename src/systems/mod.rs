@@ -50,5 +50,5 @@ pub use self::{
 	building::Building,
 	deduplicate::Deduplicate,
 	spawntrigger::SpawnTrigger,
-	replace::Replace
+	replace::Replace,
 };

@@ -9,7 +9,8 @@ use specs::{
 
 use crate::{
 	components::{Visible, Flags, Flag},
-	Pos
+	Pos,
+	controls::Direction
 };
 
 #[derive(Default)]
@@ -41,6 +42,19 @@ impl Ground {
 			.iter()
 			.filter_map(|e| component_type.get(*e))
 			.collect()
+	}
+	
+	pub fn components_near<'a, C: Component>(&self, pos: Pos, directions: &[Direction], component_type: &'a ReadStorage<C>) -> Vec<(Entity, &'a C)> {
+		let mut nearby_components: Vec<(Entity, &'a C)> = Vec::new();
+		for direction in directions {
+			let pos = pos + direction.to_position();
+			for ent in self.cells.get(&pos).unwrap_or(&HashSet::new()) {
+				if let Some(comp) = component_type.get(*ent) {
+					nearby_components.push((*ent, comp));
+				}
+			}
+		}
+		nearby_components
 	}
 	
 	pub fn by_height(&self, pos: &Pos, visibles: &ReadStorage<Visible>, ignore: &Entity) -> Vec<Entity> {

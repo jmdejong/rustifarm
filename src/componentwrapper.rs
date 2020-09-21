@@ -14,8 +14,7 @@ use crate::{
 		AttackType,
 		Clan,
 		Flag,
-		Trigger,
-		interactable::Interactable
+		Trigger
 	},
 	parameter::{Parameter},
 	fromtoparameter::FromToParameter,
@@ -50,12 +49,13 @@ macro_rules! components {
 						ComponentType::$comp => Ok(Self::$comp({
 							use crate::components::$comp;
 							$(
-								let $paramname = <$paramtype>::from_parameter(
-										parameters
+								let $paramname = {
+									let param = parameters
 										.remove(stringify!($paramname))
-										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?
-									)
-									.ok_or(aerr!("parameter {} is invalid type", stringify!($paramname)))?;
+										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?;
+									<$paramtype>::from_parameter(param.clone())
+										.ok_or(aerr!("parameter {} is invalid type: {:?} is not of type {}", stringify!($paramname), param, stringify!($paramtype)))?
+								};
 
 							)*
 							$creation
@@ -183,7 +183,9 @@ components!(all:
 	Clan (name: String);
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
-	Interactable (action: Interactable) {action};
+	Interactable (typ: String, arg: Parameter) {
+		Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction {:?} {:?}", typ, arg))?
+	};
 	Loot (loot: Vec<(Template, f64)>);
 	Timer (
 			trigger: String, (panic!("can't turn trigger to string")),

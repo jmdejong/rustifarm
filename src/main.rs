@@ -18,7 +18,7 @@ mod pos;
 mod componentwrapper;
 mod parameter;
 mod assemblage;
-mod componentparameter;
+mod parameterexpression;
 mod encyclopedia;
 mod template;
 mod roomtemplate;

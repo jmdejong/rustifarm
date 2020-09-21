@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use serde_json::{Value, json, value};
 use crate::{
-	componentparameter::ComponentParameter,
+	parameterexpression::ParameterExpression,
 	parameter::{Parameter, ParameterType},
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::Serialise,
@@ -18,7 +18,7 @@ type ArgumentDef = (String, ParameterType, Option<Parameter>);
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
 	pub arguments: Vec<ArgumentDef>,
-	pub components: Vec<(ComponentType, HashMap<String, ComponentParameter>)>,
+	pub components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
 	pub save: bool,
 	pub extract: Vec<(String, ComponentType, String)>
 }
@@ -37,7 +37,7 @@ impl Assemblage {
 					(
 						key.clone(),
 						typ,
-						Some(Parameter::from_typed_json(typ, def).ok_or(perr!("invalid argument default {:?} {:?}", typ, def))?)
+						Some(Parameter::from_typed_json(typ, def)?)
 					)
 				);
 			} else  {
@@ -47,7 +47,7 @@ impl Assemblage {
 		Ok(arguments)
 	}
 	
-	fn parse_definition_components(comps: &[Value]) -> PResult<Vec<(ComponentType, HashMap<String, ComponentParameter>)>> {
+	fn parse_definition_components(comps: &[Value]) -> PResult<Vec<(ComponentType, HashMap<String, ParameterExpression>)>> {
 		let mut components = Vec::new();
 		for tup in comps {
 			if let Some(name) = tup.as_str() {
@@ -55,9 +55,9 @@ impl Assemblage {
 			} else {
 				let (name, params) = value::from_value::<(String, HashMap<String, Value>)>(tup.clone()).map_err(|e| perr!("invalid component definition: {:?}", e))?;
 				let comptype = ComponentType::from_str(&name).ok_or(perr!("{} not a valid componenttype", name))?;
-				let mut parameters: HashMap<String, ComponentParameter> = HashMap::new();
+				let mut parameters: HashMap<String, ParameterExpression> = HashMap::new();
 				for (key, value) in params.into_iter() {
-					let param = ComponentParameter::from_json(&value)?;
+					let param = ParameterExpression::from_json(&value)?;
 					parameters.insert(key, param);
 				}
 				components.push((comptype, parameters));
@@ -227,9 +227,9 @@ mod tests {
 				arguments: vec![("sprite".to_string(), ParameterType::String, Some(Parameter::String("grass1".to_string())))],
 				components: vec![
 					(ComponentType::Visible, hashmap!(
-						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
-						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1)),
-						"name".to_string() => ComponentParameter::Constant(Parameter::String("grass".to_string()))
+						"sprite".to_string() => ParameterExpression::Argument("sprite".to_string()),
+						"height".to_string() => ParameterExpression::Constant(Parameter::Float(0.1)),
+						"name".to_string() => ParameterExpression::Constant(Parameter::String("grass".to_string()))
 					))
 				],
 				save: true,
@@ -346,9 +346,9 @@ mod tests {
 				arguments: vec![("sprite".to_string(), ParameterType::String, None)],
 				components: vec![
 					(ComponentType::Visible, hashmap!(
-						"sprite".to_string() => ComponentParameter::Argument("sprite".to_string()),
-						"height".to_string() => ComponentParameter::Constant(Parameter::Float(0.1)),
-						"name".to_string() => ComponentParameter::Argument("sprite".to_string())
+						"sprite".to_string() => ParameterExpression::Argument("sprite".to_string()),
+						"height".to_string() => ParameterExpression::Constant(Parameter::Float(0.1)),
+						"name".to_string() => ParameterExpression::Argument("sprite".to_string())
 					))
 				],
 				save: true,

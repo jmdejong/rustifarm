@@ -1,59 +1,60 @@
 
 use std::collections::HashMap;
-use serde_json;
-use serde_json::{Value};
 use specs::{
 	Component,
-	HashMapStorage
+	HashMapStorage,
 };
 use crate::{
 	exchange::Exchange,
-	ItemId,
 	components::{Trigger, equipment::Stat},
-	RoomId
+	RoomId,
+	parameter::Parameter,
+	fromtoparameter::FromToParameter,
+	ItemId,
 };
 
 #[derive(Component, Debug, Clone, PartialEq)]
 #[storage(HashMapStorage)]
 pub enum Interactable {
 	Trigger(Trigger),
+	Visit(RoomId),
+	Mine(Stat),
 	Say(String),
 	Reply(String),
 	Exchange(String, HashMap<String, Exchange>),
-	Visit(RoomId),
-	Mine(Stat)
 }
 
 use Interactable::*;
 
 impl Interactable {
-	pub fn from_json(val: &Value) -> Option<Self> {
-		let typ = val.get(0)?;
-		let arg = val.get(1)?;
-		Some(match typ.as_str()? {
-			"trigger" => Trigger(Trigger::from_str(arg.as_str()?)?),
-			"say" => Say(arg.as_str()?.to_string()),
-			"reply" => Reply(arg.as_str()?.to_string()),
-			"exchange" => {
-				let (prefix, change) = serde_json::value::from_value::<
-						(String, HashMap<String, (Vec<ItemId>, Vec<ItemId>)>)
-					>(arg.clone()).ok()?;
-				Exchange(
-					prefix,
-					change.into_iter().map(
-						|(id, (cost, offer))| (id, Exchange{cost, offer})
-					).collect::<HashMap<String, Exchange>>()
-				)
-			},
-			"visit" => Visit(RoomId::from_str(arg.as_str()?)),
-			"mine" => Mine(Stat::from_str(arg.as_str()?)?),
-			_ => None?
+	
+	pub fn parse_from_parameter(typ: &str, arg: &Parameter) -> Option<Self> {
+		Some(match (typ, arg) {
+			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
+			("visit", Parameter::String(s)) => Visit(RoomId::from_str(s)),
+			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
+			("say", Parameter::String(s)) => Say(s.clone()),
+			("reply", Parameter::String(s)) => Reply(s.clone()),
+			("exchange", p) => {
+				let (prefix, trades) = <(String, Vec<(String, Vec<ItemId>, Vec<ItemId>)>)>::from_parameter(p.clone())?;
+				let exchanges = trades.into_iter().map(|(k, cost, offer)| (k, Exchange{cost, offer})).collect();
+				Exchange(prefix, exchanges)
+			}
+			_ => {return None}
 		})
 	}
 	
 	pub fn accepts_arg(&self, arg: &Option<String>) -> bool {
 		match self {
 			Trigger(_) => arg.is_none(),
+			Visit(_) => {
+				if let Some(txt) = arg {
+					 txt.starts_with("visit ") || txt.starts_with("disallow ") || txt.starts_with("allow ") || txt.starts_with("whitelist")
+				} else {
+					true
+				}
+			}
+			Mine(_) => arg.is_none(),
 			Say(_) => arg.is_none(),
 			Reply(_) => arg.is_some(),
 			Exchange(prefix, _exchanges) => {
@@ -63,14 +64,8 @@ impl Interactable {
 					true
 				}
 			},
-			Visit(_) => {
-				if let Some(txt) = arg {
-					 txt.starts_with("visit ") || txt.starts_with("disallow ") || txt.starts_with("allow ") || txt.starts_with("whitelist")
-				} else {
-					true
-				}
-			}
-			Mine(_) => arg.is_none()
 		}
 	}
 }
+
+

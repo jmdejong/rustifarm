@@ -5,7 +5,7 @@
 			"name": "radishplant",
 			"height": 0.5,
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
+				["Interactable", {"typ": "trigger", "arg": "die"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "radishseed"}, 0.92]],
 					["list", [{"type": "radishseed"}, 0.20]],
@@ -136,7 +136,7 @@
 			"name": "carrotplant",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "die"]]}],
+				["Interactable", {"typ": "trigger", "arg": "die"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "carrotseed"}, 1.0]],
 					["list", [{"type": "carrot"}, 1.0]]

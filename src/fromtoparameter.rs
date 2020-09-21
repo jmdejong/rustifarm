@@ -5,7 +5,6 @@ use crate::{
 	parameter::Parameter,
 	Template,
 	Pos,
-	components::interactable::Interactable,
 	PlayerId,
 	Sprite,
 	ItemId
@@ -78,7 +77,6 @@ tofrom!(bool:Bool);
 tofrom!(String: String);
 tofrom!(Pos: Pos);
 tofrom!(Template: Template);
-tofrom!(Interactable: Interaction);
 
 tofrom!(PlayerId{name: String});
 tofrom!(Sprite{name: String});

@@ -12,7 +12,7 @@
 			"extract": {"allowed": ["Whitelist", "allowed"], "dedup_priority": ["Dedup", "priority"]},
 			"components": [
 				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
-				["Interactable", {"action": ["interaction", ["visit", "_home+{player}"]]}],
+				["Interactable", {"typ": "visit", "arg": "_home+{player}"}],
 				["Whitelist", {"allowed": ["arg", "allowed"]}],
 				["Dedup", {"id": ["arg", "dedup_id"], "priority": ["arg", "dedup_priority"]}]
 			],
@@ -69,7 +69,7 @@
 			"height": 2,
 			"flags": ["Blocking"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "change"]]}],
+				["Interactable", {"typ": "trigger", "arg": "change"}],
 				["Build", {"obj": {"type": "opendoor", "save": false}}]
 			]
 		},
@@ -78,7 +78,7 @@
 			"height": 0.8,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["trigger", "change"]]}],
+				["Interactable", {"typ": "trigger", "arg": "change"}],
 				["Build", {"obj": {"type": "closeddoor", "save": false}}]
 			]
 		},
@@ -87,14 +87,14 @@
 			"height": 1,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"action": ["interaction", ["say", "Good morning there, World"]]}]
+				["Interactable", {"typ": "say", "arg": "Good morning there, World"}]
 			]
 		},
 		"quarry": {
 			"sprite": "quarry",
 			"height": 2,
 			"components": [
-				["Interactable", {"action": ["interaction", ["mine", "mining"]]}],
+				["Interactable", {"typ": "mine", "arg": "mining"}],
 				["Minable", {"total": 20, "trigger": "loot"}],
 				["Loot", {"loot": ["list", [
 					["list", [{"type": "stone"}, 1.0]]

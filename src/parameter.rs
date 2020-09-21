@@ -2,8 +2,9 @@
 use serde_json::{Value, json};
 use crate::{
 	Template,
-	components::interactable::Interactable,
-	Pos
+	Pos,
+	PResult,
+	perr
 };
 
 
@@ -17,10 +18,10 @@ macro_rules! parameters {
 			)*
 		}
 		impl Parameter {
-			pub fn from_typed_json(typ: ParameterType, val: &Value) -> Option<Parameter>{
+			pub fn from_typed_json(typ: ParameterType, val: &Value) -> PResult<Parameter>{
 				match typ {
 					$(
-						ParameterType::$name => Some(Self::$name({
+						ParameterType::$name => Ok(Self::$name({
 							let $v = val;
 							$fromjson
 						})),
@@ -63,20 +64,19 @@ macro_rules! parameters {
 }
 
 parameters!(
-	String (String) string, v (v.as_str()?.to_string()) (json!(v));
-	Int (i64) int, v (v.as_i64()?) (json!(v));
-	Pos (Pos) pos, v (Pos::from_json(v)?) (json!(v));
-	Float (f64) float, v (v.as_f64()?) (json!(v));
-	Template (Template) template, v (Template::from_json(v).ok()?) (json!(["template", v.to_json()]));
-	Interaction (Interactable) interaction, _v (Interactable::from_json(_v)?) (panic!("interactions can't be serialized"));
-	Bool (bool) bool, v (v.as_bool()?) (json!(v));
+	String (String) string, v (v.as_str().ok_or(perr!("{:?} not a string", v))?.to_string()) (json!(v));
+	Int (i64) int, v (v.as_i64().ok_or(perr!("{:?} not an int", v))?) (json!(v));
+	Pos (Pos) pos, v (Pos::from_json(v).ok_or(perr!("{:?} not a pos", v))?) (json!(v));
+	Float (f64) float, v (v.as_f64().ok_or(perr!("{:?} not an float", v))?) (json!(v));
+	Template (Template) template, v (Template::from_json(v)?) (json!(["template", v.to_json()]));
+	Bool (bool) bool, v (v.as_bool().ok_or(perr!("{:?} not a bool", v))?) (json!(v));
 	List (Vec<Parameter>) list, v 
 		({
 			v
-				.as_array()?
+				.as_array().ok_or(perr!("{:?} not an array", v))?
 				.iter()
 				.map(|item| Parameter::guess_from_json(item))
-				.collect::<Option<Vec<Parameter>>>()?
+				.collect::<PResult<Vec<Parameter>>>()?
 		})
 		(json!(["list", v.iter().map(Parameter::to_json).collect::<Vec<Value>>()]));
 );
@@ -88,11 +88,11 @@ impl Parameter {
 		Self::String(string.to_string())
 	}
 	
-	pub fn guess_from_json(val: &Value) -> Option<Parameter> {
+	pub fn guess_from_json(val: &Value) -> PResult<Parameter> {
 		if let Some(arr) = val.as_array() {
 			if arr.len() == 2 && arr[0].is_string() {
 				let typestr = arr[0].as_str().unwrap();
-				let typ = ParameterType::from_str(typestr)?;
+				let typ = ParameterType::from_str(typestr).ok_or(perr!("invalid parameter type {}", typestr))?;
 				return Self::from_typed_json(typ, &arr[1]);
 			}
 		}
@@ -108,7 +108,7 @@ impl Parameter {
 			} else if val.is_object(){
 				ParameterType::Template
 			} else {
-				return None
+				return Err(perr!("can't guess the type of parameter {:?}", val));
 			};
 		Self::from_typed_json(typ, val)
 	}

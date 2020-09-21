@@ -70,7 +70,7 @@ use crate::{
 		Building,
 		Deduplicate,
 		SpawnTrigger,
-		Replace
+		Replace,
 	}
 };
 

@@ -16,7 +16,7 @@ pub use messages::{
 	TriggerBox
 };
 pub use faction::Faction;
-pub use interactable::Interactable;
+pub use interactable::{Interactable};
 pub use equipment::Equipment;
 pub use inventory::Inventory;
 pub use serialise::Serialise;
