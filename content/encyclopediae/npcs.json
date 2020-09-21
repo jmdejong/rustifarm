@@ -95,6 +95,25 @@
 					]]
 				]]}]
 			]
+		},
+		"toolsmith": {
+			"sprite": "human",
+			"height": 1.5,
+			"name": "toolsmith",
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"buy ",
+					["list", [
+						["list", ["pickaxe", ["list", ["carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot"]], ["list", ["pickaxe"]]]]
+					]]
+				]]}],
+				["MonsterAI", {
+					"view_distance": 1,
+					"move_chance": 0.01,
+					"homesickness": 0.3
+				}],
+				["Movable", {"cooldown": 3}]
+			]
 		}
 	}
 }
