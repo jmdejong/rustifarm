@@ -8,7 +8,9 @@ use crate::{
 	exchange::Exchange,
 	components::{Trigger, equipment::Stat},
 	RoomId,
-	parameter::Parameter
+	parameter::Parameter,
+	fromtoparameter::FromToParameter,
+	ItemId,
 };
 
 #[derive(Component, Debug, Clone, PartialEq)]
@@ -18,7 +20,8 @@ pub enum Interactable {
 	Visit(RoomId),
 	Mine(Stat),
 	Say(String),
-	Reply(String)
+	Reply(String),
+	Exchange(String, HashMap<String, Exchange>),
 }
 
 use Interactable::*;
@@ -32,7 +35,12 @@ impl Interactable {
 			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
 			("say", Parameter::String(s)) => Say(s.clone()),
 			("reply", Parameter::String(s)) => Reply(s.clone()),
-			_ => None?
+			("exchange", p) => {
+				let (prefix, trades) = <(String, Vec<(String, Vec<ItemId>, Vec<ItemId>)>)>::from_parameter(p.clone())?;
+				let exchanges = trades.into_iter().map(|(k, cost, offer)| (k, Exchange{cost, offer})).collect();
+				Exchange(prefix, exchanges)
+			}
+			_ => {return None}
 		})
 	}
 	
@@ -49,15 +57,15 @@ impl Interactable {
 			Mine(_) => arg.is_none(),
 			Say(_) => arg.is_none(),
 			Reply(_) => arg.is_some(),
+			Exchange(prefix, _exchanges) => {
+				if let Some(txt) = arg {
+					 txt.starts_with(prefix)
+				} else {
+					true
+				}
+			},
 		}
 	}
 }
 
-
-#[derive(Component, Debug, Clone, PartialEq)]
-#[storage(HashMapStorage)]
-pub struct Exchanger {
-	pub prefix: String,
-	pub exchanges: HashMap<String, Exchange>
-}
 

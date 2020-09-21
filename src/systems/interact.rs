@@ -28,7 +28,7 @@ use crate::{
 		Minable
 	},
 	controls::{Control},
-	resources::{Ground, Emigration},
+	resources::{Ground, Emigration, NewEntities},
 	hashmap,
 	playerstate::RoomPos,
 	PlayerId,
@@ -51,10 +51,11 @@ impl <'a> System<'a> for Interact {
 		ReadStorage<'a, Player>,
 		Write<'a, Emigration>,
 		WriteStorage<'a, Whitelist>,
-		WriteStorage<'a, Minable>
+		WriteStorage<'a, Minable>,
+		Read<'a, NewEntities>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, mut ears, inventories, visibles, players, mut emigration, mut whitelists, mut minables): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists, mut minables, new): Self::SystemData) {
 		for (actor, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(actor);
@@ -134,6 +135,27 @@ impl <'a> System<'a> for Interact {
 									minable.progress = 0;
 								}
 							}
+						}
+					}
+					Interactable::Exchange(prefix, exchanges) => {
+						if let Some(txt) = arg {
+							if let (Some(inventory), Some(action)) = (inventories.get_mut(actor), strip_prefix(&txt, prefix)) {
+								if let Some(exchange) = exchanges.get(action) {
+									if exchange.can_trade(inventory){
+										exchange.trade(inventory, &new.encyclopedia);
+										say(ear, format!("Success! '{}' ({})", txt, exchange.show()), name);
+									} else {
+										say(ear, format!("You do not have the required items or inventory space for '{}' ({})", txt, exchange.show()), name);
+									}
+								} else {
+									say(ear, format!("Invalid option: {}", action), name);
+								}
+							}
+						} else if let Some(ear) = ear {
+							ear.sounds.push(Notification::Options{
+								description: "".to_string(),
+								options: exchanges.iter().map(|(id, exchange)| (format!("{}{}", prefix, id), exchange.show())).collect()
+							})
 						}
 					}
 				}

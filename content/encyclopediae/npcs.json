@@ -86,14 +86,14 @@
 			"sprite": "human",
 			"height": 1.5,
 			"components": [
-				["Exchanger", {
-					"prefix": "buy",
-					"exchanges": ["list", [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"buy ",
+					["list", [
 						["list", ["pebble", ["list", ["radish", "radish"]], ["list", ["pebble"]]]],
 						["list", ["radishseed", ["list", ["radish"]], ["list", ["radishseed", "radishseed"]]]],
 						["list", ["carrotseed", ["list", ["radish"]], ["list", ["carrotseed"]]]]
 					]]
-				}]
+				]]}]
 			]
 		}
 	}

@@ -20,7 +20,6 @@ use crate::{
 	fromtoparameter::FromToParameter,
 	Timestamp,
 	Template,
-	exchange::Exchange,
 	Pos,
 	Result,
 	aerr
@@ -184,7 +183,9 @@ components!(all:
 	Clan (name: String);
 	Home (home: Pos);
 	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
-	Interactable (typ: String, arg: Parameter) {Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction"))?};
+	Interactable (typ: String, arg: Parameter) {
+		Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction {:?} {:?}", typ, arg))?
+	};
 	Loot (loot: Vec<(Template, f64)>);
 	Timer (
 			trigger: String, (panic!("can't turn trigger to string")),
@@ -234,17 +235,6 @@ components!(all:
 		}
 	};
 	Substitute (into: Template);
-	Exchanger (prefix: String, exchanges: Vec<(String, Vec<ItemId>, Vec<ItemId>)>) {
-		Exchanger {
-			prefix,
-			exchanges: exchanges
-				.into_iter()
-				.map(|(key, cost, offer)|
-					(key, Exchange{cost, offer})
-				)
-				.collect()
-		}
-	};
 );
 
 

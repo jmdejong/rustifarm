@@ -24,7 +24,6 @@ mod building;
 mod deduplicate;
 mod spawntrigger;
 mod replace;
-mod exchange;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -52,5 +51,4 @@ pub use self::{
 	deduplicate::Deduplicate,
 	spawntrigger::SpawnTrigger,
 	replace::Replace,
-	exchange::Exchange
 };
