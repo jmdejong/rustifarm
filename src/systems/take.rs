@@ -6,7 +6,8 @@ use specs::{
 	WriteStorage,
 	System,
 	Join,
-	Write
+	Write,
+	Entity
 };
 
 use crate::components::{
@@ -41,7 +42,7 @@ impl <'a> System<'a> for Take {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			match &controller.control {
 				Control::Take(rank) if inventory.items.len() < inventory.capacity => {
-					let mut ents = ground.by_height(&position.pos, &visibles, &ent);
+					let mut ents: Vec<Entity> = ground.by_height(&position.pos, &visibles).into_iter().filter(|e| *e != ent).collect();
 					if let Some(idx) = rank {
 						if *idx >= ents.len() {
 							return

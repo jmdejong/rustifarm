@@ -5,6 +5,9 @@ use specs::{
 	Component,
 	HashMapStorage
 };
+use crate::{
+	Sprite
+};
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -46,7 +49,8 @@ impl Stat {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Equippable {
 	pub slot: Slot,
-	pub stats: HashMap<Stat, i64>
+	pub stats: HashMap<Stat, i64>,
+	pub sprite: Option<Sprite>
 }
 
 impl Equippable {
@@ -60,7 +64,10 @@ impl Equippable {
 				.map(|(k, v)| 
 					Some((Stat::from_str(k.as_str())?, v.as_i64()?))
 				)
-				.collect::<Option<HashMap<Stat, i64>>>()?
+				.collect::<Option<HashMap<Stat, i64>>>()?,
+			sprite: if let Some(spr) = val.get("sprite") {
+					Some(Sprite{name: spr.as_str()?.to_string()})
+				} else {None}
 		})
 	}
 }
@@ -101,7 +108,7 @@ mod tests {
 	fn equippable_from_json() {
 		assert_eq!(
 			Equippable::from_json(&json!({"slot": "hand", "stats": {"strength": 10}})),
-			Some(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10)})
+			Some(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10), sprite: None})
 		);
 	}
 	

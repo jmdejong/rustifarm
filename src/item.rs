@@ -73,7 +73,7 @@ mod tests {
 	fn equip_from_json() {
 		assert_eq!(
 			ItemAction::from_json(&json!(["equip", {"slot": "hand", "stats": {"strength": 10}}])),
-			Some(ItemAction::Equip(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10)}))
+			Some(ItemAction::Equip(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10), sprite: Option::None}))
 		);
 		assert_eq!(
 			ItemAction::from_json(&json!(["equip", {"slot": "hand", "stats": {"attack": 50}}])),

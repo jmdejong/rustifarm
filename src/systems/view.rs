@@ -1,5 +1,4 @@
 
-
 use specs::{
 	ReadStorage,
 	WriteStorage,
@@ -7,7 +6,8 @@ use specs::{
 	Write,
 	System,
 	Join,
-	Entities
+	Entities,
+	Entity
 };
 
 use crate::{
@@ -38,8 +38,15 @@ impl <'a> System<'a> for View {
 		
 		let changes: Vec<(Pos, Vec<Sprite>)> = ground.changes
 			.iter()
-			.map(|pos| (*pos, cell_sprites(ground.components_on(*pos, &visible))))
-			.collect();
+			.map(|pos|
+				(
+					*pos,
+					ground.by_height(pos, &visible).into_iter()
+						.filter_map(|e|
+							entity_sprite(e, &visible, &inventories)
+						).collect()
+				)
+			).collect();
 		
 		let has_changed: bool = !changes.is_empty();
 		output.output.clear();
@@ -71,8 +78,9 @@ impl <'a> System<'a> for View {
 			}
 			updates.ground = Some(
 				ground
-					.by_height(&pos.pos, &visible, &ent)
+					.by_height(&pos.pos, &visible)
 					.into_iter()
+					.filter(|e| *e != ent)
 					.map(|ent| visible.get(ent).unwrap().name.clone())
 					.collect()
 			);
@@ -82,6 +90,18 @@ impl <'a> System<'a> for View {
 			}
 		}
 	}
+}
+
+fn entity_sprite(ent: Entity, visibles: &ReadStorage<Visible>, inventories: &ReadStorage<Inventory>) -> Option<Sprite> {
+	if let Some(inventory) = inventories.get(ent) {
+		if let Some(sprite) = inventory.equipment_sprites().into_iter().next() {
+			return Some(sprite);
+		}
+	}
+	if let Some(visible) = visibles.get(ent) {
+		return Some(visible.sprite.clone());
+	}
+	None
 }
 
 fn cell_sprites(mut visibles: Vec<&Visible>) -> Vec<Sprite> {

@@ -5,7 +5,8 @@ use crate::{
 	ItemId,
 	item::{Item, ItemAction},
 	components::equipment::{Stat, Equippable},
-	Encyclopedia
+	Encyclopedia,
+	Sprite
 };
 
 #[derive(Debug, Clone)]
@@ -57,5 +58,9 @@ impl Inventory {
 			}
 		}
 		bonuses
+	}
+	
+	pub fn equipment_sprites(&self) -> Vec<Sprite> {
+		self.equipped().iter().filter_map(|e| e.sprite.clone()).collect()
 	}
 }
