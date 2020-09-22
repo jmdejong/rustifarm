@@ -124,6 +124,32 @@
 					]]
 				]]}]
 			]
+		},
+		"sewingtable": {
+			"sprite": "sewingtable",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"sew ",
+					["list", [
+						["list", ["cape", ["list", ["cottoncloth", "cottoncloth", "cottoncloth", "cottonyarn", "cottonyarn"]], ["list", ["cape"]]]]
+					]]
+				]]}]
+			]
+		},
+		"tub": {
+			"sprite": "tub",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"dye ",
+					["list", [
+						["list", ["red cape", ["list", ["cape", "reddye"]], ["list", ["redcape"]]]],
+						["list", ["green cape", ["list", ["cape", "greendye"]], ["list", ["greencape"]]]],
+						["list", ["blue cape", ["list", ["cape", "bluedye"]], ["list", ["bluecape"]]]]
+					]]
+				]]}]
+			]
 		}
 	},
 	"items": {
@@ -156,6 +182,17 @@
 			"action": ["equip", {
 				"slot": "hand",
 				"stats": {"mining": 5}
+			}]
+		},
+		"reddye": {"sprite": "bag"},
+		"greendye": {"sprite": "bag"},
+		"bluedye": {"sprite": "bag"},
+		"cape": {
+			"sprite": "armour",
+			"action": ["equip", {
+				"slot": "back",
+				"stats": {},
+				"sprite": "grayplayer"
 			}]
 		},
 		"redcape": {

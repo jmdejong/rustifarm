@@ -85,6 +85,7 @@
 		"trader": {
 			"sprite": "human",
 			"height": 1.5,
+			"name": "crop trader",
 			"components": [
 				["Interactable", {"typ": "exchange", "arg": ["list", [
 					"buy ",
@@ -93,6 +94,27 @@
 						["list", ["radishseed", ["list", ["radish"]], ["list", ["radishseed", "radishseed"]]]],
 						["list", ["carrotseed", ["list", ["radish"]], ["list", ["carrotseed"]]]],
 						["list", ["cottonseed", ["list", ["stone"]], ["list", ["cottonseed"]]]]
+					]]
+				]]}],
+				["MonsterAI", {
+					"view_distance": 1,
+					"move_chance": 0.01,
+					"homesickness": 0.3
+				}],
+				["Movable", {"cooldown": 3}]
+			]
+		},
+		"dyetrader": {
+			"sprite": "human",
+			"height": 1.5,
+			"name": "dye trader",
+			"components": [
+				["Interactable", {"typ": "exchange", "arg": ["list", [
+					"buy ",
+					["list", [
+						["list", ["red dye", ["list", ["club", "club"]], ["list", ["reddye"]]]],
+						["list", ["green dye", ["list", ["stone", "stone", "stone", "stone", "stone"]], ["list", ["greendye"]]]],
+						["list", ["blue dye", ["list", ["sword"]], ["list", ["bluedye"]]]]
 					]]
 				]]}],
 				["MonsterAI", {
@@ -114,6 +136,19 @@
 						["list", ["pickaxe", ["list", ["carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot"]], ["list", ["pickaxe"]]]]
 					]]
 				]]}],
+				["MonsterAI", {
+					"view_distance": 1,
+					"move_chance": 0.01,
+					"homesickness": 0.3
+				}],
+				["Movable", {"cooldown": 3}]
+			]
+		},
+		"villager": {
+			"sprite": "human",
+			"height": 1.5,
+			"name": "villager",
+			"components": [
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
