@@ -252,7 +252,7 @@ fn parse_message(msg: &str) -> Result<Message, MessageError> {
 		}
 		"chat" => {
 			let text = arg.as_str().ok_or(merr!(msg, "chat text not a string"))?;
-			Message::Chat(text.escape_debug().to_string())
+			Message::Chat(text.to_string())
 		}
 		"input" => {
 			Message::Input(arg.clone())
