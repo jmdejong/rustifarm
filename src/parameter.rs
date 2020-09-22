@@ -149,8 +149,8 @@ mod tests {
 	
 	#[test]
 	fn guess_json_none() {
-		assert!(Parameter::guess_from_json(&json!([2, 5])).is_none());
-		assert!(Parameter::guess_from_json(&json!({"hello": "world"})).is_none());
+		assert!(Parameter::guess_from_json(&json!([2, 5])).is_err());
+		assert!(Parameter::guess_from_json(&json!({"hello": "world"})).is_err());
 	}
 	
 	#[test]
