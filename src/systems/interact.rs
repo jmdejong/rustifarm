@@ -59,16 +59,13 @@ impl <'a> System<'a> for Interact {
 		for (actor, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(actor);
-			match &controller.control {
-				Control::Interact(directions, arg) => {
-					for (ent, interactable) in ground.components_near(position.pos, directions, &interactables) {
-						if interactable.accepts_arg(arg){
-							target = Some((ent, interactable, arg.clone()));
-							break;
-						}
+			if let Control::Interact(directions, arg) = &controller.control {
+				for (ent, interactable) in ground.components_near(position.pos, directions, &interactables) {
+					if interactable.accepts_arg(arg){
+						target = Some((ent, interactable, arg.clone()));
+						break;
 					}
 				}
-				_ => {}
 			}
 			if let Some((ent, interactable, arg)) = target {
 				let mut cooldown = 2;

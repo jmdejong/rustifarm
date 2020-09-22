@@ -46,22 +46,19 @@ impl <'a> System<'a> for Move {
 		moved.clear();
 		entered.clear();
 		for (ent, controller, mut position, movable) in (&entities, &controllers, &mut positions, &movables).join(){
-			match &controller.control {
-				Control::Move(direction) => {
-					let newpos = position.pos + direction.to_position();
-					let ground_flags = ground.flags_on(newpos, &flags);
-					if !ground_flags.contains(&Flag::Blocking) && ground_flags.contains(&Flag::Floor) {
-						moved.insert(ent, Moved{from: position.pos}).expect("can't insert Moved");
-						ground.remove(&position.pos, ent);
-						position.pos = newpos;
-						ground.insert(newpos, ent);
-						for ent in ground.cells.get(&newpos).unwrap() {
-							let _ = entered.insert(*ent, Entered);
-						}
-						cooldowns.insert(ent, ControlCooldown{amount: movable.cooldown}).unwrap();
+			if let Control::Move(direction) = &controller.control {
+				let newpos = position.pos + direction.to_position();
+				let ground_flags = ground.flags_on(newpos, &flags);
+				if !ground_flags.contains(&Flag::Blocking) && ground_flags.contains(&Flag::Floor) {
+					moved.insert(ent, Moved{from: position.pos}).expect("can't insert Moved");
+					ground.remove(&position.pos, ent);
+					position.pos = newpos;
+					ground.insert(newpos, ent);
+					for ent in ground.cells.get(&newpos).unwrap() {
+						let _ = entered.insert(*ent, Entered);
 					}
+					cooldowns.insert(ent, ControlCooldown{amount: movable.cooldown}).unwrap();
 				}
-				_ => {}
 			}
 		}
 	}
