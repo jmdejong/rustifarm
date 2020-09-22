@@ -145,15 +145,41 @@
 			"slot": "hand",
 			"stats": {"strength": 3}
 		}]},
-		"armour": {"action": ["equip", {
-			"slot": "body",
-			"stats": {"defence": 3}
+		"armour": {
+			"sprite": "armour",
+			"action": ["equip", {
+				"slot": "body",
+				"stats": {"defence": 3}
 		}]},
 		"pickaxe": {
 			"sprite": "sword",
 			"action": ["equip", {
 				"slot": "hand",
 				"stats": {"mining": 5}
+			}]
+		},
+		"redcape": {
+			"sprite": "armour",
+			"action": ["equip", {
+				"slot": "back",
+				"stats": {},
+				"sprite": "redplayer"
+			}]
+		},
+		"greencape": {
+			"sprite": "armour",
+			"action": ["equip", {
+				"slot": "back",
+				"stats": {},
+				"sprite": "greenplayer"
+			}]
+		},
+		"bluecape": {
+			"sprite": "armour",
+			"action": ["equip", {
+				"slot": "back",
+				"stats": {},
+				"sprite": "blueplayer"
 			}]
 		}
 	}

@@ -38,15 +38,8 @@ impl <'a> System<'a> for View {
 		
 		let changes: Vec<(Pos, Vec<Sprite>)> = ground.changes
 			.iter()
-			.map(|pos|
-				(
-					*pos,
-					ground.by_height(pos, &visible).into_iter()
-						.filter_map(|e|
-							entity_sprite(e, &visible, &inventories)
-						).collect()
-				)
-			).collect();
+			.map(|pos| (*pos, sprites_on(&ground, *pos, &visible, &inventories)))
+			.collect();
 		
 		let has_changed: bool = !changes.is_empty();
 		output.output.clear();
@@ -54,7 +47,7 @@ impl <'a> System<'a> for View {
 		for (ent, player, pos) in (&entities, &players, &positions).join() {
 			let mut updates = WorldMessage::default();
 			if new.get(ent).is_some() {
-				let (values, mapping) = draw_room(&ground, (size.width, size.height), &visible);
+				let (values, mapping) = draw_room(&ground, (size.width, size.height), &visible, &inventories);
 				let field = FieldMessage{
 					width: size.width,
 					height: size.height,
@@ -104,19 +97,22 @@ fn entity_sprite(ent: Entity, visibles: &ReadStorage<Visible>, inventories: &Rea
 	None
 }
 
-fn cell_sprites(mut visibles: Vec<&Visible>) -> Vec<Sprite> {
-	visibles.sort_by(|a, b| b.height.partial_cmp(&a.height).unwrap());
-	visibles.iter().map(|vis| vis.sprite.clone()).collect()
+fn sprites_on(ground: &Read<Ground>, pos: Pos, visibles: &ReadStorage<Visible>, inventories: &ReadStorage<Inventory>) -> Vec<Sprite> {
+	ground.by_height(&pos, visibles)
+		.into_iter()
+		.filter_map(|e|
+			entity_sprite(e, visibles, inventories)
+		).collect()
 }
 
-fn draw_room(ground: &Read<Ground>, (width, height): (i64, i64), visible: &ReadStorage<Visible>) -> (Vec<usize>, Vec<Vec<Sprite>>){
+fn draw_room(ground: &Read<Ground>, (width, height): (i64, i64), visible: &ReadStorage<Visible>, inventories: &ReadStorage<Inventory>) -> (Vec<usize>, Vec<Vec<Sprite>>){
 	
 	let size = width * height;
 	let mut values :Vec<usize> = Vec::with_capacity(size as usize);
 	let mut mapping: Vec<Vec<Sprite>> = Vec::new();
 	for y in 0..height {
 		for x in 0..width {
-			let sprites: Vec<Sprite> = cell_sprites(ground.components_on(Pos{x, y}, visible));
+			let sprites: Vec<Sprite> = sprites_on(ground, Pos{x, y}, visible, inventories);//cell_sprites(ground.components_on(Pos{x, y}, visible));
 			values.push(
 				match mapping.iter().position(|x| x == &sprites) {
 					Some(index) => {

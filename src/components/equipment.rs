@@ -13,7 +13,8 @@ use crate::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Slot {
 	Hand,
-	Body
+	Body,
+	Back
 }
 
 impl Slot {
@@ -21,6 +22,7 @@ impl Slot {
 		match txt {
 			"hand" => Some(Self::Hand),
 			"body" => Some(Self::Body),
+			"back" => Some(Self::Back),
 			_ => None
 		}
 	}

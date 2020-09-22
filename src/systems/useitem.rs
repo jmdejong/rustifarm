@@ -35,12 +35,12 @@ impl <'a> System<'a> for Use {
 		WriteStorage<'a, Inventory>,
 		Write<'a, NewEntities>,
 		WriteStorage<'a, AttackInbox>,
-		Read<'a, Ground>,
+		Write<'a, Ground>,
 		ReadStorage<'a, Flags>,
 		Read<'a, RoomPermissions>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, ground, flags, roompermissions): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, mut ground, flags, roompermissions): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			if let Control::Use(rank) = &controller.control {
 				if let Some(entry) = inventory.items.get_mut(*rank) {
@@ -70,6 +70,7 @@ impl <'a> System<'a> for Use {
 								}
 								inventory.items[*rank].is_equipped = true;
 							}
+							ground.changes.insert(position.pos);
 						}
 						None => {}
 					}
