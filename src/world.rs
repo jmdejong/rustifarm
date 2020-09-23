@@ -27,9 +27,9 @@ pub struct World<'a, 'b> {
 	default_room: RoomId,
 	players: HashMap<PlayerId, RoomId>,
 	rooms: HashMap<RoomId, Room<'a, 'b>>,
-	room_age: HashMap<RoomId, u32>,
+	room_age: HashMap<RoomId, Timestamp>,
 	encyclopedia: Encyclopedia,
-	time: Timestamp,
+	pub time: Timestamp,
 	default_dispatcher: Dispatcher<'a, 'b>
 }
 
@@ -65,7 +65,7 @@ impl <'a, 'b>World<'a, 'b> {
 	}
 	
 	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
-		self.room_age.insert(id.clone(), 0);
+		self.room_age.insert(id.clone(), self.time);
 		let result = self.get_room_mut_(id);
 		if let Err(err) = &result {
 			println!("Failed to load room {:?}: {:?}", id, err);
@@ -208,15 +208,14 @@ impl <'a, 'b>World<'a, 'b> {
 		}
 	}
 	
-	pub fn unload_rooms(&mut self){
+	pub fn unload_rooms(&mut self, min_age: i64){
 		let mut to_remove = Vec::new();
 		for roomid in self.rooms.keys() {
 			if self.rooms[roomid].has_players() {
-				self.room_age.insert(roomid.clone(), 0);
+				self.room_age.insert(roomid.clone(), self.time);
 			} else {
-				let age = *self.room_age.get(&roomid).unwrap_or(&0) + 1;
-				self.room_age.insert(roomid.clone(), age);
-				if age > 2 {
+				let age = self.time - *self.room_age.get(&roomid).unwrap_or(&Timestamp(0));
+				if age >= min_age {
 					to_remove.push(roomid.clone());
 				}
 			}

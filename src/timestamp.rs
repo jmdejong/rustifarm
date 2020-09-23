@@ -17,3 +17,10 @@ impl Sub<i64> for Timestamp {
         Self(self.0 - other)
     }
 }
+
+impl Sub<Self> for Timestamp {
+    type Output = i64;
+    fn sub(self, other: Self) -> i64 {
+        self.0 - other.0
+    }
+}

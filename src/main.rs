@@ -134,7 +134,6 @@ fn main(){
 	println!("asciifarm started");
 	
 	
-	let mut count = 0;
 	while running.load(Ordering::SeqCst) {
 		let actions = gameserver.update();
 		for action in actions {
@@ -161,9 +160,9 @@ fn main(){
 			}
 		}
 		world.update();
-		if count % 50 == 0 {
+		if world.time.0 % config.save_interval == 0 {
 			world.save();
-			world.unload_rooms();
+			world.unload_rooms(config.unload_age);
 		}
 		let messages = world.view();
 		for (player, mut message) in messages {
@@ -177,8 +176,7 @@ fn main(){
 			}
 		}
 		
-		count += 1;
-		sleep(Duration::from_millis(100));
+		sleep(Duration::from_millis(config.step_duration));
 	}
 	println!("saving world");
 	world.save();

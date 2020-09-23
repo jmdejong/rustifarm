@@ -20,7 +20,17 @@ pub struct Config {
 	pub user_dir: Option<PathBuf>,
 	
 	
+	
 	#[structopt(long, env="USER", help="The name(s) of the server admin(s)")]
 	pub admins: String,
+	
+	#[structopt(long, default_value="100", help="The time (in milliseconds) between two steps")]
+	pub step_duration: u64,
+	
+	#[structopt(long, default_value="300", help="The time (in steps) between two saves")]
+	pub save_interval: i64,
+	
+	#[structopt(long, default_value="300", help="The time (in steps) between the last player leaving a room and the room getting unloaded. Unloading is only done when the rooms are saved, so it could actually take up to save_interval more steps")]
+	pub unload_age: i64,
 	
 }
