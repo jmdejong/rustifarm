@@ -55,7 +55,7 @@
         "^": "house",
         "1": [{
             "type": "portal",
-            "kwargs": {"destination": "right", "destpos": "bridge"}
+            "kwargs": {"destination": "begin", "destpos": "bridge"}
         }, "floor"],
         "2": [{
             "type": "portal",
