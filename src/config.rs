@@ -7,7 +7,7 @@ use crate::Address;
 #[structopt(name = "Rustifarm", about = "Asciifarm server in Rust")]
 pub struct Config {
 	
-	#[structopt(short, long, help="A server type and address. Allowed server types: 'inet', 'unix', 'abstract'. Example: \"inet:127.0.0.1:1234\" or \"abstract:rustifarm\"")]
+	#[structopt(short, long, help="A server type and address. Allowed server types: 'inet', 'unix', 'abstract'. Example: \"inet:127.0.0.1:1234\" or \"abstract:rustifarm\" or \"unix:/tmp/rustifarm\" or \"inet:[::1]:1234\"")]
 	pub address: Option<Vec<Address>>,
 	
 	#[structopt(short, long, env="ASCIIFARM_CONTENT_DIR", help="The directory in which the content specifying the world is (maps/encyclopaedia)")]

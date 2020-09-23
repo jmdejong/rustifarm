@@ -36,7 +36,7 @@ impl FromStr for Address {
 		let typename = parts[0];
 		let text = parts[1];
 		match typename {
-			"inet" => Ok(Address::Inet(text.parse()?)),
+			"inet" => Ok(Address::Inet(text.parse().map_err(|e| aerr!("'{}' is not a valid inet address: {}", text, e))?)),
 			"unix" => Ok(Address::Unix(PathBuf::new().join(text))),
 			"abstract" => {
 					if cfg!(target_os = "linux") {
