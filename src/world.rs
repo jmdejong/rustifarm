@@ -75,7 +75,7 @@ impl <'a, 'b>World<'a, 'b> {
 	
 	fn get_room_mut_(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
 		if !self.rooms.contains_key(id){
-			println!("loading room '{}'", id.name);
+			println!("loading room '{}'", id);
 			let mut room: Room = if id == &purgatory::purgatory_id() {
 					purgatory::create_purgatory(&self.encyclopedia)
 				} else {
@@ -221,7 +221,7 @@ impl <'a, 'b>World<'a, 'b> {
 			}
 		}
 		for roomid in to_remove {
-			println!("unloading room '{}'", roomid.name);
+			println!("unloading room '{}'", roomid);
 			self.rooms.remove(&roomid);
 		}
 	}

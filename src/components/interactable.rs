@@ -31,7 +31,7 @@ impl Interactable {
 	pub fn parse_from_parameter(typ: &str, arg: &Parameter) -> Option<Self> {
 		Some(match (typ, arg) {
 			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
-			("visit", Parameter::String(s)) => Visit(RoomId::from_str(s)),
+			("visit", Parameter::String(s)) => Visit(RoomId(s.clone())),
 			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
 			("say", Parameter::String(s)) => Say(s.clone()),
 			("reply", Parameter::String(s)) => Reply(s.clone()),

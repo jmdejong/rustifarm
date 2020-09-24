@@ -152,9 +152,9 @@ components!(all:
 	Inventory () {panic!("inventory from parameters not implemented")};
 	Health (health: i64, maxhealth: i64);
 	Serialise () {panic!("serialise from parameters not implemented")};
-	RoomExit (destination: String, dest_pos: String) {
+	RoomExit (destination: RoomId, dest_pos: String) {
 		RoomExit {
-			destination: RoomId::from_str(&destination),
+			destination,
 			dest_pos: if dest_pos.is_empty() {
 					RoomPos::Unknown
 				} else {

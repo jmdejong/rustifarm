@@ -77,7 +77,7 @@ impl PlayerState {
 
 	pub fn to_json(&self) -> Value {
 		json!({
-			"name": self.id.name,
+			"name": self.id,
 			"roomname": match &self.room {
 				Some(id) => json!(id.to_string()),
 				None => json!(null)
@@ -139,9 +139,9 @@ impl PlayerState {
 			}
 		}
 		Ok(Self {
-			id: PlayerId{name: val.get("name").ok_or(perr!("player json does not have name"))?.as_str().ok_or(perr!("player name not a string"))?.to_string()},
+			id: PlayerId(val.get("name").ok_or(perr!("player json does not have name"))?.as_str().ok_or(perr!("player name not a string"))?.to_string()),
 			room: match val.get("roomname").ok_or(perr!("player json does not have room name"))? {
-				Value::String(name) => Some(RoomId::from_str(name)),
+				Value::String(name) => Some(RoomId(name.clone())),
 				_ => None
 			},
 			pos: RoomPos::Unknown,
@@ -160,7 +160,7 @@ impl PlayerState {
 	
 	pub fn construct(&self, encyclopedia: &Encyclopedia) -> Result<PreEntity> {
 		Ok(vec![
-			ComponentWrapper::Visible(Visible{sprite: Sprite{name: "player".to_string()}, height: 1.75, name: self.id.name.clone()}),
+			ComponentWrapper::Visible(Visible{sprite: Sprite("player".to_string()), height: 1.75, name: self.id.0.clone()}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map( |(itemid, is_equipped)| {

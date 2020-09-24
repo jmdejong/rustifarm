@@ -89,7 +89,7 @@ impl GameServer {
 			for id in left {
 				if let Some(player) = self.players.remove(&(serverid, id)){
 					self.connections.remove(&player);
-					self.broadcast_message(&format!("{} disconnected", player.name));
+					self.broadcast_message(&format!("{} disconnected", player));
 					actions.push(Action::Leave(player.clone()));
 				}
 			}
@@ -149,15 +149,15 @@ impl GameServer {
 				if self.players.contains_key(&id) {
 					return Err(merr!(action, "You can not change your name"));
 				}
-				let player = PlayerId{name};
+				let player = PlayerId(name);
 				self.authenticate(&player, auth.clone(), id)?;
 				if self.connections.contains_key(&player) {
 					return Err(merr!("nametaken", "Another connection to this player exists already"));
 				}
-				self.broadcast_message(&format!("{} connected", player.name));
+				self.broadcast_message(&format!("{} connected", player));
 				self.players.insert(id, player.clone());
 				self.connections.insert(player.clone(), id);
-				if let Err(_) = self.send(&player, json!(["connected", format!("successfully connected as {}", &player.name)])){
+				if let Err(_) = self.send(&player, json!(["connected", format!("successfully connected as {}", player)])){
 					return Err(merr!("server", "unable to send connected message"))
 				}
 				if auth == Authentication::Guest {
@@ -174,9 +174,8 @@ impl GameServer {
 				})
 			}
 			Message::Chat(text) => {
-				let player = self.players.get(&id).ok_or(merr!(action, "Set a valid name before you send any other messages"))?;
-				let name = player.name.clone();
-				self.broadcast_message(&format!("{}: {}", name, text));
+				let player = self.players.get(&id).ok_or(merr!(action, "Set a valid name before you send any other messages"))?.clone();
+				self.broadcast_message(&format!("{}: {}", player, text));
 				Ok(None)
 			}
 			Message::Input(inp) => {
@@ -196,7 +195,7 @@ impl GameServer {
 				()
 			}
 			Authentication::Tilde => {
-				let (firstchar, username) = player.name.split_at(1);
+				let (firstchar, username) = player.0.split_at(1);
 				if firstchar == "~" {
 					if Some(username.to_string()) != self.servers[serverid].get_name(connectionid) {
 						return Err(merr!(name, "A tilde name must match your username"));
@@ -206,7 +205,7 @@ impl GameServer {
 			Authentication::Passtoken(token) => {
 				match self.users.load_user(player) {
 					Ok(user) => {
-						if player.name != user.name {
+						if player.0 != user.name {
 							println!("Name mismatch: user entry for {:?} has name {}", player, user.name);
 							return Err(merr!("server", "name mismatch"));
 						}
@@ -216,7 +215,7 @@ impl GameServer {
 						()
 					}
 					Err(LoaderError::InvalidResource(err)) => {
-						println!("failed to load user data for user '{}': {}", player.name, err);
+						println!("failed to load user data for user '{}': {}", player, err);
 						return Err(merr!("server", "failed to load user data"))
 					}
 					Err(LoaderError::MissingResource(_)) => {

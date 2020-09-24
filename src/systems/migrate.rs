@@ -28,7 +28,7 @@ impl <'a> System<'a> for Migrate {
 		for (player, position, _moved) in (&players, &positions, &moved).join() {
 			for ent in ground.cells.get(&position.pos).unwrap() {
 				if let Some(exit) = exits.get(*ent) {
-					let destination = exit.destination.format(hashmap!("{player}" => player.id.name.as_str()));
+					let destination = exit.destination.format(hashmap!("{player}" => player.id.0.as_str()));
 					emigration.emigrants.push((player.id.clone(), destination, exit.dest_pos.clone()));
 					break;
 				}

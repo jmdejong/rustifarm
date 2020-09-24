@@ -7,7 +7,8 @@ use crate::{
 	Pos,
 	PlayerId,
 	Sprite,
-	ItemId
+	ItemId,
+	RoomId
 };
 
 pub trait FromToParameter: Sized {
@@ -78,9 +79,10 @@ tofrom!(String: String);
 tofrom!(Pos: Pos);
 tofrom!(Template: Template);
 
-tofrom!(PlayerId{name: String});
-tofrom!(Sprite{name: String});
+tofrom!(PlayerId(String));
+tofrom!(Sprite(String));
 tofrom!(ItemId(String));
+tofrom!(RoomId(String));
 
 impl<T> FromToParameter for Vec<T>
 where

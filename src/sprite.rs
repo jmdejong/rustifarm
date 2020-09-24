@@ -1,20 +1,13 @@
 
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use std::fmt;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, PartialEq, Hash, Eq)]
-pub struct Sprite {
-	pub name: String
-}
+#[derive(Debug, Clone, PartialEq, Hash, Eq, Serialize, Deserialize)]
+pub struct Sprite(pub String);
 
-impl Serialize for Sprite {
-	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-	where S: Serializer {
-		serializer.serialize_str(self.name.as_str())
-	}
-}
-impl<'de> Deserialize<'de> for Sprite {
-	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-	where D: Deserializer<'de> {
-		Ok(Self{name: String::deserialize(deserializer)?})
+
+impl fmt::Display for Sprite {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		write!(f, "{}", self.0)
 	}
 }

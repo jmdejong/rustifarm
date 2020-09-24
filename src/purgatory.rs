@@ -20,7 +20,7 @@ use crate::{
 };
 
 pub fn purgatory_id() -> RoomId {
-	RoomId{name: String::from("+")}
+	RoomId(String::from("+"))
 }
 
 pub fn create_purgatory<'a, 'b>(encyclopedia: &Encyclopedia) -> Room<'a, 'b> {

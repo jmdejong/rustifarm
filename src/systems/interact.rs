@@ -85,7 +85,7 @@ impl <'a> System<'a> for Interact {
 							if let (Some(player), Some(whitelist)) = (players.get(actor), whitelists.get_mut(ent)){
 								if let Some(playername) = strip_prefix(&argument, "visit ") {
 									let destination = dest.format(hashmap!("{player}" => playername));
-									if let Some(set) = whitelist.allowed.get(&destination.name) {
+									if let Some(set) = whitelist.allowed.get(&destination.0) {
 										if set.contains(&player.id){
 											emigration.emigrants.push((player.id.clone(), destination, RoomPos::Unknown));
 										} else {
@@ -95,16 +95,16 @@ impl <'a> System<'a> for Interact {
 										say(ear, format!("unknown destination {}", playername), name);
 									}
 								} else if let Some(playername) = strip_prefix(&argument, "allow ") {
-									let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
-									whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).insert(PlayerId{name: playername.to_string()});
+									let destination = dest.format(hashmap!("{player}" => player.id.0.as_str()));
+									whitelist.allowed.entry(destination.0).or_insert_with(HashSet::new).insert(PlayerId( playername.to_string()));
 									say(ear, format!("allowed {} to enter your home", playername), name);
 								} else if let Some(playername) = strip_prefix(&argument, "disallow ") {
-									let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
-									whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).remove(&PlayerId{name: playername.to_string()});
+									let destination = dest.format(hashmap!("{player}" => player.id.0.as_str()));
+									whitelist.allowed.entry(destination.0).or_insert_with(HashSet::new).remove(&PlayerId( playername.to_string()));
 									say(ear, format!("disallowed {} to enter your home", playername), name);
 								} else if argument.starts_with("whitelist") {
-									let destination = dest.format(hashmap!("{player}" => player.id.name.as_str()));
-									let allowed = whitelist.allowed.entry(destination.name).or_insert_with(HashSet::new).iter().map(|id| id.name.as_str()).collect::<Vec<&str>>();
+									let destination = dest.format(hashmap!("{player}" => player.id.0.as_str()));
+									let allowed = whitelist.allowed.entry(destination.0).or_insert_with(HashSet::new).iter().map(|id| id.0.as_str()).collect::<Vec<&str>>();
 									say(ear, format!("allowed players: {}", allowed.join(", ")), name);
 								}
 							}

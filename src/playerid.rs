@@ -1,11 +1,12 @@
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Hash)]
-pub struct PlayerId {
-	pub name: String
-}
+use std::fmt;
+use serde::{Serialize, Deserialize};
 
-impl PlayerId {
-	pub fn to_string(&self) -> String {
-		self.name.clone()
+#[derive(Debug, Default, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
+pub struct PlayerId(pub String);
+
+impl fmt::Display for PlayerId {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		write!(f, "{}", self.0)
 	}
 }

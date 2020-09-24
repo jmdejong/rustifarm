@@ -3,6 +3,7 @@ use std::path::{PathBuf};
 use std::fs;
 use serde_json;
 use serde_json::Value;
+use serde::Deserialize;
 use crate::{
 	RoomId,
 	roomtemplate::RoomTemplate,
@@ -27,13 +28,9 @@ impl WorldLoader {
 		let path = self.directory.join("world.json");
 		let text = fs::read_to_string(path)?;
 		let json: Value = serde_json::from_str(&text)?;
-		let default_room = RoomId::from_str(
-			json
-				.get("default_room")
-				.ok_or(aerr!("world meta does not have default_room"))?
-				.as_str()
-				.ok_or(aerr!("world meta default_room is not a string"))?
-		);
+		let default_room = RoomId::deserialize(
+				json.get("default_room").ok_or(aerr!("world meta does not have default_room"))?
+			).map_err(|e| aerr!("invalid roomid for default room: {}", e))?;
 		let encyclopediae = 
 			json
 				.get("encyclopediae")
@@ -54,7 +51,7 @@ impl WorldLoader {
 	}
 	
 	pub fn load_room(&self, id: RoomId) -> Result<RoomTemplate> {
-		let fname = id.name.splitn(2, '+').next().unwrap().to_string() + ".json";
+		let fname = id.to_string().splitn(2, '+').next().unwrap().to_string() + ".json";
 		let path = self.directory.join("maps").join(fname);
 		let text = fs::read_to_string(path)?;
 		let template = serde_json::from_str(&text)?;
