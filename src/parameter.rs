@@ -69,7 +69,7 @@ parameters!(
 	Int (i64) int, v (v.as_i64().ok_or(perr!("{:?} not an int", v))?) (json!(v));
 	Pos (Pos) pos, v (Pos::from_json(v).ok_or(perr!("{:?} not a pos", v))?) (json!(v));
 	Float (f64) float, v (v.as_f64().ok_or(perr!("{:?} not an float", v))?) (json!(v));
-	Template (Template) template, v (Template::from_json(v)?) (json!(["template", v.to_json()]));
+	Template (Template) template, v (Template::deserialize(v).map_err(|e| perr!("template json error {:?}", e))?) (json!(["template", v]));
 	Bool (bool) bool, v (v.as_bool().ok_or(perr!("{:?} not a bool", v))?) (json!(v));
 	List (Vec<Parameter>) list, v 
 		({

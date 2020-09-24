@@ -1,6 +1,7 @@
 
 use std::collections::HashMap;
 use serde_json::{Value, json};
+use serde::Deserialize;
 use crate::{
 	assemblage::Assemblage,
 	componentwrapper::PreEntity,
@@ -59,7 +60,7 @@ impl Encyclopedia {
 					name: name.clone(),
 					ent:
 						if let Some(ent) = v.get("entity") {
-							Template::from_json(ent)?
+							Template::deserialize(ent).map_err(|e| perr!("template json error deserializing {:?} {:?}", ent, e))?
 						} else {
 							let enttyp = EntityType(k.clone());
 							assemblages.insert(enttyp.clone(), Assemblage::from_json(&json!({

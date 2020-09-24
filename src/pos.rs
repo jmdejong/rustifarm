@@ -47,15 +47,13 @@ impl Pos {
 
 impl Serialize for Pos {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-	where S: Serializer,
-	{
+	where S: Serializer {
 		(self.x, self.y).serialize(serializer)
 	}
 }
 impl<'de> Deserialize<'de> for Pos {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-	where D: Deserializer<'de>,
-	{
+	where D: Deserializer<'de> {
 		let (x, y) = <(i64, i64)>::deserialize(deserializer)?;
 		Ok(Self{x, y})
 	}
