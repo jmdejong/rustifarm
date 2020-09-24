@@ -7,7 +7,7 @@ pub use ground::Ground;
 pub use newentities::NewEntities;
 pub use roompermissions::RoomPermissions;
 
-use std::collections::{HashMap};
+use std::collections::{HashMap, HashSet};
 use specs::{Entity};
 
 use crate::{
@@ -17,7 +17,8 @@ use crate::{
 	PlayerId,
 	RoomId,
 	playerstate::RoomPos,
-	Timestamp
+	Timestamp,
+	components::Flag
 };
 
 
@@ -57,4 +58,7 @@ pub struct Emigration {
 pub struct Time {
 	pub time: Timestamp
 }
+
+#[derive(Default, Debug, Clone)]
+pub struct RoomFlags(pub HashSet<Flag>);
 

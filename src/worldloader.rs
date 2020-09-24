@@ -57,8 +57,7 @@ impl WorldLoader {
 		let fname = id.name.splitn(2, '+').next().unwrap().to_string() + ".json";
 		let path = self.directory.join("maps").join(fname);
 		let text = fs::read_to_string(path)?;
-		let json: Value = serde_json::from_str(&text)?;
-		let template = RoomTemplate::from_json(&json)?;
+		let template = serde_json::from_str(&text)?;
 		Ok(template)
 	}
 	

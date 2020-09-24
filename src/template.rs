@@ -2,23 +2,62 @@
 
 use std::collections::HashMap;
 use serde_json::{json, Value};
+use serde::{Serialize, Deserialize};
+
 use crate::{
 	parameter::Parameter,
 	PResult,
 	perr
 };
 
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub struct EntityType(pub String);
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(from="Option<bool>", into="Option<bool>")]
 pub enum SaveOption {
 	Default,
 	False,
 	Always
 }
 
-#[derive(Debug, Clone, PartialEq)]
+impl From<Option<bool>> for SaveOption {
+	fn from(b: Option<bool>) -> Self {
+		match b {
+			Some(true) => Self::Always,
+			Some(false) => Self::False,
+			None => Self::Default
+		}
+	}
+}
+impl Into<Option<bool>> for SaveOption {
+	fn into(self) -> Option<bool> {
+		match self {
+			Self::Always => Some(true),
+			Self::False => Some(false),
+			Self::Default => None
+		}
+	}
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+enum TemplateSave {
+	Name(EntityType),
+	Full{
+		#[serde(rename = "type")]
+		name: EntityType,
+		#[serde(default, skip_serializing_if = "Vec::is_empty")]
+		args: Vec<Parameter>,
+		#[serde(default, skip_serializing_if = "HashMap::is_empty")]
+		kwargs: HashMap<String, Parameter>,
+		#[serde(default, skip_serializing_if = "Option::is_none")]
+		save: Option<bool>
+	}
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(from="TemplateSave", into="TemplateSave")]
 pub struct Template {
 	pub name: EntityType,
 	pub args: Vec<Parameter>,
@@ -26,6 +65,36 @@ pub struct Template {
 	pub save: SaveOption,
 }
 
+
+impl From<TemplateSave> for Template {
+	fn from(ts: TemplateSave) -> Self {
+		match ts {
+			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: SaveOption::Default},
+			TemplateSave::Full{name, args, kwargs, save} => Self{name, args, kwargs, save: match save {
+				Some(true) => SaveOption::Always,
+				Some(false) => SaveOption::False,
+				None => SaveOption::Default
+			}}
+		}
+	}
+}
+impl Into<TemplateSave> for Template {
+	fn into(self) -> TemplateSave {
+		if self.args.is_empty() && self.kwargs.is_empty() && self.save == SaveOption::Default {
+			return TemplateSave::Name(self.name);
+		}
+		TemplateSave::Full {
+			name: self.name,
+			args: self.args,
+			kwargs: self.kwargs,
+			save: match self.save {
+				SaveOption::Always => Some(true),
+				SaveOption::False => Some(false),
+				SaveOption::Default => None
+			}
+		}
+	}
+}
 
 impl Template {
 	
@@ -119,5 +188,25 @@ impl Template {
 			"args": jsonargs,
 			"kwargs": jsonkwargs
 		})
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::hashmap;
+	
+	
+	#[test]
+	fn template_from_string(){
+		assert_eq!(Template::deserialize(json!("grass")).unwrap(), Template::empty("grass"));
+	}
+	
+	#[test]
+	fn template_with_kwarg(){
+		assert_eq!(
+			Template::deserialize(json!({"type": "wall", "kwargs": {"health": 50}})).unwrap(),
+			Template::new("wall", hashmap!{"health".to_string() => Parameter::Int(50)})
+		);
 	}
 }

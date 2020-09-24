@@ -4,26 +4,17 @@ use specs::{
 	Component,
 	VecStorage,
 };
+use strum_macros::{EnumString, Display};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display, Serialize, Deserialize)]
 pub enum Flag {
 	Blocking,
 	Floor,
 	Occupied,
-	Soil
-}
-
-use Flag::*;
-impl Flag {
-	pub fn from_str(s: &str) -> Option<Flag> {
-		Some(match s {
-			"Blocking" => Blocking,
-			"Floor" => Floor,
-			"Occupied" => Occupied,
-			"Soil" => Soil,
-			_ => None?
-		})
-	}
+	Soil,
+	Build,
+	Hot
 }
 
 

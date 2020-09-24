@@ -3,6 +3,7 @@ use std::collections::{HashMap, HashSet};
 use serde::Deserialize;
 use specs::Builder;
 use rand::Rng;
+use std::str::FromStr;
 
 use crate::{
 	PlayerId,
@@ -166,7 +167,7 @@ components!(all:
 	Healing (delay: i64, health: i64) {Healing{delay, health, next_heal: None}};
 	Autofight () {Autofight::default()};
 	MonsterAI (move_chance: f64, homesickness: f64, view_distance: i64);
-	Spawner (amount: i64, clan: String, template: Template) {
+	Spawner (amount: i64, clan: String, template: Template, radius: i64) {
 		Spawner{
 			amount: amount as usize,
 			clan: Clan{name:
@@ -177,7 +178,8 @@ components!(all:
 				}
 			},
 			template: template.unsaved(),
-			saturated: false
+			saturated: false,
+			radius
 		}
 	};
 	Clan (name: String);
@@ -212,7 +214,7 @@ components!(all:
 		Flags(
 			flags
 				.iter()
-				.map(|s| Flag::from_str(s))
+				.map(|s| Flag::from_str(s).ok())
 				.collect::<Option<HashSet<Flag>>>().ok_or(aerr!("invalid flag name"))?
 		)
 	};

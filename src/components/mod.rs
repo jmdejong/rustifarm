@@ -184,7 +184,8 @@ pub struct Spawner {
 	pub amount: usize,
 	pub clan: Clan,
 	pub template: Template,
-	pub saturated: bool
+	pub saturated: bool,
+	pub radius: i64
 }
 
 #[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]

@@ -1,5 +1,7 @@
 
 use std::collections::HashMap;
+use rand;
+use rand::Rng;
 
 use specs::{
 	WriteStorage,
@@ -21,7 +23,8 @@ use crate::{
 		TimeOffset
 	},
 	resources::{NewEntities},
-	componentwrapper::ComponentWrapper
+	componentwrapper::ComponentWrapper,
+	Pos
 };
 
 
@@ -44,6 +47,7 @@ impl <'a> System<'a> for Spawn {
 			let n: usize = *clan_nums.entry(clan).or_insert(0);
 			clan_nums.insert(clan, n+1);
 		}
+		let mut rng = rand::thread_rng();
 		for (entity, spawner, position, triggerbox) in (&entities, &mut spawners, &positions, &triggerboxes).join() {
 			if triggerbox.has_message(&[Trigger::Spawn]) {
 				if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
@@ -54,7 +58,10 @@ impl <'a> System<'a> for Spawn {
 							Ok(mut preent) => {
 								preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
 								preent.push(ComponentWrapper::Home(Home{home: position.pos}));
-								new.to_build.push((position.pos, preent));
+								let offset = Pos::new(
+									rng.gen::<i64>()%(spawner.radius*2+1)-spawner.radius,
+									rng.gen::<i64>()%(spawner.radius*2+1)-spawner.radius);
+								new.to_build.push((position.pos + offset, preent));
 							}
 							Err(err) => {println!("Error: can not spawn entity from spawner: {}", err);}
 						}
