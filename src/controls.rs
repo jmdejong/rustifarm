@@ -1,6 +1,6 @@
 
 
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize, Deserializer, de};
 use serde_json::{Value, json};
 use specs::Entity;
 use crate::{PlayerId, Pos};
@@ -17,20 +17,6 @@ pub enum Direction {
 }
 
 impl Direction {
-	fn from_json(val: &Value) -> Option<Direction>{
-		match val {
-			Value::String(txt) => match txt.as_str() {
-				"north" => Some(Direction::North),
-				"south" => Some(Direction::South),
-				"east" => Some(Direction::East),
-				"west"=> Some(Direction::West),
-				"" => Some(Direction::None),
-				_ => None
-			}
-			Value::Null => Some(Direction::None),
-			_ => None
-		}
-	}
 	
 	pub fn to_position(self) -> Pos {
 		match self {
@@ -55,14 +41,18 @@ pub enum Control {
 }
 
 
+impl<'de> Deserialize<'de> for Control {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where D: Deserializer<'de> {
+		let val = Value::deserialize(deserializer)?;
+		Self::from_json(&val).ok_or(de::Error::custom(format!("invalid control {:?}", val)))
+	}
+}
 impl Control {
-	pub fn from_json(val: &Value) -> Option<Control>{
+	fn from_json(val: &Value) -> Option<Control>{
 		if let Value::String(control_type) = val.get(0)? {
 			match control_type.as_str() {
-				"move" => match Direction::from_json(val.get(1)?) {
-					Some(dir) => Some(Control::Move(dir)),
-					None => None
-				},
+				"move" => Direction::deserialize(val.get(1)?).map(|dir| Control::Move(dir)).ok(),
 				"take" => Some(Control::Take(val.get(1).unwrap_or(&json!(0)).as_u64().map(|idx| idx as usize))),
 				"drop" => Some(Control::Drop(val.get(1)?.as_u64().unwrap_or(0) as usize)),
 				"use" => Some({
@@ -102,7 +92,7 @@ impl Control {
 }
 
 fn parse_directions(val: &Value) -> Option<Vec<Direction>> {
-	val.as_array()?.into_iter().map(Direction::from_json).collect()
+	val.as_array()?.into_iter().map(|v|Direction::deserialize(v).ok()).collect()
 }
 
 #[derive(Debug, Clone)]

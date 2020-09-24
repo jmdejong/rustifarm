@@ -90,10 +90,10 @@ mod tests {
 	}
 	
 	#[test]
-	fn equippable_from_json() {
+	fn equippable_deserialize() {
 		assert_eq!(
-			Equippable::from_json(&json!({"slot": "hand", "stats": {"strength": 10}})),
-			Some(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10), sprite: None})
+			Equippable::deserialize(&json!({"slot": "hand", "stats": {"strength": 10}})).unwrap(),
+			Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10), sprite: None}
 		);
 	}
 	

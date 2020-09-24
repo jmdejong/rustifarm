@@ -1,7 +1,6 @@
 
 
 use std::ops::{Add, Sub};
-use serde_json::Value;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use crate::util::clamp;
 
@@ -29,13 +28,6 @@ impl Pos {
 			x: clamp(self.x, smaller.x, larger.x),
 			y: clamp(self.y, smaller.y, larger.y)
 		}
-	}
-	
-	pub fn from_json(val: &Value) -> Option<Self>{
-		Some(Pos {
-			x: val.get(0)?.as_i64()?,
-			y: val.get(1)?.as_i64()?
-		})
 	}
 	
 	pub fn distance_to(&self, other: Pos) -> i64 {

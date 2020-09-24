@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::io;
 
 use serde_json::{Value, json};
+use serde::{Deserialize};
 use unicode_categories::UnicodeCategories;
 
 use crate::{
@@ -180,7 +181,7 @@ impl GameServer {
 			}
 			Message::Input(inp) => {
 				let player = self.players.get(&id).ok_or(merr!(action, "Set a name before you send any other messages"))?;
-				let control = Control::from_json(&inp).ok_or(merr!(action, &format!("unknown action: {}", inp)))?;
+				let control = Control::deserialize(&inp).map_err(|err| merr!(action, &format!("unknown action {} {}", inp, err)))?;
 				Ok(Some(Action::Input(player.clone(), control)))
 			}
 		}

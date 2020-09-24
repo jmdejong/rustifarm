@@ -50,7 +50,7 @@ mod tests {
 	use serde_json::json;
 	
 	#[test]
-	fn equip_from_json() {
+	fn equip_deserialise() {
 		assert_eq!(
 			ItemAction::deserialize(&json!({"equip": {"slot": "hand", "stats": {"strength": 10}}})).unwrap(),
 			ItemAction::Equip(Equippable {slot: Slot::Hand, stats: hashmap!(Stat::Strength => 10), sprite: Option::None})
