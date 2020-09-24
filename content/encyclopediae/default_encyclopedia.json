@@ -155,70 +155,71 @@
 	},
 	"items": {
 		"pebble": {},
-		"stone": {"action": ["build", ["builtwall", ["Floor"], ["Blocking"]]]},
-		"sword": {"action": ["equip", {
+		"stone": {"action": {"build": ["builtwall", ["Floor"], ["Blocking"]]}},
+		"sword": {"action": {"equip": {
 			"slot": "hand",
 			"stats": {"strength": 5}
-		}]},
+		}}},
 		"eldritch_sword": {
 			"sprite": "sword",
 			"name": "eldritch sword",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "hand",
 				"stats": {"strength": 500}
-			}]
+			}}
 		},
-		"club": {"action": ["equip", {
+		"club": {"action": {"equip": {
 			"slot": "hand",
 			"stats": {"strength": 3}
-		}]},
+		}}},
 		"armour": {
 			"sprite": "armour",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "body",
 				"stats": {"defence": 3}
-		}]},
+			}}
+		},
 		"pickaxe": {
 			"sprite": "sword",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "hand",
 				"stats": {"mining": 5}
-			}]
+			}}
 		},
 		"reddye": {"sprite": "bag"},
 		"greendye": {"sprite": "bag"},
 		"bluedye": {"sprite": "bag"},
 		"cape": {
 			"sprite": "armour",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "back",
 				"stats": {},
 				"sprite": "grayplayer"
-			}]
+			}}
 		},
 		"redcape": {
 			"sprite": "armour",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "back",
 				"stats": {},
 				"sprite": "redplayer"
-			}]
+			}}
 		},
 		"greencape": {
 			"sprite": "armour",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "back",
 				"stats": {},
 				"sprite": "greenplayer"
-			}]
+			}}
 		},
 		"bluecape": {
 			"sprite": "armour",
-			"action": ["equip", {
+			"action": {"equip": {
 				"slot": "back",
 				"stats": {},
 				"sprite": "blueplayer"
-			}]
+			}}
 		}
 	}
 }

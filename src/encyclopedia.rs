@@ -73,7 +73,7 @@ impl Encyclopedia {
 						},
 					action: 
 						if let Some(action) = v.get("action") {
-							ItemAction::from_json(action).ok_or(perr!("failed to parse ItemAction: {:?}", v))?
+							ItemAction::deserialize(action).map_err(|e| perr!("failed to parse ItemAction {:?} {:?}", v, e))?
 						} else {
 							ItemAction::None
 						}

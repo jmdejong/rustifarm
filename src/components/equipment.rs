@@ -1,6 +1,6 @@
 
 use std::collections::HashMap;
-use serde_json::Value;
+use serde::{Serialize, Deserialize};
 use specs::{
 	Component,
 	HashMapStorage
@@ -10,7 +10,8 @@ use crate::{
 };
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")] 
 pub enum Slot {
 	Hand,
 	Body,
@@ -29,7 +30,8 @@ impl Slot {
 }
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")] 
 pub enum Stat {
 	Strength,
 	Defence,
@@ -48,30 +50,11 @@ impl Stat {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Equippable {
 	pub slot: Slot,
 	pub stats: HashMap<Stat, i64>,
 	pub sprite: Option<Sprite>
-}
-
-impl Equippable {
-	pub fn from_json(val: &Value) -> Option<Self> {
-		Some(Equippable{
-			slot: Slot::from_str(val.get("slot")?.as_str()?)?,
-			stats: val
-				.get("stats")?
-				.as_object()?
-				.into_iter()
-				.map(|(k, v)| 
-					Some((Stat::from_str(k.as_str())?, v.as_i64()?))
-				)
-				.collect::<Option<HashMap<Stat, i64>>>()?,
-			sprite: if let Some(spr) = val.get("sprite") {
-					Some(Sprite{name: spr.as_str()?.to_string()})
-				} else {None}
-		})
-	}
 }
 
 

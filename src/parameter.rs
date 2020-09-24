@@ -118,15 +118,13 @@ impl Parameter {
 
 impl Serialize for Parameter {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-	where S: Serializer,
-	{
+	where S: Serializer {
 		self.to_json().serialize(serializer)
 	}
 }
 impl<'de> Deserialize<'de> for Parameter {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-	where D: Deserializer<'de>,
-	{
+	where D: Deserializer<'de> {
 		Self::guess_from_json(&Value::deserialize(deserializer)?).map_err(|e| de::Error::custom(e.text))
 	}
 }

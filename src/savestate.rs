@@ -42,6 +42,7 @@ impl<'de> Deserialize<'de> for SaveState {
 mod tests{
 	use super::*;
 	use crate::hashmap;
+	use serde_json::json;
 	
 	#[test]
 	fn test_empty_deserialize(){
