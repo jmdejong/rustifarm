@@ -12,7 +12,7 @@ pub enum Direction {
 	South,
 	East,
 	West,
-	#[serde(rename="")]
+	#[serde(alias="")]
 	None
 }
 
