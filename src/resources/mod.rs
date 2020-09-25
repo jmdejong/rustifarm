@@ -1,13 +1,12 @@
 
 mod ground;
 mod newentities;
-mod roompermissions;
 
 pub use ground::Ground;
 pub use newentities::NewEntities;
-pub use roompermissions::RoomPermissions;
 
 use std::collections::{HashMap, HashSet};
+use serde::{Serialize, Deserialize};
 use specs::{Entity};
 
 use crate::{
@@ -59,6 +58,6 @@ pub struct Time {
 	pub time: Timestamp
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct RoomFlags(pub HashSet<Flag>);
 

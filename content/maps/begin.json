@@ -2,7 +2,7 @@
 	"width": 126,
 	"height": 64,
 	"spawn": [15, 30],
-	"permissions": {"build": true},
+	"flags": ["Build"],
 	"places": {
 		"stairdown": [37, 33],
 		"caveentrance": [31, 50],

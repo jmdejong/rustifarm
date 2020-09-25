@@ -155,7 +155,7 @@
 	},
 	"items": {
 		"pebble": {},
-		"stone": {"action": {"build": ["builtwall", ["Floor"], ["Blocking"]]}},
+		"stone": {"action": {"build": ["builtwall", ["Floor", "Build"], ["Blocking"]]}},
 		"sword": {"action": {"equip": {
 			"slot": "hand",
 			"stats": {"strength": 5}

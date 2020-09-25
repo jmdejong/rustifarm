@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, de, Serialize};
 use crate::{
 	Pos,
 	Template,
-	resources::RoomPermissions
+	resources::RoomFlags
 };
 
 #[derive(Debug, Clone)]
@@ -13,7 +13,7 @@ pub struct RoomTemplate {
 	pub spawn: Pos,
 	pub field: Vec<Vec<Template>>,
 	pub places: HashMap<String, Pos>,
-	pub permissions: RoomPermissions
+	pub flags: RoomFlags
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,7 +26,7 @@ struct RoomTemplateSave {
 	#[serde(default)]
 	pub places: HashMap<String, Pos>,
 	#[serde(default)]
-	pub permissions: RoomPermissions
+	pub flags: RoomFlags
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -57,7 +57,7 @@ impl<'de> Deserialize<'de> for RoomTemplate {
 			spawn: rts.spawn,
 			field,
 			places: rts.places,
-			permissions: rts.permissions
+			flags: rts.flags
 		})
 	}
 }

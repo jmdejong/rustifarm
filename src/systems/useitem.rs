@@ -1,4 +1,5 @@
 
+use std::collections::HashSet;
 
 use specs::{
 	Entities,
@@ -18,9 +19,10 @@ use crate::{
 		AttackInbox,
 		AttackMessage,
 		AttackType,
-		Flags
+		Flags,
+		Flag
 	},
-	resources::{NewEntities, Ground, RoomPermissions},
+	resources::{NewEntities, Ground, RoomFlags},
 	item::ItemAction::{None, Build, Eat, Equip},
 	controls::Control,
 };
@@ -37,17 +39,17 @@ impl <'a> System<'a> for Use {
 		WriteStorage<'a, AttackInbox>,
 		Write<'a, Ground>,
 		ReadStorage<'a, Flags>,
-		Read<'a, RoomPermissions>
+		Read<'a, RoomFlags>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, mut ground, flags, roompermissions): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, mut inventories, mut new, mut attacked, mut ground, flags, roomflags): Self::SystemData) {
 		for (ent, controller, position, inventory) in (&entities, &controllers, &positions, &mut inventories).join(){
 			if let Control::Use(rank) = &controller.control {
 				if let Some(entry) = inventory.items.get_mut(*rank) {
 					match &entry.item.action {
 						Build(template, required_flags, blocking_flags) => {
-							let ground_flags = ground.flags_on(position.pos, &flags);
-							if roompermissions.build && required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
+							let ground_flags: HashSet<Flag> = ground.flags_on(position.pos, &flags).union(&roomflags.0).cloned().collect();
+							if required_flags.is_subset(&ground_flags) && blocking_flags.is_disjoint(&ground_flags){
 								new.create(position.pos, &template).unwrap();
 								inventory.items.remove(*rank);
 							}

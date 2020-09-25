@@ -2,7 +2,7 @@
 	"width": 42,
 	"height": 23,
 	"spawn": [5, 15],
-	"permissions": {"build": true},
+	"flags": ["Build"],
 	"places": {
 		"northentry": [6, 1]
 	},

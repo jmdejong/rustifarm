@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use rand::Rng;
 use serde_json::{Value, json};
-use serde::{Deserialize, Deserializer, de, Serialize};
+use serde::{Deserialize, Deserializer, de};
 use crate::{
 	parameter::{Parameter, ParameterType},
 	Template,
