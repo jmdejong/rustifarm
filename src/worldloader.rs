@@ -60,15 +60,14 @@ impl WorldLoader {
 	
 	pub fn load_encyclopedia(&self, name: &str) -> Result<Encyclopedia> {
 		let fname: String = name.to_string() + ".json";
-		let encyclopedia = Encyclopedia::from_json(
+		let encyclopedia: Encyclopedia = 
 			serde_json::from_str(
 				&fs::read_to_string(
 					self.directory
 						.join("encyclopediae")
 						.join(&fname)
 				)?
-			)?
-		)?;
+			).map_err(|e|aerr!("failed to load encyclopedia {}: {}", name, e))?;
 		encyclopedia.validate()?;
 		Ok(encyclopedia)
 	}

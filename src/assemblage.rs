@@ -8,8 +8,7 @@ use crate::{
 	components::Serialise,
 	Template,
 	Result as AnyResult,
-	aerr,
-	fromtoparameter::FromToParameter
+	aerr
 };
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
@@ -81,12 +80,15 @@ impl Assemblage {
 	}
 }
 
+#[macro_export]
 macro_rules! compmap {
 	{$($name: ident: $val: expr),*} => {{
+		#[allow(unused_imports)]
+		use crate::fromtoparameter::FromToParameter;
 		#[allow(unused_mut)]
 		let mut h = std::collections::HashMap::new();
 		$(
-			h.insert(stringify!($name).to_string(), ParameterExpression::Constant($val.to_parameter()));
+			h.insert(stringify!($name).to_string(), crate::parameterexpression::ParameterExpression::Constant($val.to_parameter()));
 		)*
 		h
 	}}
