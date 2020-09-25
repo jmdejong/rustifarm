@@ -1,6 +1,7 @@
 
 use std::collections::{HashMap, HashSet};
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
+use strum_macros::{EnumString, Display};
 use specs::Builder;
 use rand::Rng;
 use std::str::FromStr;
@@ -65,21 +66,13 @@ macro_rules! components {
 				}
 			}
 		}
-		#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize)]
+		#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, EnumString, Display)]
 		pub enum ComponentType {
 			$(
 				$comp,
 			)*
 		}
 		impl ComponentType {
-			pub fn from_str(typename: &str) -> Option<ComponentType>{
-				match typename {
-					$(
-						stringify!($comp) => Some(Self::$comp),
-					)*
-					_ => None
-				}
-			}
 			pub fn parameters(&self) -> Vec<&str> {
 				match self {
 					$(

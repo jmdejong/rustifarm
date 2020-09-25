@@ -13,7 +13,7 @@ use crate::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString, Display)]
 #[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "snake_case")]
+#[strum(serialize_all = "lowercase")]
 pub enum Slot {
 	Hand,
 	Body,
@@ -23,7 +23,7 @@ pub enum Slot {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString, Display)]
 #[serde(rename_all = "lowercase")]
-#[strum(serialize_all = "snake_case")]
+#[strum(serialize_all = "lowercase")]
 pub enum Stat {
 	Strength,
 	Defence,

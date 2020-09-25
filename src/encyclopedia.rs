@@ -33,7 +33,7 @@ impl Encyclopedia {
 			.as_object()
 			.ok_or(perr!("encyclopedia assemblages not a json object"))?
 			.into_iter()
-			.map(|(k, v)| Ok((EntityType(k.clone()), Assemblage::from_json(v)?)))
+			.map(|(k, v)| Ok((EntityType(k.clone()), Assemblage::deserialize(v).map_err(|e| perr!("invalid assemblage {:?}: {}", v, e))?)))
 			.collect::<PResult<HashMap<EntityType, Assemblage>>>()?;
 		let items =
 			val
@@ -63,12 +63,12 @@ impl Encyclopedia {
 							Template::deserialize(ent).map_err(|e| perr!("template json error deserializing {:?} {:?}", ent, e))?
 						} else {
 							let enttyp = EntityType(k.clone());
-							assemblages.insert(enttyp.clone(), Assemblage::from_json(&json!({
+							assemblages.insert(enttyp.clone(), Assemblage::deserialize(&json!({
 								"height": 0.3,
 								"sprite": sprite,
 								"name": name,
 								"item": k
-							}))?);
+							})).map_err(|e| perr!("invalid assemblage {:?}: {}", v, e))?);
 							Template::from_entity_type(enttyp)
 						},
 					action: 

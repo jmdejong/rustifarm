@@ -8,7 +8,7 @@
 			"flags": ["Floor"]
 		},
 		"homeportal": {
-			"arguments": [["dedup_id", "string"], ["allowed", "list", []], ["dedup_priority", "int", 0]],
+			"arguments": [["dedup_id", "string"], ["allowed", "list", ["list", []]], ["dedup_priority", "int", 0]],
 			"extract": {"allowed": ["Whitelist", "allowed"], "dedup_priority": ["Dedup", "priority"]},
 			"components": [
 				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],

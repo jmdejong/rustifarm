@@ -2,11 +2,12 @@
 use std::collections::HashMap;
 use rand::Rng;
 use serde_json::{Value, json};
+use serde::{Deserialize, Deserializer, de};
 use crate::{
 	parameter::{Parameter, ParameterType},
 	Template,
 	template::{SaveOption, EntityType},
-	Result,
+	Result as AnyResult,
 	aerr,
 	PResult,
 	perr
@@ -171,7 +172,7 @@ impl ParameterExpression {
 	}
 	
 	#[allow(dead_code)]
-	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> Result<ParameterType>{
+	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> AnyResult<ParameterType>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
 			Self::List(_) => ParameterType::List,
@@ -202,3 +203,17 @@ impl ParameterExpression {
 		})
 	}
 }
+
+// impl Serialize for ParameterExpression {
+// 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+// 	where S: Serializer {
+// 		self.to_json().serialize(serializer)
+// 	}
+// }
+impl<'de> Deserialize<'de> for ParameterExpression {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where D: Deserializer<'de> {
+		Self::from_json(&Value::deserialize(deserializer)?).map_err(|e| de::Error::custom(e.text))
+	}
+}
+

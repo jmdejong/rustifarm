@@ -1,6 +1,7 @@
 
 use serde_json::{Value, json};
 use serde::{de, Serialize, Deserialize, Serializer, Deserializer};
+use strum_macros::{EnumString, Display};
 use crate::{
 	Template,
 	Pos,
@@ -45,7 +46,9 @@ macro_rules! parameters {
 			}
 		}
 
-		#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, EnumString, Display)]
+		#[serde(rename_all = "lowercase")]
+		#[strum(serialize_all = "lowercase")]
 		pub enum ParameterType {
 			$(
 				$name,

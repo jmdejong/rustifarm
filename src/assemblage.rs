@@ -1,16 +1,15 @@
 
 use std::collections::HashMap;
-use serde_json::{Value, json, value};
+use serde::{de, Serialize, Deserialize, Deserializer};
 use crate::{
 	parameterexpression::ParameterExpression,
 	parameter::{Parameter, ParameterType},
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::Serialise,
 	Template,
-	Result,
+	Result as AnyResult,
 	aerr,
-	PResult,
-	perr
+	fromtoparameter::FromToParameter
 };
 
 type ArgumentDef = (String, ParameterType, Option<Parameter>);
@@ -24,110 +23,8 @@ pub struct Assemblage {
 }
 
 impl Assemblage {
-
-
-	fn parse_definition_arguments(args: &Value) -> PResult<Vec<ArgumentDef>> {
-		let mut arguments: Vec<ArgumentDef> = Vec::new();
-		for arg in args.as_array().ok_or(perr!("arguments is not an array"))? {
-			let tup = arg.as_array().ok_or(perr!("argument is not an array"))?;
-			let key = tup.get(0).ok_or(perr!("argument has no name"))?.as_str().ok_or(perr!("argument name is not a string"))?.to_string();
-			let typ = ParameterType::from_str(tup.get(1).ok_or(perr!("argument has no type"))?.as_str().ok_or(perr!("argument type not a string"))?).ok_or(perr!("failed to parse argument type"))?;
-			if let Some(def) = tup.get(2){
-				arguments.push(
-					(
-						key.clone(),
-						typ,
-						Some(Parameter::from_typed_json(typ, def)?)
-					)
-				);
-			} else  {
-				arguments.push((key.clone(), typ, None));
-			}
-		}
-		Ok(arguments)
-	}
 	
-	fn parse_definition_components(comps: &[Value]) -> PResult<Vec<(ComponentType, HashMap<String, ParameterExpression>)>> {
-		let mut components = Vec::new();
-		for tup in comps {
-			if let Some(name) = tup.as_str() {
-				components.push((ComponentType::from_str(name).ok_or(perr!("{} not a valid componenttype", name))?, HashMap::new()));
-			} else {
-				let (name, params) = value::from_value::<(String, HashMap<String, Value>)>(tup.clone()).map_err(|e| perr!("invalid component definition: {:?}", e))?;
-				let comptype = ComponentType::from_str(&name).ok_or(perr!("{} not a valid componenttype", name))?;
-				let mut parameters: HashMap<String, ParameterExpression> = HashMap::new();
-				for (key, value) in params.into_iter() {
-					let param = ParameterExpression::from_json(&value)?;
-					parameters.insert(key, param);
-				}
-				components.push((comptype, parameters));
-			}
-		}
-		Ok(components)
-	}
-	
-	
-	fn preprocess(val: &Value) -> PResult<Vec<Value>> {
-		let mut components = Vec::new();
-		let name = if let Some(nameval) = val.get("name") {
-				Some(nameval.as_str().ok_or(perr!("name not a string"))?.to_string())
-			} else {None};
-		
-		// visible component is so common that shortcuts are very helpful
-		if let Some(spritename) = val.get("sprite") {
-			let sprite = spritename.as_str().ok_or(perr!("sprite not a string"))?.to_string();
-			let height = val
-				.get("height").ok_or(perr!("defining a sprite requires also defining a height"))?
-				.as_f64().ok_or(perr!("height not a float"))?;
-			components.push(json!(["Visible", {
-				"name": ["string", name.clone().unwrap_or(sprite.clone())],
-				"sprite": ["string", sprite],
-				"height": ["float", height]
-			}]));
-		}
-		// item component is common too
-		if let Some(item) = val.get("item") {
-			components.push(json!(["Item", {
-				"item": ["string", item]
-			}]));
-		}
-		// and so is flags
-		if let Some(flags) = val.get("flags") {
-			components.push(json!(["Flags", {
-				"flags": ["list", flags]
-			}]));
-		}
-		
-		if let Some(substitute) = val.get("substitute") {
-			components.push(json!(["Substitute", {"into": ["template", substitute]}]));
-		}
-		Ok(components)
-	}
-	
-	pub fn from_json(val: &Value) -> PResult<Self>{
-		let mut json_components: Vec<Value> = val
-			.get("components")
-			.unwrap_or(&json!([]))
-			.as_array()
-			.ok_or(perr!("components is not a json array"))?
-			.to_vec();
-		json_components.append(&mut Self::preprocess(val)?);
-		let assemblage = Self {
-			arguments: Self::parse_definition_arguments(val.get("arguments").unwrap_or(&json!([])))?,
-			components: Self::parse_definition_components(&json_components)?,
-			save: val.get("save").unwrap_or(&json!(true)).as_bool().ok_or(perr!("assemblage save not a bool"))?,
-			extract: value::from_value::<HashMap<String, (ComponentType, String)>>(
-					val.get("extract").unwrap_or(&json!({})).clone()
-				).map_err(|e| perr!("invalid assemblage extract: {:?}", e))?
-				.into_iter()
-				.map(|(name, (comp, field))| (name, comp, field))
-				.collect()
-		};
-		Ok(assemblage)
-	}
-	
-	
-	pub fn validate(&self) -> Result<()> {
+	pub fn validate(&self) -> AnyResult<()> {
 		for (comptype, parameters) in &self.components {
 			for paramname in comptype.parameters() {
 				let _param = parameters.get(paramname).ok_or(aerr!("missing parameter {} for component {:?}", paramname, comptype))?;
@@ -137,7 +34,7 @@ impl Assemblage {
 		Ok(())
 	}
 	
-	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> Result<HashMap<&str, Parameter>> {
+	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> AnyResult<HashMap<&str, Parameter>> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
 		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
 			let value: Option<Parameter> = {
@@ -165,7 +62,7 @@ impl Assemblage {
 		Ok(arguments)
 	}
 
-	pub fn instantiate(&self, template: &Template) -> Result<Vec<ComponentWrapper>>{
+	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
 		let args = &template.args;
 		let kwargs = &template.kwargs;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
@@ -184,6 +81,72 @@ impl Assemblage {
 	}
 }
 
+macro_rules! compmap {
+	{$($name: ident: $val: expr),*} => {{
+		#[allow(unused_mut)]
+		let mut h = std::collections::HashMap::new();
+		$(
+			h.insert(stringify!($name).to_string(), ParameterExpression::Constant($val.to_parameter()));
+		)*
+		h
+	}}
+}
+
+impl<'de> Deserialize<'de> for Assemblage {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where D: Deserializer<'de> {
+		let AssemblageSave{arguments, mut components, save, extract, name, sprite, height, flags, substitute} =
+			AssemblageSave::deserialize(deserializer)?;
+		if let Some(f) = flags {
+			components.push((ComponentType::Flags, compmap!{flags: f}));
+		}
+		if let Some(spr) = sprite {
+			components.push((ComponentType::Visible, compmap!{
+				sprite: spr.clone(),
+				height: height.ok_or(de::Error::custom("height must be included in assemblage when sprite is included"))?,
+				name: name.unwrap_or(spr)
+			}));
+		}
+		if let Some(sub) = substitute {
+			components.push((ComponentType::Substitute, compmap!{into: sub}));
+		}
+		Ok(Assemblage {
+			arguments: arguments.into_iter()
+				.map(|arg| match arg {
+					ArgumentDefSave::Long(name, typ, def) => (name, typ, Some(def)),
+					ArgumentDefSave::Short(name, typ) => (name, typ, None)
+				})
+				.collect(),
+			components,
+			save,
+			extract: extract.into_iter().map(|(k, (t, v))| (k, t, v)).collect()
+		})
+	}
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+enum ArgumentDefSave{
+	Long(String, ParameterType, Parameter),
+	Short(String, ParameterType)
+}
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+struct AssemblageSave {
+	#[serde(default)]
+	pub arguments: Vec<ArgumentDefSave>,
+	#[serde(default)]
+	pub components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
+	#[serde(default="return_true")]
+	pub save: bool,
+	#[serde(default)]
+	pub extract: HashMap<String, (ComponentType, String)>,
+	pub name: Option<String>,
+	pub sprite: Option<String>,
+	pub height: Option<f64>,
+	pub flags: Option<Vec<String>>,
+	pub substitute: Option<Template>
+}
+fn return_true() -> bool {true}
+
 
 
 #[cfg(test)]
@@ -194,9 +157,9 @@ mod tests {
 	
 	
 	#[test]
-	fn empty_assemblage_from_json() {
+	fn empty_assemblage_deserialize() {
 		assert_eq!(
-				Assemblage::from_json(&json!({
+				Assemblage::deserialize(&json!({
 				"arguments": [],
 				"components": []
 			})).unwrap(),
@@ -210,8 +173,8 @@ mod tests {
 	}
 	
 	#[test]
-	fn grass_from_json(){
-		let result = Assemblage::from_json(&json!({
+	fn grass_deserialize(){
+		let result = Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
@@ -240,7 +203,7 @@ mod tests {
 	
 	#[test]
 	fn invalid_component_name(){
-		let result = Assemblage::from_json(&json!({
+		Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string", null]
 				],
@@ -257,9 +220,9 @@ mod tests {
 	
 	
 	
-	#[test]
+// 	#[test]
 	fn invalid_parameter_type(){
-		let result = Assemblage::from_json(&json!({
+		Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
@@ -274,9 +237,9 @@ mod tests {
 // 		assert_eq!(result, "parameter type incorrect");
 	}
 	
-	#[test]
+// 	#[test]
 	fn unknown_argument_name(){
-		let result = Assemblage::from_json(&json!({
+		Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string", "grass1"]
 				],
@@ -291,9 +254,9 @@ mod tests {
 // 		assert_eq!(result, "unknown argument name");
 	}
 	
-	#[test]
+// 	#[test]
 	fn wrong_argument_type(){
-		let result = Assemblage::from_json(&json!({
+		Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "int", 1]
 				],
@@ -310,9 +273,9 @@ mod tests {
 	
 	
 	
-	#[test]
+// 	#[test]
 	fn wrong_argument_default(){
-		let result = Assemblage::from_json(&json!({
+		Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string", 1]
 				],
@@ -330,7 +293,7 @@ mod tests {
 	
 	#[test]
 	fn null_argument(){
-		let result = Assemblage::from_json(&json!({
+		let result = Assemblage::deserialize(&json!({
 				"arguments": [
 					["sprite", "string"]
 				],

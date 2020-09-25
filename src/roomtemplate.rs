@@ -68,7 +68,7 @@ mod tests {
 	use serde_json::json;
 	
 	#[test]
-	fn simple_from_json() {
+	fn simple_deserialize() {
 		RoomTemplate::deserialize(&json!({
 			"width": 6,
 			"height": 5,

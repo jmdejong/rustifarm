@@ -86,7 +86,7 @@ pub type AttackInbox = Inbox<AttackMessage>;
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString, Display)]
-#[strum(serialize_all="snake_case")]
+#[strum(serialize_all="lowercase")]
 pub enum Trigger {
 	// basic triggers
 	Loot,
