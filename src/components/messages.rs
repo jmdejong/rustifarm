@@ -1,6 +1,7 @@
 
 use std::collections::HashMap;
 use std::any::Any;
+use strum_macros::{EnumString, Display};
 use specs::{
 	Component,
 	DenseVecStorage,
@@ -84,7 +85,8 @@ pub type AttackInbox = Inbox<AttackMessage>;
 
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumString, Display)]
+#[strum(serialize_all="snake_case")]
 pub enum Trigger {
 	// basic triggers
 	Loot,
@@ -94,20 +96,6 @@ pub enum Trigger {
 	// combination triggers
 	Die, // Remove + Loot
 	Change // Remove + Build
-}
-
-impl Trigger {
-	pub fn from_str(txt: &str) -> Option<Self> {
-		Some(match txt {
-			"loot" => Self::Loot,
-			"remove" => Self::Remove,
-			"build" => Self::Build,
-			"spawn" => Self::Spawn,
-			"die" => Self::Die,
-			"change" => Self::Change,
-			_ => {return None}
-		})
-	}
 }
 
 impl Message for Trigger {}

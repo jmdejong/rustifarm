@@ -255,9 +255,7 @@ impl <'a, 'b>Room<'a, 'b> {
 			player.id.clone(),
 			self.id.clone(),
 			inventory.items.iter().map(|entry| (entry.itemid.clone(), entry.is_equipped)).collect(),
-			inventory.capacity,
 			health.health,
-			health.maxhealth
 		))
 	}
 	

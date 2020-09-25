@@ -15,7 +15,7 @@ use crate::{
 
 
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Hash, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub struct ItemId(pub String);
 
 impl FromStr for ItemId {

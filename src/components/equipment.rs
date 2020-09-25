@@ -5,48 +5,29 @@ use specs::{
 	Component,
 	HashMapStorage
 };
+use strum_macros::{EnumString, Display};
 use crate::{
 	Sprite
 };
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")] 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString, Display)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "snake_case")]
 pub enum Slot {
 	Hand,
 	Body,
 	Back
 }
 
-impl Slot {
-	pub fn from_str(txt: &str) -> Option<Self> {
-		match txt {
-			"hand" => Some(Self::Hand),
-			"body" => Some(Self::Body),
-			"back" => Some(Self::Back),
-			_ => None
-		}
-	}
-}
 
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")] 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString, Display)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "snake_case")]
 pub enum Stat {
 	Strength,
 	Defence,
 	Mining
-}
-
-impl Stat {
-	pub fn from_str(txt: &str) -> Option<Self> {
-		match txt {
-			"strength" => Some(Self::Strength),
-			"defence" => Some(Self::Defence),
-			"mining" => Some(Self::Mining),
-			_ => None
-		}
-	}
 }
 
 
@@ -70,23 +51,24 @@ mod tests {
 	use super::*;
 	use crate::hashmap;
 	use serde_json::json;
+	use std::str::FromStr;
 	
 	
 	#[test]
 	fn slots() {
-		assert_eq!(Slot::from_str("hand"), Some(Slot::Hand));
-		assert_eq!(Slot::from_str("body"), Some(Slot::Body));
-		assert_eq!(Slot::from_str("hands"), None);
-		assert_eq!(Slot::from_str("head"), None);
+		assert_eq!(Slot::from_str("hand"), Ok(Slot::Hand));
+		assert_eq!(Slot::from_str("body"), Ok(Slot::Body));
+		assert!(Slot::from_str("hands").is_err());
+		assert!(Slot::from_str("head").is_err());
 	}
 	
 	#[test]
 	fn stats() {
-		assert_eq!(Stat::from_str("strength"), Some(Stat::Strength));
-		assert_eq!(Stat::from_str("defence"), Some(Stat::Defence));
-		assert_eq!(Stat::from_str("hand"), None);
-		assert_eq!(Stat::from_str("body"), None);
-		assert_eq!(Stat::from_str("attack"), None);
+		assert_eq!(Stat::from_str("strength"), Ok(Stat::Strength));
+		assert_eq!(Stat::from_str("defence"), Ok(Stat::Defence));
+		assert!(Stat::from_str("hand").is_err());
+		assert!(Stat::from_str("body").is_err());
+		assert!(Stat::from_str("attack").is_err());
 	}
 	
 	#[test]

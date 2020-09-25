@@ -97,8 +97,7 @@ impl PersistentStorage for FileStorage {
 				LoaderError::InvalidResource(Box::new(err))
 			}
 		})?;
-		let json: Value = inv!(serde_json::from_str(&text))?;
-		let state = inv!(PlayerState::from_json(&json))?;
+		let state = inv!(serde_json::from_str(&text))?;
 		Ok(state)
 	}
 	
@@ -139,7 +138,7 @@ impl PersistentStorage for FileStorage {
 		fs::create_dir_all(&path)?;
 		let fname = id.to_string() + ".save.json";
 		path.push(fname);
-		let text = state.to_json().to_string();
+		let text = serde_json::to_string(&state).unwrap();
 		write_file_safe(path, text)?;
 		Ok(())
 	}

@@ -202,7 +202,7 @@ components!(all:
 			})
 		)
 		Timer {
-			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
+			trigger: Trigger::from_str(&trigger).map_err(|_|aerr!("invalid trigger name {}", trigger))?,
 			delay,
 			spread,
 			target_time: if target_time == -1 { None } else { Some(Timestamp(target_time)) }
@@ -224,7 +224,7 @@ components!(all:
 	Dedup (id: String, priority: i64);
 	Minable (trigger: String, total: i64) {
 		Minable {
-			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?,
+			trigger: Trigger::from_str(&trigger).map_err(|_|aerr!("invalid trigger name {}", trigger))?,
 			progress: 0,
 			total
 		}
@@ -233,7 +233,7 @@ components!(all:
 	LootHolder () {panic!("LootHolder from parameters not implemented")};
 	OnSpawn (trigger: String) {
 		OnSpawn {
-			trigger: Trigger::from_str(&trigger).ok_or(aerr!("invalid trigger name {}", trigger))?
+			trigger: Trigger::from_str(&trigger).map_err(|_|aerr!("invalid trigger name {}", trigger))?
 		}
 	};
 	Substitute (into: Template);

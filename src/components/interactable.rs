@@ -1,5 +1,6 @@
 
 use std::collections::HashMap;
+use std::str::FromStr;
 use specs::{
 	Component,
 	HashMapStorage,
@@ -30,9 +31,9 @@ impl Interactable {
 	
 	pub fn parse_from_parameter(typ: &str, arg: &Parameter) -> Option<Self> {
 		Some(match (typ, arg) {
-			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s)?),
+			("trigger", Parameter::String(s)) => Trigger(Trigger::from_str(s).ok()?),
 			("visit", Parameter::String(s)) => Visit(RoomId(s.clone())),
-			("mine", Parameter::String(s)) => Mine(Stat::from_str(s)?),
+			("mine", Parameter::String(s)) => Mine(Stat::from_str(s).ok()?),
 			("say", Parameter::String(s)) => Say(s.clone()),
 			("reply", Parameter::String(s)) => Reply(s.clone()),
 			("exchange", p) => {
