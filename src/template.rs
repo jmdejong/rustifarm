@@ -10,13 +10,6 @@ use crate::{
 #[derive(Debug, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub struct EntityType(pub String);
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub enum SaveOption {
-	Default,
-	False,
-	Always
-}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 enum TemplateSave {
@@ -39,36 +32,28 @@ pub struct Template {
 	pub name: EntityType,
 	pub args: Vec<Parameter>,
 	pub kwargs: HashMap<String, Parameter>,
-	pub save: SaveOption,
+	pub save: Option<bool>,
 }
 
 
 impl From<TemplateSave> for Template {
 	fn from(ts: TemplateSave) -> Self {
 		match ts {
-			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: SaveOption::Default},
-			TemplateSave::Full{name, args, kwargs, save} => Self{name, args, kwargs, save: match save {
-				Some(true) => SaveOption::Always,
-				Some(false) => SaveOption::False,
-				None => SaveOption::Default
-			}}
+			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: None},
+			TemplateSave::Full{name, args, kwargs, save} => Self{name, args, kwargs, save}
 		}
 	}
 }
 impl Into<TemplateSave> for Template {
 	fn into(self) -> TemplateSave {
-		if self.args.is_empty() && self.kwargs.is_empty() && self.save == SaveOption::Default {
+		if self.args.is_empty() && self.kwargs.is_empty() && self.save == None {
 			return TemplateSave::Name(self.name);
 		}
 		TemplateSave::Full {
 			name: self.name,
 			args: self.args,
 			kwargs: self.kwargs,
-			save: match self.save {
-				SaveOption::Always => Some(true),
-				SaveOption::False => Some(false),
-				SaveOption::Default => None
-			}
+			save: self.save
 		}
 	}
 }
@@ -80,7 +65,7 @@ impl Template {
 			name: EntityType(name.to_string()),
 			args: Vec::new(),
 			kwargs,
-			save: SaveOption::Default
+			save: None
 		}
 	}
 	
@@ -90,8 +75,8 @@ impl Template {
 	
 	pub fn should_save(&self) -> bool {
 		match self.save {
-			SaveOption::Default | SaveOption::Always => true,
-			SaveOption::False => false
+			None | Some(true) => true,
+			Some(false) => false
 		}
 	}
 	
@@ -100,19 +85,19 @@ impl Template {
 			name: typ,
 			args: Vec::new(),
 			kwargs: HashMap::new(),
-			save: SaveOption::Default
+			save: None
 		}
 	}
 	
 	pub fn unsaved(mut self) -> Self {
-		if self.save == SaveOption::Default {
-			self.save = SaveOption::False
+		if self.save == None {
+			self.save = Some(false)
 		}
 		self
 	}
 	
 	pub fn merge(mut self, other: Template) -> Self {
-		if self.save == SaveOption::Default {
+		if self.save == None {
 			self.save = other.save;
 		}
 		for (key, value) in other.kwargs {

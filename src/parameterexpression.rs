@@ -2,11 +2,11 @@
 use std::collections::HashMap;
 use rand::Rng;
 use serde_json::{Value, json};
-use serde::{Deserialize, Deserializer, de};
+use serde::{Deserialize, Deserializer, de, Serialize};
 use crate::{
 	parameter::{Parameter, ParameterType},
 	Template,
-	template::{SaveOption, EntityType},
+	template::{EntityType},
 	Result as AnyResult,
 	aerr,
 	PResult,
@@ -21,7 +21,7 @@ pub enum ParameterExpression {
 	Constant(Parameter),
 	List(Vec<ParameterExpression>),
 	#[allow(dead_code)] // rustc bug does not know that this variant is used: https://github.com/rust-lang/rust/issues/68408
-	Template{name: EntityType, kwargs: HashMap<String, ParameterExpression>, save: SaveOption},
+	Template{name: EntityType, kwargs: HashMap<String, ParameterExpression>, save: Option<bool>},
 	Argument(String),
 	Random(Vec<ParameterExpression>),
 	Concat(Vec<ParameterExpression>),
@@ -119,7 +119,7 @@ impl ParameterExpression {
 					Value::String(s) => Ok(Self::Template{
 						name: EntityType(s.clone()),
 						kwargs: HashMap::new(),
-						save: SaveOption::Default
+						save: None
 					}),
 					Value::Object(o) => {
 						let name = EntityType(o.get("type").ok_or(perr!("template doesn't have 'type'"))?.as_str().ok_or(perr!("template type not a string"))?.to_string());
@@ -128,9 +128,9 @@ impl ParameterExpression {
 							kwargs.insert(key.to_string(), Self::from_json(arg)?);
 						}
 						let save = match o.get("save") {
-							Some(Value::Bool(b)) if *b => SaveOption::Always,
-							Some(Value::Bool(_b)) => SaveOption::False,
-							None => SaveOption::Default,
+							Some(Value::Bool(b)) if *b => Some(true),
+							Some(Value::Bool(_b)) => Some(false),
+							None => None,
 							_ => {return Err(perr!("save not a bool"))}
 						};
 						Ok(Self::Template{name, kwargs, save})
