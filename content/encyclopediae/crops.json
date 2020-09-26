@@ -133,6 +133,19 @@
 		},
 		"carrotplant": {
 			"sprite": "smallplant",
+			"name": "carrotplant",
+			"height": 1.0,
+			"components": [
+				["Interactable", {"typ": "trigger", "arg": "die"}],
+				["Loot", {"loot": ["list", [
+					["list", [{"type": "carrotseed"}, 1.0]],
+					["list", [{"type": "carrot"}, 1.0]]
+				]]}]
+			],
+			"flags": ["Occupied"]
+		},
+		"cottonplant": {
+			"sprite": "smallplant",
 			"name": "cottonplant",
 			"height": 1.0,
 			"components": [
