@@ -21,7 +21,6 @@ mod droploot;
 mod timeout;
 mod clear;
 mod building;
-mod deduplicate;
 mod spawntrigger;
 mod replace;
 
@@ -48,7 +47,6 @@ pub use self::{
 	timeout::Timeout,
 	clear::Clear,
 	building::Building,
-	deduplicate::Deduplicate,
 	spawntrigger::SpawnTrigger,
 	replace::Replace,
 };

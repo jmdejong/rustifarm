@@ -240,14 +240,6 @@ pub struct Whitelist{
 	pub allowed: HashMap<String, HashSet<PlayerId>>
 }
 
-
-#[derive(Component, Debug, Clone)]
-pub struct Dedup {
-	pub id: String,
-	pub priority: i64
-}
-
-
 #[derive(Component, Debug, Clone)]
 pub struct Minable {
 	pub progress: i64,

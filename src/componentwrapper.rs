@@ -208,7 +208,6 @@ components!(all:
 	Ear () {Ear::default()};
 	Build (obj: Template);
 	Whitelist (allowed: HashMap<String, HashSet<PlayerId>>);
-	Dedup (id: String, priority: i64);
 	Minable (trigger: String, total: i64) {
 		Minable {
 			trigger: Trigger::from_str(&trigger).map_err(|_|aerr!("invalid trigger name {}", trigger))?,
