@@ -218,3 +218,37 @@ impl<'de> Deserialize<'de> for ParameterExpression {
 	}
 }
 
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use super::ParameterExpression as PE;
+	use crate::hashmap;
+	
+	#[test]
+	fn test_desrialize(){
+		assert_eq!(
+			PE::deserialize(json!("hello")).unwrap(),
+			PE::Constant(Parameter::String("hello".to_string()))
+		);
+		assert_eq!(
+			PE::deserialize(json!(["arg", "hello"])).unwrap(),
+			PE::Argument("hello".to_string())
+		);
+		assert_eq!(
+			PE::deserialize(json!(["list", ["hello", 3]])).unwrap(),
+			PE::List(vec![
+				PE::Constant(Parameter::String("hello".to_string())),
+				PE::Constant(Parameter::Int(3))
+			])
+		);
+		assert_eq!(
+			PE::deserialize(json!(["template", {"type": "radish", "kwargs": {"health": 10}}])).unwrap(),
+			PE::Template{
+				name: EntityType("radish".to_string()),
+				kwargs: hashmap!{"health".to_string() => PE::Constant(Parameter::Int(10))},
+				save: None
+			}
+		);
+	}
+}
+
