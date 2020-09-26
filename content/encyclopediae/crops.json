@@ -176,11 +176,11 @@
 		"cottoncloth": {"sprite": "cottoncloth"}
 	},
 	"templates":{
-		"plantedcarrotseed": ["plantedseed", {"delay": 1800, "next": "carrotseedling"}],
-		"carrotseedling": ["seedling", {"delay": 3000, "next": "youngcarrotplant"}],
-		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 6000, "next": "carrotplant"}],
-		"plantedcottonseed": ["plantedseed", {"delay": 6000, "next": "cottonseedling"}],
-		"cottonseedling": ["seedling", {"delay": 18000, "next": "youngcottonplant"}],
-		"youngcottonplant": ["youngplant", {"crop": "cotton", "delay": 36000, "next": "cottonplant"}]
+		"plantedcarrotseed": ["plantedseed", {"delay": 1800, "next": {"type": "carrotseedling"}}],
+		"carrotseedling": ["seedling", {"delay": 3000, "next": {"type": "youngcarrotplant"}}],
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 6000, "next": {"type": "carrotplant"}}],
+		"plantedcottonseed": ["plantedseed", {"delay": 6000, "next": {"type": "cottonseedling"}}],
+		"cottonseedling": ["seedling", {"delay": 18000, "next": {"type": "youngcottonplant"}}],
+		"youngcottonplant": ["youngplant", {"crop": "cotton", "delay": 36000, "next": {"type": "cottonplant"}}]
 	}
 }
