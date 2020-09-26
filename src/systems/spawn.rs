@@ -49,6 +49,9 @@ impl <'a> System<'a> for Spawn {
 		}
 		let mut rng = rand::thread_rng();
 		for (entity, spawner, position, triggerbox) in (&entities, &mut spawners, &positions, &triggerboxes).join() {
+			if spawner.clan.name == "" {
+				spawner.clan.name = format!("$random({},{},{})", position.pos.x, position.pos.y, spawner.template.name.0);
+			}
 			if triggerbox.has_message(&[Trigger::Spawn]) {
 				if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
 					if spawner.saturated {

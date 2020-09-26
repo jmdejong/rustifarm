@@ -5,7 +5,7 @@ use crate::{
 	parameterexpression::ParameterExpression,
 	parameter::{Parameter, ParameterType},
 	componentwrapper::{ComponentWrapper, ComponentType},
-	components::Serialise,
+	components::{Serialise, Clan},
 	Template,
 	Result as AnyResult,
 	aerr
@@ -75,6 +75,9 @@ impl Assemblage {
 		}
 		if template.should_save() && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: self.extract.clone() }));
+		}
+		if let Some(clan) = &template.clan {
+			components.push(ComponentWrapper::Clan(Clan{name: clan.clone()}));
 		}
 		Ok(components)
 	}

@@ -68,7 +68,7 @@
 				["MonsterAI", {
 					"view_distance": 3,
 					"move_chance": 0.08,
-					"homesickness": 0.1
+					"homesickness": 0.01
 				}],
 				["Movable", {"cooldown": 3}],
 				["Faction", {"faction": "neutral"}]

@@ -57,7 +57,8 @@ impl ParameterExpression {
 						.map(
 							|(k, v)|
 							Some((k.clone(), v.evaluate_(arguments, template, nesting+1)?)))
-						.collect::<Option<HashMap<String, Parameter>>>()?
+						.collect::<Option<HashMap<String, Parameter>>>()?,
+					clan: None
 				}))
 			}
 			Self::Argument(argname) => {

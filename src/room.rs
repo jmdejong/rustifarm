@@ -31,7 +31,8 @@ use crate::{
 		Player,
 		Inventory,
 		Health,
-		Removed
+		Removed,
+		Clan
 	},
 	Encyclopedia,
 	roomtemplate::RoomTemplate,
@@ -207,8 +208,9 @@ impl <'a, 'b>Room<'a, 'b> {
 		let entities = self.world.entities();
 		let positions = self.world.read_component::<Position>();
 		let serialisers = self.world.read_component::<Serialise>();
+		let clans = self.world.read_component::<Clan>();
 		let mut state = SaveState::new();
-		for (entity, pos, serialiser) in (&entities, &positions, &serialisers).join() {
+		for (entity, pos, serialiser, clan) in (&entities, &positions, &serialisers, (&clans).maybe()).join() {
 			let mut template = serialiser.template.clone();
 			for (argument, component, member) in &serialiser.extract {
 				if let Some(parameter) = extract_parameter(*component, member.as_str(), &self.world, entity){
@@ -217,6 +219,7 @@ impl <'a, 'b>Room<'a, 'b> {
 					println!("failed to extract parameter {:?} from {:?}", member, component);
 				}
 			}
+			template.clan = clan.map(|c| c.name.clone());
 			state.changes.entry(pos.pos).or_insert_with(Vec::new).push(template);
 		}
 		state

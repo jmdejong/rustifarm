@@ -3,7 +3,6 @@ use std::collections::{HashMap, HashSet};
 use serde::{Serialize, Deserialize};
 use strum_macros::{EnumString, Display};
 use specs::Builder;
-use rand::Rng;
 use std::str::FromStr;
 
 use crate::{
@@ -24,7 +23,8 @@ use crate::{
 	Template,
 	Pos,
 	Result,
-	aerr
+	aerr,
+	errors
 };
 
 
@@ -163,14 +163,8 @@ components!(all:
 	Spawner (amount: i64, clan: String, template: Template, radius: i64) {
 		Spawner{
 			amount: amount as usize,
-			clan: Clan{name:
-				if clan == "" {
-					format!("$random({})", rand::thread_rng().gen::<u32>())
-				} else {
-					clan
-				}
-			},
-			template: template.unsaved(),
+			clan: Clan{name: clan},
+			template: template,
 			saturated: false,
 			radius
 		}
@@ -230,6 +224,13 @@ components!(all:
 		}
 	};
 	Substitute (into: Template);
+	TriggerBox (triggers: Vec<String>) {
+		TriggerBox {
+			messages: triggers.iter().map(|s|
+					Trigger::from_str(s).map_err(|_|aerr!("invalid trigger name {}", s))
+				).collect::<std::result::Result<Vec<Trigger>, std::boxed::Box<errors::AError>>>()?
+		}
+	};
 );
 
 

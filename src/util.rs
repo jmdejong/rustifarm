@@ -38,7 +38,6 @@ pub fn write_file_safe<P: AsRef<Path>, C: AsRef<[u8]>>(path: P, contents: C) -> 
 }
 
 
-
 #[macro_export]
 macro_rules! hashmap {
 	( $($key:expr => $value:expr ),* ) => {{

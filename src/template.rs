@@ -22,7 +22,9 @@ enum TemplateSave {
 		#[serde(default, skip_serializing_if = "HashMap::is_empty")]
 		kwargs: HashMap<String, Parameter>,
 		#[serde(default, skip_serializing_if = "Option::is_none")]
-		save: Option<bool>
+		save: Option<bool>,
+		#[serde(default, skip_serializing_if = "Option::is_none")]
+		clan: Option<String>
 	}
 }
 
@@ -33,27 +35,29 @@ pub struct Template {
 	pub args: Vec<Parameter>,
 	pub kwargs: HashMap<String, Parameter>,
 	pub save: Option<bool>,
+	pub clan: Option<String>
 }
 
 
 impl From<TemplateSave> for Template {
 	fn from(ts: TemplateSave) -> Self {
 		match ts {
-			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: None},
-			TemplateSave::Full{name, args, kwargs, save} => Self{name, args, kwargs, save}
+			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: None, clan: None},
+			TemplateSave::Full{name, args, kwargs, save, clan} => Self{name, args, kwargs, save, clan}
 		}
 	}
 }
 impl Into<TemplateSave> for Template {
 	fn into(self) -> TemplateSave {
-		if self.args.is_empty() && self.kwargs.is_empty() && self.save == None {
+		if self.args.is_empty() && self.kwargs.is_empty() && self.save == None && self.clan == None {
 			return TemplateSave::Name(self.name);
 		}
 		TemplateSave::Full {
 			name: self.name,
 			args: self.args,
 			kwargs: self.kwargs,
-			save: self.save
+			save: self.save,
+			clan: self.clan
 		}
 	}
 }
@@ -65,7 +69,8 @@ impl Template {
 			name: EntityType(name.to_string()),
 			args: Vec::new(),
 			kwargs,
-			save: None
+			save: None,
+			clan: None
 		}
 	}
 	
@@ -85,7 +90,8 @@ impl Template {
 			name: typ,
 			args: Vec::new(),
 			kwargs: HashMap::new(),
-			save: None
+			save: None,
+			clan: None
 		}
 	}
 	
@@ -99,6 +105,9 @@ impl Template {
 	pub fn merge(mut self, other: Template) -> Self {
 		if self.save == None {
 			self.save = other.save;
+		}
+		if self.clan == None {
+			self.clan = other.clan;
 		}
 		for (key, value) in other.kwargs {
 			self.kwargs.entry(key).or_insert(value);

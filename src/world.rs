@@ -111,7 +111,7 @@ impl <'a, 'b>World<'a, 'b> {
 	fn try_add_loaded_player(&mut self, mut state: PlayerState, backups: &[Option<RoomId>]) -> Result<()> {
 		match self.add_loaded_player(state.clone()){
 			Err(MigrationError::RoomError(e)) => {
-				println!("could not add player {:?} to room {:?}: {:?}", state.id, state.room, e);
+				println!("could not add player {:?} to room {:?}: {}", state.id, state.room, e);
 				if let Some((first, rest)) = backups.split_first(){
 					state.room = first.clone();
 					state.pos = RoomPos::Unknown;

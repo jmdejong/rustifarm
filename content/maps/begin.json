@@ -116,7 +116,7 @@
 			{"type": "img", "kwargs": {"sprite": "stairdown"}},
 			"floor"
 		],
-		"r": ["grass", "rabbit"],
+		"r": ["grass", {"type": "singleton", "kwargs": {"ent": {"type": "rabbit"}}}],
 		"3": [{
 			"type": "portal",
 			"kwargs": {"destination": "smallview", "destpos": "begin"}

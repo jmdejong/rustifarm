@@ -7,14 +7,13 @@
 			],
 			"flags": ["Floor"]
 		},
-		"homeportal": {
-			"arguments": [["dedup_id", "string"], ["allowed", "list", ["list", []]], ["dedup_priority", "int", 0]],
-			"extract": {"allowed": ["Whitelist", "allowed"], "dedup_priority": ["Dedup", "priority"]},
+		"_homeportal": {
+			"arguments": [["allowed", "list", ["list", []]]],
+			"extract": {"allowed": ["Whitelist", "allowed"]},
 			"components": [
 				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
 				["Interactable", {"typ": "visit", "arg": "_home+{player}"}],
-				["Whitelist", {"allowed": ["arg", "allowed"]}],
-				["Dedup", {"id": ["arg", "dedup_id"], "priority": ["arg", "dedup_priority"]}]
+				["Whitelist", {"allowed": ["arg", "allowed"]}]
 			],
 			"flags": ["Floor"]
 		},
@@ -62,6 +61,23 @@
 					"amount": ["arg", "amount"],
 					"clan": ["arg", "clan"],
 					"radius": ["arg", "radius"]
+				}]
+			]
+		},
+		"singleton": {
+			"arguments": [["ent", "template"], ["clan", "string", ""]],
+			"components": [
+				["Spawner", {
+					"template": ["arg", "ent"],
+					"amount": 1,
+					"clan": ["arg", "clan"],
+					"radius": 0
+				}],
+				["Timer", {
+					"delay": 999999999,
+					"spread": 0.0,
+					"trigger": "spawn",
+					"target_time": 0
 				}]
 			]
 		},
@@ -221,5 +237,8 @@
 				"sprite": "blueplayer"
 			}}
 		}
+	},
+	"templates": {
+		"homeportal": ["singleton", {"ent": {"type": "_homeportal"}}]
 	}
 }

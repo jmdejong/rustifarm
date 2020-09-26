@@ -61,7 +61,7 @@
             "type": "portal",
             "kwargs": {"destination": "town", "destpos": "gate"}
         }, "floor"],
-        "3": [{"type": "homeportal", "kwargs": {"dedup_id": "homeportal"}, "save": true}, "floor", {"type": "img", "kwargs": {"sprite": "portal", "height": 1.0}}],
+        "3": ["homeportal", "floor", {"type": "img", "kwargs": {"sprite": "portal", "height": 1.0}}],
         "4": [{
             "type": "portal",
             "kwargs": {"destination": "room"}
