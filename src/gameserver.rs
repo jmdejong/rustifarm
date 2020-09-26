@@ -6,6 +6,7 @@ use std::io;
 use serde_json::{Value, json};
 use serde::{Deserialize};
 use unicode_categories::UnicodeCategories;
+use chrono::Utc;
 
 use crate::{
 	controls::{Control, Action},
@@ -102,7 +103,7 @@ impl GameServer {
 	}
 	
 	pub fn broadcast_message(&mut self, text: &str){
-		println!("m {}", text);
+		println!("m {}      {}", text, Utc::now());
 		self.broadcast_json(json!(["message", text, ""]));
 	}
 	

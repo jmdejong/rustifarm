@@ -4,6 +4,7 @@ use std::time::Duration;
 use std::path::PathBuf;
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use structopt::StructOpt;
+use chrono::Utc;
 
 mod server;
 mod gameserver;
@@ -131,7 +132,7 @@ fn main(){
 	}).expect("can't set close handler");
 	
 	
-	println!("asciifarm started");
+	println!("asciifarm started on {}", Utc::now());
 	
 	
 	while running.load(Ordering::SeqCst) {
@@ -181,6 +182,7 @@ fn main(){
 	println!("saving world");
 	world.save();
 	println!("world saved");
+	println!("shutting down on {}", Utc::now());
 }
 
 
