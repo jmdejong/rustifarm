@@ -59,8 +59,8 @@
 		".": "ground",
 		"+": "floor",
 		"<": [
-			{"type": "portal", "args": ["begin", "caveentrance"]},
-			{"type": "img", "args": ["stairup"]},
+			{"type": "portal", "kwargs": {"destination": "begin", "destpos": "caveentrance"}},
+			{"type": "img", "kwargs": {"sprite": "stairup"}},
 			"floor"
 		],
 		"g": [

@@ -29,8 +29,8 @@
 		"^": ["spiketrap"],
 		"D": ["ground", "closeddoor"],
 		"<": [
-			{"type": "portal", "args": ["begin", "stairdown"]},
-			{"type": "img", "args": ["stairup"]},
+			{"type": "portal", "kwargs": {"destination": "begin", "destpos": "stairdown"}},
+			{"type": "img", "kwargs": {"sprite": "stairup"}},
 			"floor"
 		],
 		"a": ["floor", {
