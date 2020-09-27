@@ -181,9 +181,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["arg", "sprite"],
-						"height": ["float", 0.1],
-						"name": ["string", "grass"]
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": "grass"
 					}]
 				]
 			})).unwrap();
@@ -210,9 +210,9 @@ mod tests {
 				],
 				"components": [
 					["visible", { // no capital so invalid
-						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1],
-						"name": ["string", "grass"]
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": "grass"
 					}]
 				]
 			})).unwrap_err();
@@ -229,48 +229,15 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["A", "sprite"],
-						"height": ["string", "0.1"],
-						"name": ["string", "grass"]
+						"sprite": {"$arg": "sprite"},
+						"height": "0.1",
+						"name": "grass"
 					}]
 				]
 			})).unwrap_err();
 // 		assert_eq!(result, "parameter type incorrect");
 	}
 	
-// 	#[test]
-	fn unknown_argument_name(){
-		Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string", "grass1"]
-				],
-				"components": [
-					["Visible", {
-						"sprite": ["A", "sprits"],
-						"height": ["float", 0.1],
-						"name": ["string", "grass"]
-					}]
-				]
-			})).unwrap_err();
-// 		assert_eq!(result, "unknown argument name");
-	}
-	
-// 	#[test]
-	fn wrong_argument_type(){
-		Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "int", 1]
-				],
-				"components": [
-					["Visible", {
-						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1],
-						"name": ["string", "grass"]
-					}]
-				]
-			})).unwrap_err();
-// 		assert_eq!(result, "parameter type incorrect");
-	}
 	
 	
 	
@@ -282,9 +249,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["A", "sprite"],
-						"height": ["float", 0.1],
-						"name": ["string", "grass"]
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": "grass"
 					}]
 				]
 			})).unwrap_err();
@@ -300,9 +267,9 @@ mod tests {
 				],
 				"components": [
 					["Visible", {
-						"sprite": ["arg", "sprite"],
-						"height": ["float", 0.1],
-						"name": ["arg", "sprite"]
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": {"$arg": "sprite"}
 					}]
 				]
 			})).unwrap();

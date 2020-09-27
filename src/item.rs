@@ -1,7 +1,6 @@
 
 
 use std::collections::HashSet;
-use std::str::FromStr;
 use serde;
 use serde::{Deserialize, Serialize};
 use crate::{
@@ -9,21 +8,13 @@ use crate::{
 	components::{
 		Flag,
 		equipment::Equippable
-	},
-	errors::{ParseError}
+	}
 };
 
 
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub struct ItemId(pub String);
-
-impl FromStr for ItemId {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		Ok(Self(s.to_string()))
-	}
-}
 
 #[derive(Debug, Clone)]
 pub struct Item {

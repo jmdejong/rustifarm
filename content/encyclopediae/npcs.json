@@ -13,9 +13,9 @@
 				["Fighter", {"damage": 2, "cooldown": 6}],
 				["Movable", {"cooldown": 3}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "radishseed"}, 1.0]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "radishseed"}, 1.0]
+				]}]
 			]
 		},
 		"goblin": {
@@ -31,11 +31,11 @@
 				["Fighter", {"damage": 5, "cooldown": 8}],
 				["Movable", {"cooldown": 4}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "sword"}, 0.05]],
-					["list", [{"type": "club"}, 0.1]],
-					["list", [{"type": "radish"}, 0.25]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "sword"}, 0.05],
+					[{"$template": "club"}, 0.1],
+					[{"$template": "radish"}, 0.25]
+				]}]
 			]
 		},
 		"troll": {
@@ -51,13 +51,13 @@
 				["Fighter", {"damage": 15, "cooldown": 10}],
 				["Movable", {"cooldown": 5}],
 				["Faction", {"faction": "evil"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "stone"}, 1.0]],
-					["list", [{"type": "stone"}, 0.3]],
-					["list", [{"type": "pebble"}, 0.5]],
-					["list", [{"type": "pebble"}, 0.5]],
-					["list", [{"type": "pebble"}, 0.5]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "stone"}, 1.0],
+					[{"$template": "stone"}, 0.3],
+					[{"$template": "pebble"}, 0.5],
+					[{"$template": "pebble"}, 0.5],
+					[{"$template": "pebble"}, 0.5]
+				]}]
 				
 			]
 		},
@@ -87,14 +87,11 @@
 			"height": 1.5,
 			"name": "crop trader",
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"buy ",
-					["list", [
-						["list", ["pebble", ["list", ["radish", "radish"]], ["list", ["pebble"]]]],
-						["list", ["radishseed", ["list", ["radish"]], ["list", ["radishseed", "radishseed"]]]],
-						["list", ["carrotseed", ["list", ["radish"]], ["list", ["carrotseed"]]]],
-						["list", ["cottonseed", ["list", ["stone"]], ["list", ["cottonseed"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["buy ", [
+					["pebble", ["radish", "radish"], ["pebble"]],
+					["radishseed", ["radish"], ["radishseed", "radishseed"]],
+					["carrotseed", ["radish"], ["carrotseed"]],
+					["cottonseed", ["stone"], ["cottonseed"]]
 				]]}],
 				["MonsterAI", {
 					"view_distance": 1,
@@ -109,13 +106,10 @@
 			"height": 1.5,
 			"name": "dye trader",
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"buy ",
-					["list", [
-						["list", ["red dye", ["list", ["club", "club"]], ["list", ["reddye"]]]],
-						["list", ["green dye", ["list", ["stone", "stone", "stone", "stone", "stone"]], ["list", ["greendye"]]]],
-						["list", ["blue dye", ["list", ["sword"]], ["list", ["bluedye"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["buy ", [
+						["red dye", ["club", "club"], ["reddye"]],
+						["green dye", ["stone", "stone", "stone", "stone", "stone"], ["greendye"]],
+						["blue dye", ["sword"], ["bluedye"]]
 				]]}],
 				["MonsterAI", {
 					"view_distance": 1,
@@ -130,11 +124,8 @@
 			"height": 1.5,
 			"name": "toolsmith",
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"buy ",
-					["list", [
-						["list", ["pickaxe", ["list", ["carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot"]], ["list", ["pickaxe"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["buy ", [
+						["pickaxe", ["carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot", "carrot"], ["pickaxe"]]
 				]]}],
 				["MonsterAI", {
 					"view_distance": 1,
@@ -154,7 +145,8 @@
 					"move_chance": 0.01,
 					"homesickness": 0.3
 				}],
-				["Movable", {"cooldown": 3}]
+				["Movable", {"cooldown": 3}],
+				["Interactable", {"typ": "say", "arg": "Hello"}]
 			]
 		}
 	}

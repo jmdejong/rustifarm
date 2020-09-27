@@ -6,12 +6,12 @@
 			"height": 0.5,
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "radishseed"}, 0.92]],
-					["list", [{"type": "radishseed"}, 0.20]],
-					["list", [{"type": "radish"}, 0.8]],
-					["list", [{"type": "radish"}, 0.4]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "radishseed"}, 0.92],
+					[{"$template": "radishseed"}, 0.20],
+					[{"$template": "radish"}, 0.8],
+					[{"$template": "radish"}, 0.4]
+				]}]
 			],
 			"flags": ["Occupied"]
 		},
@@ -24,10 +24,10 @@
 				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["template", "radishseedling"]}]
+				["Build", {"obj": {"$template": "radishseedling"}}]
 			],
 			"extract": {
 				"target_time": ["Timer", "target_time"]
@@ -43,10 +43,10 @@
 				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["template", "youngradishplant"]}]
+				["Build", {"obj": {"$template": "youngradishplant"}}]
 			],
 			"extract": {
 				"target_time": ["Timer", "target_time"]
@@ -62,10 +62,10 @@
 				["Timer", {
 					"delay": 600,
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["template", "radishplant"]}]
+				["Build", {"obj": {"$template": "radishplant"}}]
 			],
 			"extract": {
 				"target_time": ["Timer", "target_time"]
@@ -79,12 +79,12 @@
 			"name": "plantedseed",
 			"components": [
 				["Timer", {
-					"delay": ["arg", "delay"],
+					"delay": {"$arg": "delay"},
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["arg", "next"]}]
+				["Build", {"obj": {"$arg": "next"}}]
 			],
 			"extract": {
 				"target_time": ["Timer", "target_time"]
@@ -98,12 +98,12 @@
 			"name": "seedling",
 			"components": [
 				["Timer", {
-					"delay": ["arg", "delay"],
+					"delay": {"$arg": "delay"},
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["arg", "next"]}]
+				["Build", {"obj": {"$arg": "next"}}]
 			],
 			"extract": {
 				"target_time": ["Timer", "target_time"]
@@ -114,14 +114,14 @@
 			"arguments": [["target_time", "int", -1], ["next", "template"], ["crop", "string"], ["delay", "int"]],
 			"components": [
 				["Timer", {
-					"delay": ["arg", "delay"],
+					"delay": {"$arg": "delay"},
 					"spread": 0.5,
-					"target_time": ["arg", "target_time"],
+					"target_time": {"$arg": "target_time"},
 					"trigger": "change"
 				}],
-				["Build", {"obj": ["arg", "next"]}],
+				["Build", {"obj": {"$arg": "next"}}],
 				["Visible", {
-					"name": ["concat", [["string", "young"], ["arg", "crop"], ["string", "plant"]]],
+					"name": {"$concat": ["young", {"$arg": "crop"}, "plant"]},
 					"sprite": "youngplant",
 					"height": 0.8
 				}]
@@ -137,10 +137,10 @@
 			"height": 1.0,
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "carrotseed"}, 1.0]],
-					["list", [{"type": "carrot"}, 1.0]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "carrotseed"}, 1.0],
+					[{"$template": "carrot"}, 1.0]
+				]}]
 			],
 			"flags": ["Occupied"]
 		},
@@ -150,12 +150,12 @@
 			"height": 1.0,
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "cottonseed"}, 0.92]],
-					["list", [{"type": "cottonseed"}, 0.20]],
-					["list", [{"type": "cotton"}, 0.8]],
-					["list", [{"type": "cotton"}, 0.4]]
-				]]}]
+				["Loot", {"loot": [
+					[{"$template": "cottonseed"}, 0.92],
+					[{"$template": "cottonseed"}, 0.20],
+					[{"$template": "cotton"}, 0.8],
+					[{"$template": "cotton"}, 0.4]
+				]}]
 			],
 			"flags": ["Occupied"]
 		},
@@ -176,11 +176,11 @@
 		"cottoncloth": {"sprite": "cottoncloth"}
 	},
 	"templates":{
-		"plantedcarrotseed": ["plantedseed", {"delay": 1800, "next": {"type": "carrotseedling"}}],
-		"carrotseedling": ["seedling", {"delay": 3000, "next": {"type": "youngcarrotplant"}}],
-		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 6000, "next": {"type": "carrotplant"}}],
-		"plantedcottonseed": ["plantedseed", {"delay": 6000, "next": {"type": "cottonseedling"}}],
-		"cottonseedling": ["seedling", {"delay": 18000, "next": {"type": "youngcottonplant"}}],
-		"youngcottonplant": ["youngplant", {"crop": "cotton", "delay": 36000, "next": {"type": "cottonplant"}}]
+		"plantedcarrotseed": ["plantedseed", {"delay": 1800, "next": {":template": "carrotseedling"}}],
+		"carrotseedling": ["seedling", {"delay": 3000, "next": {":template": "youngcarrotplant"}}],
+		"youngcarrotplant": ["youngplant", {"crop": "carrot", "delay": 6000, "next": {":template": "carrotplant"}}],
+		"plantedcottonseed": ["plantedseed", {"delay": 6000, "next": {":template": "cottonseedling"}}],
+		"cottonseedling": ["seedling", {"delay": 18000, "next": {":template": "youngcottonplant"}}],
+		"youngcottonplant": ["youngplant", {"crop": "cotton", "delay": 36000, "next": {":template": "cottonplant"}}]
 	}
 }

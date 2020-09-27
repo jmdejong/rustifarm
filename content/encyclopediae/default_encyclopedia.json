@@ -3,25 +3,25 @@
 		"portal": {
 			"arguments": [["destination", "string"], ["destpos", "string", ""]],
 			"components": [
-				["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "destpos"]}]
+				["RoomExit", {"destination": {"$arg": "destination"}, "dest_pos": {"$arg": "destpos"}}]
 			],
 			"flags": ["Floor"]
 		},
 		"_homeportal": {
-			"arguments": [["allowed", "list", ["list", []]]],
+			"arguments": [["allowed", "list",  []]],
 			"extract": {"allowed": ["Whitelist", "allowed"]},
 			"components": [
 				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
 				["Interactable", {"typ": "visit", "arg": "_home+{player}"}],
-				["Whitelist", {"allowed": ["arg", "allowed"]}]
+				["Whitelist", {"allowed": {"$arg": "allowed"}}]
 			],
 			"flags": ["Floor"]
 		},
 		"builtwall": {
 			"arguments": [["health", "int", 100]],
 			"components": [
-				["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-				["Loot", {"loot": ["list", [["list", [{"type": "stone"}, 1.0]]]]}]
+				["Health", {"health": {"$arg": "health"}, "maxhealth": 100}],
+				["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
 			],
 			"sprite": "builtwall",
 			"height": 2,
@@ -38,7 +38,7 @@
 			"sprite": "dummy",
 			"height": 1,
 			"components": [
-				["Health", {"health": ["arg", "health"], "maxhealth": 20}]
+				["Health", {"health": {"$arg": "health"}, "maxhealth": 20}]
 			]
 		},
 		"wound": {
@@ -51,16 +51,16 @@
 			"arguments": [["template", "template"], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""], ["initial_spawn", "bool", true], ["radius", "int", 0]],
 			"components": [
 				["Timer", {
-					"delay": ["arg", "delay"],
+					"delay": {"$arg": "delay"},
 					"spread": 0.1,
 					"trigger": "spawn",
-					"target_time": ["if", [["arg", "initial_spawn"], 0, -1]]
+					"target_time": {"$if": [{"$arg": "initial_spawn"}, 0, -1]}
 				}],
 				["Spawner", {
-					"template": ["arg", "template"],
-					"amount": ["arg", "amount"],
-					"clan": ["arg", "clan"],
-					"radius": ["arg", "radius"]
+					"template": {"$arg": "template"},
+					"amount": {"$arg": "amount"},
+					"clan": {"$arg": "clan"},
+					"radius": {"$arg": "radius"}
 				}]
 			]
 		},
@@ -68,9 +68,9 @@
 			"arguments": [["ent", "template"], ["clan", "string", ""]],
 			"components": [
 				["Spawner", {
-					"template": ["arg", "ent"],
+					"template": {"$arg": "ent"},
 					"amount": 1,
-					"clan": ["arg", "clan"],
+					"clan": {"$arg": "clan"},
 					"radius": 0
 				}],
 				["Timer", {
@@ -87,7 +87,7 @@
 			"flags": ["Blocking"],
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "change"}],
-				["Build", {"obj": {"type": "opendoor", "save": false}}]
+				["Build", {"obj": {"$template": "opendoor", "__save__": false}}]
 			]
 		},
 		"opendoor": {
@@ -96,7 +96,7 @@
 			"flags": ["Occupied"],
 			"components": [
 				["Interactable", {"typ": "trigger", "arg": "change"}],
-				["Build", {"obj": {"type": "closeddoor", "save": false}}]
+				["Build", {"obj": {"$template": "closeddoor", "__save__": false}}]
 			]
 		},
 		"sign": {
@@ -113,20 +113,15 @@
 			"components": [
 				["Interactable", {"typ": "mine", "arg": "mining"}],
 				["Minable", {"total": 20, "trigger": "loot"}],
-				["Loot", {"loot": ["list", [
-					["list", [{"type": "stone"}, 1.0]]
-				]]}]
+				["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
 			]
 		},
 		"spinningwheel": {
 			"sprite": "spinningwheel",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"spin ",
-					["list", [
-						["list", ["cotton yarn", ["list", ["cotton", "cotton"]], ["list", ["cottonyarn"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["spin ", [
+					["cotton yarn", ["cotton", "cotton"], ["cottonyarn"]]
 				]]}]
 			]
 		},
@@ -134,11 +129,8 @@
 			"sprite": "loom",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"weave ",
-					["list", [
-						["list", ["cotton cloth", ["list", ["cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn"]], ["list", ["cottoncloth"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["weave ", [
+					["cotton cloth", ["cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn"], ["cottoncloth"]]
 				]]}]
 			]
 		},
@@ -146,11 +138,8 @@
 			"sprite": "sewingtable",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"sew ",
-					["list", [
-						["list", ["cape", ["list", ["cottoncloth", "cottoncloth", "cottoncloth", "cottonyarn", "cottonyarn"]], ["list", ["cape"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["sew ", [
+					["cape", ["cottoncloth", "cottoncloth", "cottoncloth", "cottonyarn", "cottonyarn"], ["cape"]]
 				]]}]
 			]
 		},
@@ -158,13 +147,10 @@
 			"sprite": "tub",
 			"height": 1.0,
 			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["list", [
-					"dye ",
-					["list", [
-						["list", ["red cape", ["list", ["cape", "reddye"]], ["list", ["redcape"]]]],
-						["list", ["green cape", ["list", ["cape", "greendye"]], ["list", ["greencape"]]]],
-						["list", ["blue cape", ["list", ["cape", "bluedye"]], ["list", ["bluecape"]]]]
-					]]
+				["Interactable", {"typ": "exchange", "arg": ["dye ", [
+					["red cape", ["cape", "reddye"], ["redcape"]],
+					["green cape", ["cape", "greendye"], ["greencape"]],
+					["blue cape", ["cape", "bluedye"], ["bluecape"]]
 				]]}]
 			]
 		}
@@ -239,6 +225,6 @@
 		}
 	},
 	"templates": {
-		"homeportal": ["singleton", {"ent": {"type": "_homeportal"}}]
+		"homeportal": ["singleton", {"ent": {":template": "_homeportal"}}]
 	}
 }

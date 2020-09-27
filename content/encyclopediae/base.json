@@ -23,7 +23,7 @@
 		"grass": {
 			"components": [
 				["Visible", {
-					"sprite": ["random", [
+					"sprite": {"$random": [
 						"grass1",
 						"grass2",
 						"grass3",
@@ -31,7 +31,7 @@
 						"grass2",
 						"grass3",
 						"ground"
-					]],
+					]},
 					"height": 0.1,
 					"name": "grass"
 				}]
@@ -41,11 +41,11 @@
 		"greengrass": {
 			"components": [
 				["Visible", {
-					"sprite": ["random", [
+					"sprite": {"$random": [
 						"grass1",
 						"grass2",
 						"grass3"
-					]],
+					]},
 					"height": 0.1,
 					"name": "grass"
 				}]
@@ -76,14 +76,14 @@
 		"img": {
 			"arguments": [["sprite", "string", ""], ["height", "float", 1.0]],
 			"components": [
-				["Visible", {"name": ["arg", "sprite"], "sprite": ["arg", "sprite"], "height": ["arg", "height"]}]
+				["Visible", {"name": {"$arg": "sprite"}, "sprite": {"$arg": "sprite"}, "height": {"$arg": "height"}}]
 			]
 		},
 		"letter": {
 			"arguments": [["char", "string"]],
 			"components": [["Visible", {
-				"name": ["concat", ["letter_", ["arg", "char"]]],
-				"sprite": ["concat", ["emptyletter-", ["arg", "char"]]],
+				"name": {"$concat": ["letter_", {"$arg": "char"}]},
+				"sprite": {"$concat": ["emptyletter-", {"$arg": "char"}]},
 				"height": 1.0
 			}]]
 		}

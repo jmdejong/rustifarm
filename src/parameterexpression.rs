@@ -1,16 +1,13 @@
 
 use std::collections::HashMap;
 use rand::Rng;
-use serde_json::{Value, json};
-use serde::{Deserialize, Deserializer, de};
+use serde::{Deserialize, Deserializer};
 use crate::{
 	parameter::{Parameter, ParameterType},
 	Template,
 	template::{EntityType},
 	Result as AnyResult,
 	aerr,
-	PResult,
-	perr
 };
 
 const MAX_NESTING: usize = 5;
@@ -21,7 +18,7 @@ pub enum ParameterExpression {
 	Constant(Parameter),
 	List(Vec<ParameterExpression>),
 	#[allow(dead_code)] // rustc bug does not know that this variant is used: https://github.com/rust-lang/rust/issues/68408
-	Template{name: EntityType, kwargs: HashMap<String, ParameterExpression>, save: Option<bool>},
+	Template{name: EntityType, kwargs: HashMap<String, ParameterExpression>, save: Option<bool>, clan: Option<String>},
 	Argument(String),
 	Random(Vec<ParameterExpression>),
 	Concat(Vec<ParameterExpression>),
@@ -47,7 +44,7 @@ impl ParameterExpression {
 			Self::List(values) => {
 				Some(Parameter::List(values.iter().map(|v| v.evaluate_(arguments, template, nesting+1)).collect::<Option<Vec<Parameter>>>()?))
 			}
-			Self::Template{name, kwargs, save} => {
+			Self::Template{name, kwargs, save, clan} => {
 				Some(Parameter::Template(Template{
 					name: name.clone(),
 					save: *save,
@@ -57,7 +54,7 @@ impl ParameterExpression {
 							|(k, v)|
 							Some((k.clone(), v.evaluate_(arguments, template, nesting+1)?)))
 						.collect::<Option<HashMap<String, Parameter>>>()?,
-					clan: None
+					clan: clan.clone()
 				}))
 			}
 			Self::Argument(argname) => {
@@ -95,88 +92,12 @@ impl ParameterExpression {
 		}
 	}
 	
-	pub fn from_json(value: &Value) -> PResult<Self> {
-		if !value.is_array() {
-			return Ok(Self::Constant(Parameter::guess_from_json(value)?));
-		}
-		let paramvalue = value.get(1).ok_or(perr!("index 1 not in component parameter"))?;
-		let typename = value.get(0).ok_or(perr!("index 0 not in component parameter"))?.as_str().ok_or(perr!("compparam type not a string"))?;
-		match typename {
-			"string" | "int" | "float" | "bool" | "pos" => {
-				let paramtype = ParameterType::from_str(typename).expect(&format!("unknown parameter type {:?}", typename));
-				Ok(Self::Constant(Parameter::from_typed_json(paramtype, paramvalue)?))
-			}
-			"list" => {
-				let values = paramvalue.as_array().ok_or(perr!("random argument not an array"))?;
-				let mut entries = Vec::new();
-				for entry in values {
-					entries.push(Self::from_json(entry)?)
-				}
-				Ok(Self::List(entries))
-			}
-			"template" => {
-				match paramvalue {
-					Value::String(s) => Ok(Self::Template{
-						name: EntityType(s.clone()),
-						kwargs: HashMap::new(),
-						save: None
-					}),
-					Value::Object(o) => {
-						let name = EntityType(o.get("type").ok_or(perr!("template doesn't have 'type'"))?.as_str().ok_or(perr!("template type not a string"))?.to_string());
-						let mut kwargs = HashMap::new();
-						for (key, arg) in o.get("kwargs").unwrap_or(&json!({})).as_object().ok_or(perr!("template kwargs not a json object"))? {
-							kwargs.insert(key.to_string(), Self::from_json(arg)?);
-						}
-						let save = match o.get("save") {
-							Some(Value::Bool(b)) if *b => Some(true),
-							Some(Value::Bool(_b)) => Some(false),
-							None => None,
-							_ => {return Err(perr!("save not a bool"))}
-						};
-						Ok(Self::Template{name, kwargs, save})
-					}
-					_ => return Err(perr!("invalid template {:?}", paramvalue))
-				}
-			}
-			"A" | "arg" => {
-				let argname = paramvalue.as_str().ok_or(perr!("argument parameter not a string"))?.to_string();
-				Ok(Self::Argument(argname))
-			}
-			"random" => {
-				let optionvalues = paramvalue.as_array().ok_or(perr!("random argument not an array"))?;
-				let mut options = Vec::new();
-				for option in optionvalues {
-					options.push(Self::from_json(option)?)
-				}
-				Ok(Self::Random(options))
-			}
-			"concat" => {
-				let values = paramvalue.as_array().ok_or(perr!("concat argument not an array"))?;
-				let mut options = Vec::new();
-				for option in values {
-					options.push(Self::from_json(option)?)
-				}
-				Ok(Self::Concat(options))
-			}
-			"if" => {
-				Ok(Self::If(
-					Box::new(Self::from_json(paramvalue.get(0).ok_or(perr!("if does not have condition"))?)?),
-					Box::new(Self::from_json(paramvalue.get(1).ok_or(perr!("if does not have then value"))?)?),
-					Box::new(Self::from_json(paramvalue.get(2).ok_or(perr!("if does not have else value"))?)?)
-				))
-			}
-			"self" => Ok(Self::TemplateSelf),
-			"name" => Ok(Self::TemplateName),
-			_ => Err(perr!("unknown compparam type '{}'", typename))
-		}
-	}
-	
 	#[allow(dead_code)]
 	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> AnyResult<ParameterType>{
 		Ok(match self {
 			Self::Constant(param) => param.paramtype(),
 			Self::List(_) => ParameterType::List,
-			Self::Template{name: _, kwargs: _, save: _} => ParameterType::Template,
+			Self::Template{name: _, kwargs: _, save: _, clan: _} => ParameterType::Template,
 			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or(aerr!("unknown argument name {} in {:?}", argname, arguments))?.1,
 			Self::Random(options) => {
 				let typ: ParameterType = options.get(0).ok_or(aerr!("random has no options"))?.get_type(arguments)?;
@@ -204,16 +125,57 @@ impl ParameterExpression {
 	}
 }
 
-// impl Serialize for ParameterExpression {
-// 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-// 	where S: Serializer {
-// 		self.to_json().serialize(serializer)
-// 	}
-// }
+
+#[derive(Debug, PartialEq, Clone, Deserialize)]
+enum DynamicParameterExpressionSave {
+	#[serde(rename = "$arg")]
+	Argument(String),
+	#[serde(rename = "$random")]
+	Random(Vec<ParameterExpression>),
+	#[serde(rename = "$concat")]
+	Concat(Vec<ParameterExpression>),
+	#[serde(rename = "$if")]
+	If(Box<ParameterExpression>, Box<ParameterExpression>, Box<ParameterExpression>),
+	#[serde(rename = "$self")]
+	TemplateSelf,
+	#[serde(rename = "$name")]
+	TemplateName
+}
+#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[serde(untagged)]
+enum ParameterExpressionSave {
+	List(Vec<ParameterExpression>),
+	Template {
+		#[serde(rename = "$template")]
+		name: EntityType,
+		#[serde(rename="__save__", default, skip_serializing_if = "Option::is_none")]
+		save: Option<bool>,
+		#[serde(rename="__clan__", default, skip_serializing_if = "Option::is_none")]
+		clan: Option<String>,
+		#[serde(flatten)]
+		kwargs: HashMap<String, ParameterExpression>
+	},
+	Dynamic(DynamicParameterExpressionSave),
+	Constant(Parameter),
+}
+use ParameterExpressionSave as PES;
+use DynamicParameterExpressionSave as DPES;
+
 impl<'de> Deserialize<'de> for ParameterExpression {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where D: Deserializer<'de> {
-		Self::from_json(&Value::deserialize(deserializer)?).map_err(|e| de::Error::custom(e.text))
+		let save = ParameterExpressionSave::deserialize(deserializer)?;
+		Ok(match save {
+			PES::List(params) => Self::List(params),
+			PES::Template{name, save, clan, kwargs} => Self::Template{name, save, kwargs, clan},
+			PES::Dynamic(DPES::Argument(name)) => Self::Argument(name),
+			PES::Dynamic(DPES::Random(items)) => Self::Random(items),
+			PES::Dynamic(DPES::Concat(items)) => Self::Concat(items),
+			PES::Dynamic(DPES::If(condition, ifpart, elsepart)) => Self::If(condition, ifpart, elsepart),
+			PES::Dynamic(DPES::TemplateSelf) => Self::TemplateSelf,
+			PES::Dynamic(DPES::TemplateName) => Self::TemplateName,
+			PES::Constant(param) => Self::Constant(param)
+		})
 	}
 }
 
@@ -222,6 +184,7 @@ mod tests {
 	use super::*;
 	use super::ParameterExpression as PE;
 	use crate::hashmap;
+	use serde_json::json;
 	
 	#[test]
 	fn test_desrialize(){
@@ -230,22 +193,48 @@ mod tests {
 			PE::Constant(Parameter::String("hello".to_string()))
 		);
 		assert_eq!(
-			PE::deserialize(json!(["arg", "hello"])).unwrap(),
+			PE::deserialize(json!({"$arg": "hello"})).unwrap(),
 			PE::Argument("hello".to_string())
 		);
 		assert_eq!(
-			PE::deserialize(json!(["list", ["hello", 3]])).unwrap(),
+			PE::deserialize(json!(["hello", 3])).unwrap(),
 			PE::List(vec![
 				PE::Constant(Parameter::String("hello".to_string())),
 				PE::Constant(Parameter::Int(3))
 			])
 		);
+	}
+	#[test]
+	fn test_templates(){
 		assert_eq!(
-			PE::deserialize(json!(["template", {"type": "radish", "kwargs": {"health": 10}}])).unwrap(),
+			PE::deserialize(json!({"$template": "radish", "health": 10})).unwrap(),
 			PE::Template{
 				name: EntityType("radish".to_string()),
 				kwargs: hashmap!{"health".to_string() => PE::Constant(Parameter::Int(10))},
-				save: None
+				save: None,
+				clan: None
+			}
+		);
+		assert_eq!(
+			PE::deserialize(json!({":template": "radish", "health": 10})).unwrap(),
+			PE::Constant(Parameter::Template(Template{
+				name: EntityType("radish".to_string()),
+				kwargs: hashmap!{"health".to_string() => Parameter::Int(10)},
+				save: None,
+				clan: None
+			}))
+		);
+		assert_eq!(
+			PE::deserialize(json!({"$template": "radish", "health": {"$if": [{"$arg": "is_eldritch"}, 20, 3]}})).unwrap(),
+			PE::Template{
+				name: EntityType("radish".to_string()),
+				kwargs: hashmap!{"health".to_string() => PE::If(
+					Box::new(PE::Argument("is_eldritch".to_string())),
+					Box::new(PE::Constant(Parameter::Int(20))),
+					Box::new(PE::Constant(Parameter::Int(3)))
+				)},
+				save: None,
+				clan: None
 			}
 		);
 	}

@@ -45,7 +45,7 @@ use self::{
 	playerid::PlayerId,
 	roomid::RoomId,
 	item::ItemId,
-	errors::{Result, PResult},
+	errors::{Result},
 	sprite::Sprite,
 	template::Template,
 	encyclopedia::Encyclopedia,

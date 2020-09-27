@@ -76,7 +76,6 @@ tofrom!(i64: Int);
 tofrom!(f64: Float);
 tofrom!(bool:Bool);
 tofrom!(String: String);
-tofrom!(Pos: Pos);
 tofrom!(Template: Template);
 
 tofrom!(PlayerId(String));
@@ -175,5 +174,15 @@ where
 	}
 	fn to_parameter(self) -> Parameter {
 		Parameter::List(vec![self.0.to_parameter(), self.1.to_parameter(), self.2.to_parameter()])
+	}
+}
+
+impl FromToParameter for Pos {
+	fn from_parameter(p: Parameter) -> Option<Self>{
+		let (x, y) = <(i64, i64)>::from_parameter(p)?;
+		Some(Self{x, y})
+	}
+	fn to_parameter(self) -> Parameter {
+		(self.x, self.y).to_parameter()
 	}
 }

@@ -25,23 +25,3 @@ macro_rules! aerr {
 }
 
 
-
-#[derive(Debug)]
-pub struct ParseError {
-	pub text: String
-}
-impl Error for ParseError {
-	fn source(&self) -> Option<&(dyn Error + 'static)> {
-		None
-	}
-}
-impl Display for ParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Error: {}", self.text)
-    }
-}
-#[macro_export]
-macro_rules! perr {
-	($($description:tt)*) => {crate::errors::ParseError{text: format!($($description)*)}}
-}
-pub type PResult<T> = std::result::Result<T, ParseError>;
