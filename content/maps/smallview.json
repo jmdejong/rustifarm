@@ -47,25 +47,16 @@
         "Y": ["grass", "plant"],
         "T": ["grass", "tree"],
         "~": "water",
-        "=": ["water", {"type": "bridge", "kwargs": {"small": true}}],
+        "=": ["water", {":template": "bridge", "small": true}],
         "#": "fence",
         ".": "ground",
         "+": "floor",
         "X": "rock",
         "^": "house",
-        "1": [{
-            "type": "portal",
-            "kwargs": {"destination": "begin", "destpos": "bridge"}
-        }, "floor"],
-        "2": [{
-            "type": "portal",
-            "kwargs": {"destination": "town", "destpos": "gate"}
-        }, "floor"],
-        "3": ["homeportal", "floor", {"type": "img", "kwargs": {"sprite": "portal", "height": 1.0}}],
-        "4": [{
-            "type": "portal",
-            "kwargs": {"destination": "room"}
-        }, "floor"],
+        "1": [{":template": "portal", "destination": "begin", "destpos": "bridge"}, "floor"],
+        "2": [{":template": "portal", "destination": "town", "destpos": "gate"}, "floor"],
+        "3": ["homeportal", "floor", {":template": "img", "sprite": "portal", "height": 1.0}],
+        "4": [{":template": "portal", "destination": "room"}, "floor"],
         "r": ["grass", "rabbit"],
         " ": []
     }

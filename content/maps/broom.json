@@ -42,7 +42,7 @@
 		"T": ["grass", "tree"],
 		"f": ["grass", "fence"],
 		"X": "rock",
-		"%": {"type": "portal", "kwargs": {"destination": "room"}},
+		"%": {":template": "portal", "destination": "room"},
 		" ": []
 	}
 }

@@ -59,35 +59,19 @@
 		".": "ground",
 		"+": "floor",
 		"<": [
-			{"type": "portal", "kwargs": {"destination": "begin", "destpos": "caveentrance"}},
-			{"type": "img", "kwargs": {"sprite": "stairup"}},
+			{":template": "portal", "destination": "begin", "destpos": "caveentrance"},
+			{":template": "img", "sprite": "stairup"},
 			"floor"
 		],
 		"g": [
 			"ground", 
-			{
-				"type": "spawner",
-				"kwargs": {
-					"template": {"type": "goblin"},
-					"amount": 2,
-					"delay": 50,
-					"initial_spawn": true
-				}
-			},
-			{"type": "img", "kwargs": {"sprite": "spawner"}}
+			{":template": "spawner", "template": {":template": "goblin"}, "amount": 2, "delay": 50, "initial_spawn": true},
+			{":template": "img", "sprite": "spawner"}
 		],
 		"T": [
 			"ground", 
-			{
-				"type": "spawner",
-				"kwargs": {
-					"template": {"type": "troll"},
-					"amount": 1,
-					"delay": 200,
-					"initial_spawn": true
-				}
-			},
-			{"type": "img", "kwargs": {"sprite": "spawner"}}
+			{":template": "spawner", "template": {":template": "troll"}, "amount": 1, "delay": 200, "initial_spawn": true},
+			{":template": "img", "sprite": "spawner"}
 		],
 		" ": []
 	}

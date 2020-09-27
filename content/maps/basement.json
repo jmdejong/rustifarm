@@ -29,18 +29,18 @@
 		"^": ["spiketrap"],
 		"D": ["ground", "closeddoor"],
 		"<": [
-			{"type": "portal", "kwargs": {"destination": "begin", "destpos": "stairdown"}},
-			{"type": "img", "kwargs": {"sprite": "stairup"}},
+			{":template": "portal", "destination": "begin", "destpos": "stairdown"},
+			{":template": "img", "sprite": "stairup"},
 			"floor"
 		],
-		"a": ["floor", {
-			"type": "spawner",
-			"kwargs": {"template": {"type": "rat"}, "delay": 300, "initial_spawn": true}
-		}],
-		":": ["floor", {
-			"type": "spawner",
-			"kwargs": {"template": {"type": "carrotseed"}, "delay": 1200, "initial_spawn": false}
-		}],
+		"a": [
+			"floor",
+			{":template": "spawner","template": {":template": "rat"}, "delay": 300, "initial_spawn": true}
+		],
+		":": [
+			"floor",
+			{":template": "spawner","template": {":template": "carrotseed"}, "delay": 1200, "initial_spawn": false}
+		],
 		" ": []
 	}
 }

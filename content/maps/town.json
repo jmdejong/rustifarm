@@ -85,10 +85,7 @@
         "X": "rock",
         "^": ["spiketrap", "ground"],
         "D": ["floor", "opendoor"],
-        "%": [{
-            "type": "portal",
-            "kwargs": {"destination": "smallview", "destpos": "towneast"}
-        }, "ground"],
+        "%": [{":template": "portal", "destination": "smallview", "destpos": "towneast"}, "ground"],
         "r": ["grass", "rabbit"],
         "S": ["floor", "toolsmith"],
         "t": ["floor", "trader"],

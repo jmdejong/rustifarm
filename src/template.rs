@@ -15,16 +15,6 @@ pub struct EntityType(pub String);
 enum TemplateSave {
 	Name(EntityType),
 	Full{
-		#[serde(rename = "type")]
-		name: EntityType,
-		#[serde(default, skip_serializing_if = "HashMap::is_empty")]
-		kwargs: HashMap<String, Parameter>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		save: Option<bool>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		clan: Option<String>
-	},
-	New{
 		#[serde(rename = ":template")]
 		name: EntityType,
 		#[serde(rename="__save__", default, skip_serializing_if = "Option::is_none")]
@@ -50,8 +40,7 @@ impl From<TemplateSave> for Template {
 	fn from(ts: TemplateSave) -> Self {
 		match ts {
 			TemplateSave::Name(name) => Self{name, kwargs: HashMap::new(), save: None, clan: None},
-			TemplateSave::Full{name, kwargs, save, clan} => Self{name, kwargs, save, clan},
-			TemplateSave::New{name, kwargs, save, clan} => Self{name, kwargs, save, clan}
+			TemplateSave::Full{name, kwargs, save, clan} => Self{name, kwargs, save, clan}
 		}
 	}
 }
@@ -60,7 +49,7 @@ impl Into<TemplateSave> for Template {
 		if self.kwargs.is_empty() && self.save == None && self.clan == None {
 			return TemplateSave::Name(self.name);
 		}
-		TemplateSave::New {
+		TemplateSave::Full {
 			name: self.name,
 			kwargs: self.kwargs,
 			save: self.save,

@@ -89,42 +89,33 @@
 		"~": "water",
 		"=": ["water", "bridge"],
 		"*": ["ground", {
-			"type": "spawner",
-			"kwargs": {"template": {"type": "pebble"}, "delay": 600, "initial_spawn": false}
+			":template": "spawner", "template": {":template": "pebble"}, "delay": 600, "initial_spawn": false
 		}],
 		"d": ["ground", {
-			"type": "spawner",
-			"kwargs": {"template": {"type": "dummy"}, "delay": 600, "initial_spawn": true}
+			":template": "spawner", "template": {":template": "dummy"}, "delay": 600, "initial_spawn": true
 		}],
 		"D": ["ground", "opendoor"],
 		"#": "wall",
 		":": ["ground", {
-			"type": "spawner",
-			"kwargs": {"template": {"type": "radishseed"}, "delay": 600, "initial_spawn": false}
+			":template": "spawner", "template": {":template": "radishseed"}, "delay": 600, "initial_spawn": false
 		}],
 		".": "ground",
 		"+": "floor",
 		"X": "rock",
 		"^": ["spiketrap", "ground"],
 		">": [
-			{"type": "portal", "kwargs": {"destination": "basement", "destpos": "stairup"}},
-			{"type": "img", "kwargs": {"sprite": "stairdown"}},
+			{":template": "portal", "destination": "basement", "destpos": "stairup"},
+			{":template": "img", "sprite": "stairdown"},
 			"floor"
 		],
 		"C": [
-			{"type": "portal", "kwargs": {"destination": "cave", "destpos": "stairup"}},
-			{"type": "img", "kwargs": {"sprite": "stairdown"}},
+			{":template": "portal", "destination": "cave", "destpos": "stairup"},
+			{":template": "img", "sprite": "stairdown"},
 			"floor"
 		],
-		"r": ["grass", {"type": "singleton", "kwargs": {"ent": {"type": "rabbit"}}}],
-		"3": [{
-			"type": "portal",
-			"kwargs": {"destination": "smallview", "destpos": "begin"}
-		},"bridge", "water"],
-		"2": [{
-			"type": "portal",
-			"kwargs": {"destination": "tutorial", "destpos": "tunnelout"}
-		}, "floor"],
+		"r": ["grass", {":template": "singleton", "ent": {":template": "rabbit"}}],
+		"3": [{":template": "portal", "destination": "smallview", "destpos": "begin"}, "bridge", "water"],
+		"2": [{":template": "portal", "destination": "tutorial", "destpos": "tunnelout"}, "floor"],
 		"E": ["grass", "trader"],
 		" ": []
 	}
