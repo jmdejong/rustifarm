@@ -33,25 +33,22 @@ impl Assemblage {
 		Ok(())
 	}
 	
-	fn prepare_arguments(&self, args: &[Parameter], kwargs: &HashMap<String, Parameter>) -> AnyResult<HashMap<&str, Parameter>> {
+	fn prepare_arguments(&self, kwargs: &HashMap<String, Parameter>) -> AnyResult<HashMap<&str, Parameter>> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
-		for (idx, (name, typ, def)) in self.arguments.iter().enumerate() {
-			let value: Option<Parameter> = {
+		for (name, typ, def) in self.arguments.iter() {
+			let param: Parameter= {
 				if let Some(val) = kwargs.get(name) {
-					Some(val.clone())
-				} else if let Some(val) = args.get(idx) {
-					Some(val.clone())
+					val.clone()
 				} else if let Some(val) = def {
-					Some(val.clone())
+					val.clone()
 				} else {
-					None
+					return Err(aerr!("argument <{:?}> has no value", (name, typ, def)))
 				}
 			};
-			let param = value.ok_or(aerr!("argument <{:?}> has no value", (idx, (name, typ, def))))?;
 			if param.paramtype() != *typ {
 				return Err(aerr!(
 					"argument has incorrect type: {:?}, {:?}, {:?}",
-					(idx, (name, typ, def)),
+					(name, typ, def),
 					param.paramtype(),
 					param
 				));
@@ -62,10 +59,9 @@ impl Assemblage {
 	}
 
 	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
-		let args = &template.args;
 		let kwargs = &template.kwargs;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
-		let arguments = self.prepare_arguments(args, kwargs)?;
+		let arguments = self.prepare_arguments(kwargs)?;
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {

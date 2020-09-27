@@ -50,7 +50,6 @@ impl ParameterExpression {
 			Self::Template{name, kwargs, save} => {
 				Some(Parameter::Template(Template{
 					name: name.clone(),
-					args: Vec::new(),
 					save: *save,
 					kwargs: kwargs
 						.iter()

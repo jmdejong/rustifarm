@@ -17,8 +17,6 @@ enum TemplateSave {
 	Full{
 		#[serde(rename = "type")]
 		name: EntityType,
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		args: Vec<Parameter>,
 		#[serde(default, skip_serializing_if = "HashMap::is_empty")]
 		kwargs: HashMap<String, Parameter>,
 		#[serde(default, skip_serializing_if = "Option::is_none")]
@@ -32,7 +30,6 @@ enum TemplateSave {
 #[serde(from="TemplateSave", into="TemplateSave")]
 pub struct Template {
 	pub name: EntityType,
-	pub args: Vec<Parameter>,
 	pub kwargs: HashMap<String, Parameter>,
 	pub save: Option<bool>,
 	pub clan: Option<String>
@@ -42,19 +39,18 @@ pub struct Template {
 impl From<TemplateSave> for Template {
 	fn from(ts: TemplateSave) -> Self {
 		match ts {
-			TemplateSave::Name(name) => Self{name, args: Vec::new(), kwargs: HashMap::new(), save: None, clan: None},
-			TemplateSave::Full{name, args, kwargs, save, clan} => Self{name, args, kwargs, save, clan}
+			TemplateSave::Name(name) => Self{name, kwargs: HashMap::new(), save: None, clan: None},
+			TemplateSave::Full{name, kwargs, save, clan} => Self{name, kwargs, save, clan}
 		}
 	}
 }
 impl Into<TemplateSave> for Template {
 	fn into(self) -> TemplateSave {
-		if self.args.is_empty() && self.kwargs.is_empty() && self.save == None && self.clan == None {
+		if self.kwargs.is_empty() && self.save == None && self.clan == None {
 			return TemplateSave::Name(self.name);
 		}
 		TemplateSave::Full {
 			name: self.name,
-			args: self.args,
 			kwargs: self.kwargs,
 			save: self.save,
 			clan: self.clan
@@ -67,7 +63,6 @@ impl Template {
 	pub fn new(name: &str, kwargs: HashMap<String, Parameter>) -> Self {
 		Self {
 			name: EntityType(name.to_string()),
-			args: Vec::new(),
 			kwargs,
 			save: None,
 			clan: None
@@ -88,7 +83,6 @@ impl Template {
 	pub fn from_entity_type(typ: EntityType) -> Self {
 		Self {
 			name: typ,
-			args: Vec::new(),
 			kwargs: HashMap::new(),
 			save: None,
 			clan: None
