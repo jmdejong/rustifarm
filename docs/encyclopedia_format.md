@@ -3,7 +3,9 @@
 
 In asciifarm all the assemblages and items are stored in an encyclopedia.
 
-see https://github.com/jmdejong/rustifarm/blob/master/content/encyclopediae/default_encyclopedia.json for an example.
+See https://github.com/jmdejong/rustifarm/blob/master/content/encyclopediae/default_encyclopedia.json for an example.
+
+Encyclopediae definitions can use the [JSON5](https://json5.org/) format.
 
 An encyclopedia file has a json object that can have the properties "assemblages", "items", "substitute", "item_substitute" and "assemblage_substitute".
 "assemblages" and "items" are required.
@@ -21,7 +23,7 @@ All other properties are just shortcuts.
 ### Components
 
 "components" is the most important property. This is a list.
-The items of the list are a list of 2 items: The component name (as a string) and a dict of componentparameters.
+The items of the list are a list of 2 items: The component name (as a string) and a dict of ParameterExpressions.
 
 Example:
 
@@ -33,7 +35,7 @@ Example:
 				"name": "wall"
 			}],
 			["Flags", {
-				"flags": ["list", ["Blocking"]]
+				"flags": ["Blocking"]
 			}]
 		]
 	}
@@ -64,19 +66,19 @@ The first item is the name (as string).
 The second item is the parameter type (as string).
 The optional third item is the default value.
 
-An "args" componentparameter in the component definitions will have its value filled in with the value that is given to this argument, or otherwise the default value (and if that doesn't exist either it will error).
+An "args" ParameterExpression in the component definitions will have its value filled in with the value that is given to this argument, or otherwise the default value (and if that doesn't exist either it will error).
 
 Example: 
 
 	"portal": {
 		"arguments": [["destination", "string"], ["destpos", "string", ""]],
 		"components": [
-			["RoomExit", {"destination": ["arg", "destination"], "dest_pos": ["arg", "destpos"]}]
+			["RoomExit", {"destination": {"$arg": "destination"}, "dest_pos": {"$arg": "destpos"}}]
 		],
 		"flags": ["Floor"]
 	}
 
-Arguments (and other componentparameters) can not be used within shortcuts, so if you want to set the sprite by argument you'll have to add the Visible component manually.
+Arguments (and other ParameterExpressions) can not be used within shortcuts, so if you want to set the sprite by argument you'll have to add the Visible component manually.
 
 
 ### Save
@@ -104,14 +106,14 @@ Example:
 	"builtwall": {
 		"arguments": [["health", "int", 100]],
 		"components": [
-			["Health", {"health": ["arg", "health"], "maxhealth": 100}],
-			["Loot", {"loot": ["list", [{"type": "stone"}]]}]
+			["Health", {"health": {"$arg": "health"}, "maxhealth": 100}],
+			["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
 		],
 		"sprite": "builtwall",
 		"height": 2,
 		"extract": {"health": ["Health", "health"]},
 		"flags": ["Blocking"]
-	}
+	},
 
 ## Items
 
@@ -134,29 +136,25 @@ The values are again a json dict that can have the following properties:
 # Used concepts
 
 ## Parameter
-A parameter can be a string, an integer, a float, a boolean, a list, a pos, a template or an interaction.
-The specific type can be given explicitly by giving a list of 2 elements: the first is the type (as string), the second the actual value.
-For example: `["int", 3]`.
-For integers, floats and booleans the type can be derived from the json value.
-Templates need to be in the object form or with explicit type annotation because they would otherwise be seen as strings.
-Lists always need the type annotation.
-For example a list of pairs of a template and a float would look like this: `["list", [["list", [{"type": "carrotseed"}, 1.0]],["list", [{"type": "carrot"}, 1.0]]]]`
-Interactions (which also alway need type annotation) are a json list of 2 values: The interaction type (string) and the argument.
-The type of the argument value can differ based on the interaction type.
-todo: list interaction types with description what they do and their arguments.
+A parameter can be a string, an integer, a float, a boolean, a list, or a template.
+Most types map directoy to the corresponding json type.
+A template is a json object that has a `:template` field.
+The entity type is the value of that field.
+Other arguments are passed in the same object.
 
-## ComponentParameter
 
-A componentparameter is either a parameter, or a special function.
+## ParameterExpression
+
+A ParameterExpression is either a parameter, or a special function.
 The special functions are given in the same way as the type annotations of a parameter, so as a pair of the type of function (as string) and its argument.
-The only place where componentparameters currently occur is as parameters to components.
+The only place where ParameterExpressions currently occur is as parameters to components.
 
-Possible componentparameters:
+Possible ParameterExpressions:
 
-- arg (argument: string): take the actual value from the assemblage argument that is named by the argument of this componentparameter
-- random (argument: list of componentparameters): pick a random value from its arguments. All argument items must have the same type.
-- concat (argument: list of componentparameters): concatenate the string value of its arguments. All argument items must be of type string.
-- if (argument: list of 3 componentparameters: condition, thenpart, elsepart) if the condition evaluates to true, take the value of thenpart, otherwise take the value of elsepart. The condition must be of type bool, and the thenpart and elsepart must have the same type.
-- self (does not use its argument): the template given to the assemblage used to construct this pre-entity.
-- name (does not use its argument): the name of the assemblage in the encyclopedia.
-
+- `$arg` (argument: string): take the actual value from the assemblage argument that is named by the argument of this ParameterExpression.
+- `$template` (argument: entity type; also takes all other properties as parameters to the template). A Constructor for a template. The difference between a `:template` object and a `$template` object is that `:template` objects can only use constants as their parameters, while `$template` objects can have expressions in their parameters.
+- `$random` (argument: list of ParameterExpressions): pick a random value from its arguments. All argument items must have the same type.
+- `$concat` (argument: list of ParameterExpressions): concatenate the string value of its arguments. All argument items must be of type string.
+- `$if` (argument: list of 3 ParameterExpressions: condition, thenpart, elsepart) if the condition evaluates to true, take the value of thenpart, otherwise take the value of elsepart. The condition must be of type bool, and the thenpart and elsepart must have the same type.
+- `$self` (does not use its argument): the template given to the assemblage used to construct this pre-entity.
+- `$name` (does not use its argument): the name of the assemblage in the encyclopedia.

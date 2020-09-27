@@ -34,7 +34,7 @@ Something that exists in the player inventory. Usually this also corresponds to 
 
 ## Parameter
 
-A layer between JSON and the datastructures in the rustifarm code. Can be int, float, bool, string, template, list and interaction. The interaction parameter is in the process of being deprecated.
+A layer between JSON and the datastructures in the rustifarm code. Can be int, float, bool, string, template or list.
 
 ## ComponentParameter
 
