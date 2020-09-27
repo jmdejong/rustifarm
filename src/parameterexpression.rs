@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
 use rand::Rng;
-use serde::{Deserialize, Deserializer};
+use serde::{Serialize, Deserialize, Deserializer, Serializer};
 use crate::{
 	parameter::{Parameter, ParameterType},
 	Template,
@@ -126,7 +126,7 @@ impl ParameterExpression {
 }
 
 
-#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 enum DynamicParameterExpressionSave {
 	#[serde(rename = "$arg")]
 	Argument(String),
@@ -141,7 +141,7 @@ enum DynamicParameterExpressionSave {
 	#[serde(rename = "$name")]
 	TemplateName
 }
-#[derive(Debug, PartialEq, Clone, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 enum ParameterExpressionSave {
 	List(Vec<ParameterExpression>),
@@ -176,6 +176,23 @@ impl<'de> Deserialize<'de> for ParameterExpression {
 			PES::Dynamic(DPES::TemplateName) => Self::TemplateName,
 			PES::Constant(param) => Self::Constant(param)
 		})
+	}
+}
+
+impl Serialize for ParameterExpression {
+	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+	where S: Serializer {
+		(match self.clone() {
+			Self::Constant(p) => PES::Constant(p),
+			Self::List(l) => PES::List(l),
+			Self::Template{name, save, clan, kwargs} => PES::Template{name, save, clan, kwargs},
+			Self::Argument(a) => PES::Dynamic(DPES::Argument(a)),
+			Self::Random(l) => PES::Dynamic(DPES::Random(l)),
+			Self::Concat(l) => PES::Dynamic(DPES::Concat(l)),
+			Self::If(c, i, e) => PES::Dynamic(DPES::If(c, i, e)),
+			Self::TemplateSelf => PES::Dynamic(DPES::TemplateSelf),
+			Self::TemplateName => PES::Dynamic(DPES::TemplateName)
+		}).serialize(serializer)
 	}
 }
 

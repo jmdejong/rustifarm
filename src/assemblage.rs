@@ -130,7 +130,7 @@ enum ArgumentDefSave{
 	Long(String, ParameterType, Parameter),
 	Short(String, ParameterType)
 }
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct AssemblageSave {
 	#[serde(default)]
 	pub arguments: Vec<ArgumentDefSave>,

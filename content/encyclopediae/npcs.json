@@ -79,7 +79,12 @@
 			"height": 1.5,
 			"flags": ["Occupied"],
 			"components": [
-				["Interactable", {"typ": "say", "arg": "Hey there, welcome to Asciifarm"}]
+				["Interactable", {"typ": "say", "arg": "Hey there, welcome to Asciifarm"}],
+				["MonsterAI", {
+					"view_distance": 1,
+					"move_chance": 0.01,
+					"homesickness": 0.3
+				}]
 			]
 		},
 		"trader": {
