@@ -24,13 +24,12 @@ impl Assemblage {
 	
 	pub fn validate(&self) -> AnyResult<()> {
 		
-		let arguments = self.arguments.iter().filter_map(|(k, v)|Some((k.clone(), v.clone()?))).collect::<HashMap<String, Parameter>>();
 		for (comptype, parameters) in &self.components {
 			let mut is_complete = true;
 			let mut compargs = HashMap::new();
 			for paramname in comptype.parameters() {
 				let param = parameters.get(paramname).ok_or(aerr!("missing parameter {} for component {:?}", paramname, comptype))?;
-				match param.evaluate(&arguments, &Template::empty("")) {
+				match param.evaluate(&self.arguments, &Template::empty("")) {
 					Err(EvaluationError::MissingArgument(_)) => {is_complete = false;}
 					Err(EvaluationError::Other(msg)) => {return Err(aerr!("invalid value for {}: {}", paramname, msg))}
 					Ok(p) => {compargs.insert(paramname, p);}
@@ -45,18 +44,16 @@ impl Assemblage {
 	
 
 	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
-		let mut args = self.arguments.clone();
+		let mut arguments = self.arguments.clone();
 		for (key, param) in template.kwargs.clone() {
-			// todo: warn about unknown keys
-			args.insert(key, Some(param));
+			arguments.insert(key, Some(param));
 		}
-		let arguments = args.into_iter().map(|(k, v)|Ok((k.clone(), v.ok_or(aerr!("missing argument value for {}", k))?))).collect::<AnyResult<HashMap<String, Parameter>>>()?;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {
 				compargs.insert(name.as_str(), param.evaluate(&arguments, template).map_err(|e| match e {
-					EvaluationError::MissingArgument(arg) => aerr!("argument {} not found", arg),
+					EvaluationError::MissingArgument(arg) => aerr!("argument {} has no value", arg),
 					EvaluationError::Other(msg) => aerr!("{}", msg)
 				})?);
 			}
@@ -243,6 +240,33 @@ mod tests {
 			})).unwrap().validate().unwrap();
 	}
 	
+	
+	#[test]
+	fn unknown_argument(){
+		Assemblage::deserialize(&json!({
+				"arguments": {"name": "me"},
+				"components": [
+					["Visible", {
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": "grass"
+					}]
+				]
+			})).unwrap().validate().unwrap_err();
+	}
+	
+	#[test]
+	fn missing_component_parameter(){
+		Assemblage::deserialize(&json!({
+				"arguments": {},
+				"components": [
+					["Visible", {
+						"height": 0.1,
+						"name": "grass"
+					}]
+				]
+			})).unwrap().validate().unwrap_err();
+	}
 	
 	#[test]
 	fn null_argument(){

@@ -32,11 +32,11 @@ pub enum EvaluationError {
 
 impl ParameterExpression {
 
-	pub fn evaluate(&self, arguments: &HashMap<String, Parameter>, template: &Template) -> Result<Parameter, EvaluationError> {
+	pub fn evaluate(&self, arguments: &HashMap<String, Option<Parameter>>, template: &Template) -> Result<Parameter, EvaluationError> {
 		self.evaluate_(arguments, template, 0)
 	}
 	
-	fn evaluate_(&self, arguments: &HashMap<String, Parameter>, template: &Template, nesting: usize) -> Result<Parameter, EvaluationError> {
+	fn evaluate_(&self, arguments: &HashMap<String, Option<Parameter>>, template: &Template, nesting: usize) -> Result<Parameter, EvaluationError> {
 		if nesting > MAX_NESTING {
 			return Err(EvaluationError::Other("Maximum nesting reached in parameter evaluation".to_string()));
 		}
@@ -61,7 +61,9 @@ impl ParameterExpression {
 				}))
 			}
 			Self::Argument(argname) => {
-				Ok(arguments.get(argname.as_str()).ok_or(EvaluationError::MissingArgument(argname.to_string()))?.clone())
+				arguments.get(argname.as_str())
+					.ok_or(EvaluationError::Other(format!("unknown argument {}", argname)))?.clone()
+					.ok_or(EvaluationError::MissingArgument(argname.to_string()))
 			}
 			Self::Random(options) => {
 				let r = rand::thread_rng().gen_range(0, options.len());

@@ -170,6 +170,7 @@ pub struct MonsterAI {
 	pub move_chance: f64,
 	pub view_distance: i64,
 	pub homesickness: f64,
+	pub home: Option<Pos>
 }
 
 #[derive(Component, Debug, Clone, Default)]

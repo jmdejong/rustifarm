@@ -24,7 +24,8 @@ use crate::{
 	},
 	resources::{NewEntities},
 	componentwrapper::ComponentWrapper,
-	Pos
+	Pos,
+	fromtoparameter::FromToParameter
 };
 
 
@@ -52,6 +53,7 @@ impl <'a> System<'a> for Spawn {
 			if spawner.clan.name == "" {
 				spawner.clan.name = format!("$random({},{},{})", position.pos.x, position.pos.y, spawner.template.name.0);
 			}
+			spawner.template.kwargs.insert("home".to_string(), Some(position.pos).to_parameter());
 			if triggerbox.has_message(&[Trigger::Spawn]) {
 				if *clan_nums.get(&spawner.clan).unwrap_or(&0) < spawner.amount {
 					if spawner.saturated {

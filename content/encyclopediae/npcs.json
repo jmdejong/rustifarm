@@ -1,13 +1,15 @@
 {
 	"assemblages": {
 		"rat": {
+			"arguments": {"home": []},
 			"sprite": "rat",
 			"height": 1.0,
 			"components": [
 				["MonsterAI", {
 					"view_distance": 3,
 					"move_chance": 0.08,
-					"homesickness": 0.1
+					"homesickness": 0.1,
+					"home": {"$arg": "home"}
 				}],
 				["Health", {"health": 8, "maxhealth": 8}],
 				["Fighter", {"damage": 2, "cooldown": 6}],
@@ -19,13 +21,15 @@
 			]
 		},
 		"goblin": {
+			"arguments": {"home": []},
 			"sprite": "goblin",
 			"height": 1.0,
 			"components": [
 				["MonsterAI", {
 					"view_distance": 8,
 					"move_chance": 0.02,
-					"homesickness": 0.1
+					"homesickness": 0.1,
+					"home": {"$arg": "home"}
 				}],
 				["Health", {"health": 15, "maxhealth": 15}],
 				["Fighter", {"damage": 5, "cooldown": 8}],
@@ -39,13 +43,15 @@
 			]
 		},
 		"troll": {
+			"arguments": {"home": []},
 			"sprite": "troll",
 			"height": 1.0,
 			"components": [
 				["MonsterAI", {
 					"view_distance": 8,
 					"move_chance": 0.01,
-					"homesickness": 0.1
+					"homesickness": 0.1,
+					"home": {"$arg": "home"}
 				}],
 				["Health", {"health": 75, "maxhealth": 75}],
 				["Fighter", {"damage": 15, "cooldown": 10}],
@@ -62,19 +68,22 @@
 			]
 		},
 		"rabbit": {
+			"arguments": {"home": []},
 			"sprite": "rabbit",
 			"height": 1.0,
 			"components": [
 				["MonsterAI", {
 					"view_distance": 3,
 					"move_chance": 0.08,
-					"homesickness": 0.01
+					"homesickness": 0.01,
+					"home": {"$arg": "home"}
 				}],
 				["Movable", {"cooldown": 3}],
 				["Faction", {"faction": "neutral"}]
 			]
 		},
 		"dude": {
+			"arguments": {"home": []},
 			"sprite": "human",
 			"height": 1.5,
 			"flags": ["Occupied"],
@@ -83,11 +92,13 @@
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
-					"homesickness": 0.3
+					"homesickness": 0.3,
+					"home": {"$arg": "home"}
 				}]
 			]
 		},
 		"trader": {
+			"arguments": {"home": []},
 			"sprite": "human",
 			"height": 1.5,
 			"name": "crop trader",
@@ -101,12 +112,14 @@
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
-					"homesickness": 0.3
+					"homesickness": 0.3,
+					"home": {"$arg": "home"}
 				}],
 				["Movable", {"cooldown": 3}]
 			]
 		},
 		"dyetrader": {
+			"arguments": {"home": []},
 			"sprite": "human",
 			"height": 1.5,
 			"name": "dye trader",
@@ -119,12 +132,14 @@
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
-					"homesickness": 0.3
+					"homesickness": 0.3,
+					"home": {"$arg": "home"}
 				}],
 				["Movable", {"cooldown": 3}]
 			]
 		},
 		"toolsmith": {
+			"arguments": {"home": []},
 			"sprite": "human",
 			"height": 1.5,
 			"name": "toolsmith",
@@ -135,12 +150,14 @@
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
-					"homesickness": 0.3
+					"homesickness": 0.3,
+					"home": {"$arg": "home"}
 				}],
 				["Movable", {"cooldown": 3}]
 			]
 		},
 		"villager": {
+			"arguments": {"home": []},
 			"sprite": "human",
 			"height": 1.5,
 			"name": "villager",
@@ -148,7 +165,8 @@
 				["MonsterAI", {
 					"view_distance": 1,
 					"move_chance": 0.01,
-					"homesickness": 0.3
+					"homesickness": 0.3,
+					"home": {"$arg": "home"}
 				}],
 				["Movable", {"cooldown": 3}],
 				["Interactable", {"typ": "say", "arg": "Hello"}]

@@ -159,7 +159,7 @@ components!(all:
 	Fighter (damage: i64, cooldown: i64) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
 	Healing (delay: i64, health: i64) {Healing{delay, health, next_heal: None}};
 	Autofight () {Autofight::default()};
-	MonsterAI (move_chance: f64, view_distance: i64, homesickness: f64);
+	MonsterAI (move_chance: f64, view_distance: i64, homesickness: f64, home: Option<Pos>);
 	Spawner (amount: i64, clan: String, template: Template, radius: i64) {
 		Spawner{
 			amount: amount as usize,
