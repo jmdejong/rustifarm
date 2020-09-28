@@ -25,38 +25,43 @@ pub enum ParameterExpression {
 	TemplateName
 }
 
+pub enum EvaluationError {
+	MissingArgument(String),
+	Other(String)
+}
+
 impl ParameterExpression {
 
-	pub fn evaluate(&self, arguments: &HashMap<&str, Parameter>, template: &Template) -> Option<Parameter> {
+	pub fn evaluate(&self, arguments: &HashMap<String, Parameter>, template: &Template) -> Result<Parameter, EvaluationError> {
 		self.evaluate_(arguments, template, 0)
 	}
 	
-	fn evaluate_(&self, arguments: &HashMap<&str, Parameter>, template: &Template, nesting: usize) -> Option<Parameter> {
+	fn evaluate_(&self, arguments: &HashMap<String, Parameter>, template: &Template, nesting: usize) -> Result<Parameter, EvaluationError> {
 		if nesting > MAX_NESTING {
-			return None;
+			return Err(EvaluationError::Other("Maximum nesting reached in parameter evaluation".to_string()));
 		}
 		match self {
 			Self::Constant(val) => {
-				Some(val.clone())
+				Ok(val.clone())
 			}
 			Self::List(values) => {
-				Some(Parameter::List(values.iter().map(|v| v.evaluate_(arguments, template, nesting+1)).collect::<Option<Vec<Parameter>>>()?))
+				Ok(Parameter::List(values.iter().map(|v| v.evaluate_(arguments, template, nesting+1)).collect::<Result<Vec<Parameter>, EvaluationError>>()?))
 			}
 			Self::Template{name, kwargs, save, clan} => {
-				Some(Parameter::Template(Template{
+				Ok(Parameter::Template(Template{
 					name: name.clone(),
 					save: *save,
 					kwargs: kwargs
 						.iter()
 						.map(
 							|(k, v)|
-							Some((k.clone(), v.evaluate_(arguments, template, nesting+1)?)))
-						.collect::<Option<HashMap<String, Parameter>>>()?,
+							Ok((k.clone(), v.evaluate_(arguments, template, nesting+1)?)))
+						.collect::<Result<HashMap<String, Parameter>, EvaluationError>>()?,
 					clan: clan.clone()
 				}))
 			}
 			Self::Argument(argname) => {
-				Some(arguments.get(argname.as_str())?.clone())
+				Ok(arguments.get(argname.as_str()).ok_or(EvaluationError::MissingArgument(argname.to_string()))?.clone())
 			}
 			Self::Random(options) => {
 				let r = rand::thread_rng().gen_range(0, options.len());
@@ -68,10 +73,10 @@ impl ParameterExpression {
 					if let Parameter::String(s) = option.evaluate_(arguments, template, nesting+1)? {
 						string.push_str(&s);
 					} else {
-						return None;
+						return Err(EvaluationError::Other(format!("string concatenation value not a string: {:?}", option)));
 					}
 				}
-				Some(Parameter::String(string))
+				Ok(Parameter::String(string))
 			}
 			Self::If(condition, thenval, elseval) => {
 				if let Parameter::Bool(b) = condition.evaluate_(arguments, template, nesting+1)? {
@@ -81,11 +86,11 @@ impl ParameterExpression {
 						elseval.evaluate_(arguments, template, nesting+1)
 					}
 				} else {
-					None
+					return Err(EvaluationError::Other(format!("if condition not a bool: {:?}", condition)))
 				}
 			}
-			Self::TemplateSelf => Some(Parameter::Template(template.clone())),
-			Self::TemplateName => Some(Parameter::String(template.name.0.clone())),
+			Self::TemplateSelf => Ok(Parameter::Template(template.clone())),
+			Self::TemplateName => Ok(Parameter::String(template.name.0.clone())),
 			
 		}
 	}

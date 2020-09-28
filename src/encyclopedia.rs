@@ -26,8 +26,8 @@ pub struct Encyclopedia {
 impl Encyclopedia {
 	
 	pub fn validate(&self) -> AnyResult<()> {
-		for assemblage in self.assemblages.values() {
-			assemblage.validate()?;
+		for (name, assemblage) in self.assemblages.iter() {
+			assemblage.validate().map_err(|e| aerr!("invalid assemblage {}: {}", name.0, e))?;
 		}
 		Ok(())
 	}

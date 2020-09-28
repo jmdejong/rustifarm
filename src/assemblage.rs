@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use serde::{de, Serialize, Deserialize, Deserializer};
 use crate::{
-	parameterexpression::ParameterExpression,
+	parameterexpression::{ParameterExpression, EvaluationError},
 	parameter::{Parameter},
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::{Serialise, Clan},
@@ -23,40 +23,42 @@ pub struct Assemblage {
 impl Assemblage {
 	
 	pub fn validate(&self) -> AnyResult<()> {
+		
+		let arguments = self.arguments.iter().filter_map(|(k, v)|Some((k.clone(), v.clone()?))).collect::<HashMap<String, Parameter>>();
 		for (comptype, parameters) in &self.components {
+			let mut is_complete = true;
+			let mut compargs = HashMap::new();
 			for paramname in comptype.parameters() {
-				let _param = parameters.get(paramname).ok_or(aerr!("missing parameter {} for component {:?}", paramname, comptype))?;
-				// todo: validate parameter types
+				let param = parameters.get(paramname).ok_or(aerr!("missing parameter {} for component {:?}", paramname, comptype))?;
+				match param.evaluate(&arguments, &Template::empty("")) {
+					Err(EvaluationError::MissingArgument(_)) => {is_complete = false;}
+					Err(EvaluationError::Other(msg)) => {return Err(aerr!("invalid value for {}: {}", paramname, msg))}
+					Ok(p) => {compargs.insert(paramname, p);}
+				}
+			}
+			if is_complete {
+				ComponentWrapper::load_component(*comptype, compargs)?;
 			}
 		}
 		Ok(())
 	}
 	
-	fn prepare_arguments(&self, kwargs: &HashMap<String, Parameter>) -> AnyResult<HashMap<&str, Parameter>> {
-		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
-		for (name, def) in self.arguments.iter() {
-			let param: Parameter= {
-				if let Some(val) = kwargs.get(name) {
-					val.clone()
-				} else if let Some(val) = def {
-					val.clone()
-				} else {
-					return Err(aerr!("argument <{:?}> has no value", (name, def)))
-				}
-			};
-			arguments.insert(name, param);
-		}
-		Ok(arguments)
-	}
 
 	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
-		let kwargs = &template.kwargs;
+		let mut args = self.arguments.clone();
+		for (key, param) in template.kwargs.clone() {
+			// todo: warn about unknown keys
+			args.insert(key, Some(param));
+		}
+		let arguments = args.into_iter().map(|(k, v)|Ok((k.clone(), v.ok_or(aerr!("missing argument value for {}", k))?))).collect::<AnyResult<HashMap<String, Parameter>>>()?;
 		let mut components: Vec<ComponentWrapper> = Vec::new();
-		let arguments = self.prepare_arguments(kwargs)?;
 		for (comptype, compparams) in &self.components {
 			let mut compargs: HashMap<&str, Parameter> = HashMap::new();
 			for (name, param) in compparams {
-				compargs.insert(name.as_str(), param.evaluate(&arguments, template).ok_or(aerr!("argument not found"))?);
+				compargs.insert(name.as_str(), param.evaluate(&arguments, template).map_err(|e| match e {
+					EvaluationError::MissingArgument(arg) => aerr!("argument {} not found", arg),
+					EvaluationError::Other(msg) => aerr!("{}", msg)
+				})?);
 			}
 			components.push(ComponentWrapper::load_component(*comptype, compargs)?);
 		}
@@ -192,12 +194,11 @@ mod tests {
 					}]
 				]
 			})).unwrap_err();
-// 			assert_eq!(result, "not a valid componenttype");
 	}
 	
 	
 	
-// 	#[test]
+	#[test]
 	fn invalid_parameter_type(){
 		Assemblage::deserialize(&json!({
 				"arguments": {"sprite": "grass1"},
@@ -208,14 +209,13 @@ mod tests {
 						"name": "grass"
 					}]
 				]
-			})).unwrap_err();
-// 		assert_eq!(result, "parameter type incorrect");
+			})).unwrap().validate().unwrap_err();
 	}
 	
 	
 	
 	
-// 	#[test]
+	#[test]
 	fn wrong_argument_default(){
 		Assemblage::deserialize(&json!({
 				"arguments": {"sprite": 1},
@@ -226,8 +226,21 @@ mod tests {
 						"name": "grass"
 					}]
 				]
-			})).unwrap_err();
-// 		assert_eq!(result, "invalid argument default");
+			})).unwrap().validate().unwrap_err();
+	}	
+	
+	#[test]
+	fn missing_argument_default(){
+		Assemblage::deserialize(&json!({
+				"arguments": {"sprite": null},
+				"components": [
+					["Visible", {
+						"sprite": {"$arg": "sprite"},
+						"height": 0.1,
+						"name": "grass"
+					}]
+				]
+			})).unwrap().validate().unwrap();
 	}
 	
 	

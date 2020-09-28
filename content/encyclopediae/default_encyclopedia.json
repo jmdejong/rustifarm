@@ -65,7 +65,7 @@
 			]
 		},
 		"singleton": {
-			"arguments": {"ent": "template", "clan": ""},
+			"arguments": {"ent": null, "clan": ""},
 			"components": [
 				["Spawner", {
 					"template": {"$arg": "ent"},
