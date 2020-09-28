@@ -61,17 +61,16 @@ For a full list of components and what type of parameters they take, see: https:
 
 An assemblage can be constructed with a template.
 This template can provide the assemblage with arguments.
-The argments are a list of lists of 2 or 3 items.
-The first item is the name (as string).
-The second item is the parameter type (as string).
-The optional third item is the default value.
+The arguments are a dictinary.
+The key item is the name (as string).
+The value is the default value for the argument, or null to indicate that there is no default and that the template should provide one.
 
 An "args" ParameterExpression in the component definitions will have its value filled in with the value that is given to this argument, or otherwise the default value (and if that doesn't exist either it will error).
 
 Example: 
 
 	"portal": {
-		"arguments": [["destination", "string"], ["destpos", "string", ""]],
+		"arguments": {"destination": null, "destpos", ""},
 		"components": [
 			["RoomExit", {"destination": {"$arg": "destination"}, "dest_pos": {"$arg": "destpos"}}]
 		],
@@ -104,7 +103,7 @@ Not all components can have properties extracted, and some components can only h
 Example:
 
 	"builtwall": {
-		"arguments": [["health", "int", 100]],
+		"arguments": {"health", 100},
 		"components": [
 			["Health", {"health": {"$arg": "health"}, "maxhealth": 100}],
 			["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]

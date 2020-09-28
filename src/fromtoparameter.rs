@@ -1,6 +1,7 @@
 
 use std::collections::{HashSet, HashMap};
 use std::hash::Hash;
+use std::str::FromStr;
 use crate::{
 	parameter::Parameter,
 	Template,
@@ -8,7 +9,9 @@ use crate::{
 	PlayerId,
 	Sprite,
 	ItemId,
-	RoomId
+	RoomId,
+	components::{Trigger},
+	Timestamp
 };
 
 pub trait FromToParameter: Sized {
@@ -82,11 +85,26 @@ tofrom!(PlayerId(String));
 tofrom!(Sprite(String));
 tofrom!(ItemId(String));
 tofrom!(RoomId(String));
+tofrom!(Timestamp(Int));
+
+
+macro_rules! fromtostr {
+	($t: ty) => {
+		impl FromToParameter for $t {
+			fn from_parameter(p: Parameter) -> Option<Self>{
+				<$t>::from_str(&String::from_parameter(p)?).ok()
+			}
+			fn to_parameter(self) -> Parameter {
+				self.to_string().to_parameter()
+			}
+		}
+	}
+}
+
+fromtostr!(Trigger);
 
 impl<T> FromToParameter for Vec<T>
-where
-	T: FromToParameter,
-{
+where T: FromToParameter {
 	fn from_parameter(p: Parameter) -> Option<Self>{
 		if let Parameter::List(items) = p{
 			let mut v = Self::new();
@@ -108,9 +126,7 @@ where
 }
 
 impl<T> FromToParameter for HashSet<T>
-where
-	T: FromToParameter + Eq + Hash,
-{
+where T: FromToParameter + Eq + Hash {
 	fn from_parameter(p: Parameter) -> Option<Self>{
 		Some(<Vec<T>>::from_parameter(p)?.into_iter().collect())
 	}
@@ -186,3 +202,22 @@ impl FromToParameter for Pos {
 		(self.x, self.y).to_parameter()
 	}
 }
+
+impl<T> FromToParameter for Option<T>
+where T: FromToParameter {
+	fn from_parameter(p: Parameter) -> Option<Self>{
+		if p == Parameter::List(Vec::new()) {
+			Some(None)
+		} else {
+			Some(Some(T::from_parameter(p)?))
+		}
+	}
+	fn to_parameter(self) -> Parameter {
+		if let Some(p) = self {
+			p.to_parameter()
+		} else {
+			Parameter::List(Vec::new())
+		}
+	}
+}
+

@@ -62,7 +62,7 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 			let ent = item.entity.unwrap_or_else(||{
 				let enttyp = EntityType(id.clone());
 				assemblages.insert(enttyp.clone(), Assemblage {
-					arguments: Vec::new(),
+					arguments: HashMap::new(),
 					save: true,
 					extract: Vec::new(),
 					components: vec![
@@ -78,13 +78,10 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 				action: item.action.unwrap_or(ItemAction::None)
 			});
 		}
-		for (templatename, (baseent, mut args)) in templates {
+		for (templatename, (baseent, args)) in templates {
 			let mut assemblage = assemblages.get(&baseent).ok_or(de::Error::custom(format!("template name '{:?}' does not point to not an assemblage", baseent)))?.clone();
-			for arg in assemblage.arguments.iter_mut() {
-				if let Some(param) = args.remove(&arg.0) {
-					// todo: verify argument type
-					arg.2 = Some(param);
-				}
+			for (key, val) in args {
+				assemblage.arguments.insert(key, Some(val));
 			}
 			assemblages.insert(templatename, assemblage);
 		}

@@ -3,11 +3,9 @@ use std::collections::HashMap;
 use rand::Rng;
 use serde::{Serialize, Deserialize, Deserializer, Serializer};
 use crate::{
-	parameter::{Parameter, ParameterType},
+	parameter::Parameter,
 	Template,
-	template::{EntityType},
-	Result as AnyResult,
-	aerr,
+	template::{EntityType}
 };
 
 const MAX_NESTING: usize = 5;
@@ -90,38 +88,6 @@ impl ParameterExpression {
 			Self::TemplateName => Some(Parameter::String(template.name.0.clone())),
 			
 		}
-	}
-	
-	#[allow(dead_code)]
-	pub fn get_type(&self, arguments: &[(String, ParameterType, Option<Parameter>)]) -> AnyResult<ParameterType>{
-		Ok(match self {
-			Self::Constant(param) => param.paramtype(),
-			Self::List(_) => ParameterType::List,
-			Self::Template{name: _, kwargs: _, save: _, clan: _} => ParameterType::Template,
-			Self::Argument(argname) => arguments.iter().find(|(n, _t, _d)| n == argname).ok_or(aerr!("unknown argument name {} in {:?}", argname, arguments))?.1,
-			Self::Random(options) => {
-				let typ: ParameterType = options.get(0).ok_or(aerr!("random has no options"))?.get_type(arguments)?;
-				for param in options {
-					if param.get_type(arguments)? != typ {
-						return Err(aerr!("inconsistent parameter types in random"));
-					}
-				}
-				typ
-			},
-			Self::If(condition, thenval, elseval) => {
-				if condition.get_type(arguments)? != ParameterType::Bool {
-					return Err(aerr!("if condition is not a bool"));
-				}
-				let typ: ParameterType = thenval.get_type(arguments)?;
-				if elseval.get_type(arguments)? != typ {
-					return Err(aerr!("inconsistent parameter types in if"));
-				}
-				typ
-			},
-			Self::Concat(_s) => ParameterType::String,
-			Self::TemplateSelf => ParameterType::Template,
-			Self::TemplateName => ParameterType::String
-		})
 	}
 }
 

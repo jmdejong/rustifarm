@@ -159,7 +159,7 @@ components!(all:
 	Fighter (damage: i64, cooldown: i64) {Fighter{attack: AttackType::Attack(damage), cooldown, range: 1}};
 	Healing (delay: i64, health: i64) {Healing{delay, health, next_heal: None}};
 	Autofight () {Autofight::default()};
-	MonsterAI (move_chance: f64, homesickness: f64, view_distance: i64);
+	MonsterAI (move_chance: f64, view_distance: i64, homesickness: f64);
 	Spawner (amount: i64, clan: String, template: Template, radius: i64) {
 		Spawner{
 			amount: amount as usize,
@@ -176,25 +176,7 @@ components!(all:
 		Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction {:?} {:?}", typ, arg))?
 	};
 	Loot (loot: Vec<(Template, f64)>);
-	Timer (
-			trigger: String, (panic!("can't turn trigger to string")),
-			delay: i64, (Timer.delay),
-			spread: f64, (Timer.spread),
-			target_time: i64, ({
-				if let Some(time) = Timer.target_time {
-					time.0
-				} else {
-					0
-				}
-			})
-		)
-		Timer {
-			trigger: Trigger::from_str(&trigger).map_err(|_|aerr!("invalid trigger name {}", trigger))?,
-			delay,
-			spread,
-			target_time: if target_time == -1 { None } else { Some(Timestamp(target_time)) }
-			// please forgive me for using -1 as null
-		};
+	Timer (trigger: Trigger, delay: i64, spread: f64, target_time: Option<Timestamp>);
 	Equipment () {panic!("equipment from parameters not implemented")};
 	TimeOffset (dtime: i64);
 	Flags (flags: Vec<String>) {

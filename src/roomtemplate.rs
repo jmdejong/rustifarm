@@ -83,7 +83,7 @@ mod tests {
 			"mapping": {
 				"#": ["wall"],
 				",": "grass",
-				".": {"type": "grass", "args": [], "kwargs": {}}
+				".": {":template": "grass"}
 			}
 		})).unwrap();
 	}

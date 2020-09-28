@@ -1,14 +1,14 @@
 {
 	"assemblages": {
 		"portal": {
-			"arguments": [["destination", "string"], ["destpos", "string", ""]],
+			"arguments": {"destination": null, "destpos": ""},
 			"components": [
 				["RoomExit", {"destination": {"$arg": "destination"}, "dest_pos": {"$arg": "destpos"}}]
 			],
 			"flags": ["Floor"]
 		},
 		"_homeportal": {
-			"arguments": [["allowed", "list",  []]],
+			"arguments": {"allowed": []},
 			"extract": {"allowed": ["Whitelist", "allowed"]},
 			"components": [
 				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
@@ -18,7 +18,7 @@
 			"flags": ["Floor"]
 		},
 		"builtwall": {
-			"arguments": [["health", "int", 100]],
+			"arguments": {"health": 100},
 			"components": [
 				["Health", {"health": {"$arg": "health"}, "maxhealth": 100}],
 				["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
@@ -34,7 +34,7 @@
 			"height": 0.8
 		},
 		"dummy": {
-			"arguments": [["health", "int", 20]],
+			"arguments": {"health": 20},
 			"sprite": "dummy",
 			"height": 1,
 			"components": [
@@ -44,17 +44,17 @@
 		"wound": {
 			"sprite": "wound",
 			"height": 0.25,
-			"components": [["Timer", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": -1}]],
+			"components": [["Timer", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": []}]],
 			"save": false
 		},
 		"spawner": {
-			"arguments": [["template", "template"], ["amount", "int", 1], ["delay", "int", 0], ["clan", "string", ""], ["initial_spawn", "bool", true], ["radius", "int", 0]],
+			"arguments": {"template": null, "amount": 1, "delay": 0, "clan": "", "initial_spawn": true, "radius": 0},
 			"components": [
 				["Timer", {
 					"delay": {"$arg": "delay"},
 					"spread": 0.1,
 					"trigger": "spawn",
-					"target_time": {"$if": [{"$arg": "initial_spawn"}, 0, -1]}
+					"target_time": {"$if": [{"$arg": "initial_spawn"}, 0, []]}
 				}],
 				["Spawner", {
 					"template": {"$arg": "template"},
@@ -65,7 +65,7 @@
 			]
 		},
 		"singleton": {
-			"arguments": [["ent", "template"], ["clan", "string", ""]],
+			"arguments": {"ent": "template", "clan": ""},
 			"components": [
 				["Spawner", {
 					"template": {"$arg": "ent"},

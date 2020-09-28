@@ -125,7 +125,7 @@ mod tests {
 	#[test]
 	fn template_with_kwarg(){
 		assert_eq!(
-			Template::deserialize(json!({"type": "wall", "kwargs": {"health": 50}})).unwrap(),
+			Template::deserialize(json!({":template": "wall", "health": 50})).unwrap(),
 			Template::new("wall", hashmap!{"health".to_string() => Parameter::Int(50)})
 		);
 	}

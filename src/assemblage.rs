@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{de, Serialize, Deserialize, Deserializer};
 use crate::{
 	parameterexpression::ParameterExpression,
-	parameter::{Parameter, ParameterType},
+	parameter::{Parameter},
 	componentwrapper::{ComponentWrapper, ComponentType},
 	components::{Serialise, Clan},
 	Template,
@@ -11,11 +11,10 @@ use crate::{
 	aerr
 };
 
-type ArgumentDef = (String, ParameterType, Option<Parameter>);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
-	pub arguments: Vec<ArgumentDef>,
+	pub arguments: HashMap<String, Option<Parameter>>,
 	pub components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
 	pub save: bool,
 	pub extract: Vec<(String, ComponentType, String)>
@@ -35,24 +34,16 @@ impl Assemblage {
 	
 	fn prepare_arguments(&self, kwargs: &HashMap<String, Parameter>) -> AnyResult<HashMap<&str, Parameter>> {
 		let mut arguments: HashMap<&str, Parameter> = HashMap::new();
-		for (name, typ, def) in self.arguments.iter() {
+		for (name, def) in self.arguments.iter() {
 			let param: Parameter= {
 				if let Some(val) = kwargs.get(name) {
 					val.clone()
 				} else if let Some(val) = def {
 					val.clone()
 				} else {
-					return Err(aerr!("argument <{:?}> has no value", (name, typ, def)))
+					return Err(aerr!("argument <{:?}> has no value", (name, def)))
 				}
 			};
-			if param.paramtype() != *typ {
-				return Err(aerr!(
-					"argument has incorrect type: {:?}, {:?}, {:?}",
-					(name, typ, def),
-					param.paramtype(),
-					param
-				));
-			}
 			arguments.insert(name, param);
 		}
 		Ok(arguments)
@@ -112,12 +103,7 @@ impl<'de> Deserialize<'de> for Assemblage {
 			components.push((ComponentType::Substitute, compmap!{into: sub}));
 		}
 		Ok(Assemblage {
-			arguments: arguments.into_iter()
-				.map(|arg| match arg {
-					ArgumentDefSave::Long(name, typ, def) => (name, typ, Some(def)),
-					ArgumentDefSave::Short(name, typ) => (name, typ, None)
-				})
-				.collect(),
+			arguments,
 			components,
 			save,
 			extract: extract.into_iter().map(|(k, (t, v))| (k, t, v)).collect()
@@ -125,15 +111,9 @@ impl<'de> Deserialize<'de> for Assemblage {
 	}
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
-enum ArgumentDefSave{
-	Long(String, ParameterType, Parameter),
-	Short(String, ParameterType)
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct AssemblageSave {
 	#[serde(default)]
-	pub arguments: Vec<ArgumentDefSave>,
+	pub arguments: HashMap<String, Option<Parameter>>,
 	#[serde(default)]
 	pub components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
 	#[serde(default="return_true")]
@@ -161,11 +141,11 @@ mod tests {
 	fn empty_assemblage_deserialize() {
 		assert_eq!(
 				Assemblage::deserialize(&json!({
-				"arguments": [],
+				"arguments": {},
 				"components": []
 			})).unwrap(),
 			Assemblage{
-				arguments: vec![],
+				arguments: hashmap!{},
 				components: vec![],
 				save: true,
 				extract: Vec::new()
@@ -176,9 +156,7 @@ mod tests {
 	#[test]
 	fn grass_deserialize(){
 		let result = Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string", "grass1"]
-				],
+				"arguments": {"sprite": "grass1"},
 				"components": [
 					["Visible", {
 						"sprite": {"$arg": "sprite"},
@@ -188,7 +166,7 @@ mod tests {
 				]
 			})).unwrap();
 		let constructed = Assemblage{
-				arguments: vec![("sprite".to_string(), ParameterType::String, Some(Parameter::String("grass1".to_string())))],
+				arguments: hashmap!{"sprite".to_string() => Some(Parameter::String("grass1".to_string()))},
 				components: vec![
 					(ComponentType::Visible, hashmap!(
 						"sprite".to_string() => ParameterExpression::Argument("sprite".to_string()),
@@ -205,9 +183,7 @@ mod tests {
 	#[test]
 	fn invalid_component_name(){
 		Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string", null]
-				],
+				"arguments": {"sprite": null},
 				"components": [
 					["visible", { // no capital so invalid
 						"sprite": {"$arg": "sprite"},
@@ -224,9 +200,7 @@ mod tests {
 // 	#[test]
 	fn invalid_parameter_type(){
 		Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string", "grass1"]
-				],
+				"arguments": {"sprite": "grass1"},
 				"components": [
 					["Visible", {
 						"sprite": {"$arg": "sprite"},
@@ -244,9 +218,7 @@ mod tests {
 // 	#[test]
 	fn wrong_argument_default(){
 		Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string", 1]
-				],
+				"arguments": {"sprite": 1},
 				"components": [
 					["Visible", {
 						"sprite": {"$arg": "sprite"},
@@ -262,9 +234,7 @@ mod tests {
 	#[test]
 	fn null_argument(){
 		let result = Assemblage::deserialize(&json!({
-				"arguments": [
-					["sprite", "string"]
-				],
+				"arguments": {"sprite": null},
 				"components": [
 					["Visible", {
 						"sprite": {"$arg": "sprite"},
@@ -274,7 +244,7 @@ mod tests {
 				]
 			})).unwrap();
 		let constructed = Assemblage{
-				arguments: vec![("sprite".to_string(), ParameterType::String, None)],
+				arguments: hashmap!{"sprite".to_string() => None},
 				components: vec![
 					(ComponentType::Visible, hashmap!(
 						"sprite".to_string() => ParameterExpression::Argument("sprite".to_string()),

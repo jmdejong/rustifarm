@@ -74,13 +74,13 @@
 		"house": {"height": 3.0, "sprite": "house"},
 		"freeland": {},
 		"img": {
-			"arguments": [["sprite", "string", ""], ["height", "float", 1.0]],
+			"arguments": {"sprite": null, "height": 1.0},
 			"components": [
 				["Visible", {"name": {"$arg": "sprite"}, "sprite": {"$arg": "sprite"}, "height": {"$arg": "height"}}]
 			]
 		},
 		"letter": {
-			"arguments": [["char", "string"]],
+			"arguments": {"char": "string"},
 			"components": [["Visible", {
 				"name": {"$concat": ["letter_", {"$arg": "char"}]},
 				"sprite": {"$concat": ["emptyletter-", {"$arg": "char"}]},

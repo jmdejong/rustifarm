@@ -1,50 +1,21 @@
 
 use serde::{Serialize, Deserialize};
-use strum_macros::{EnumString, Display};
 use crate::{
 	Template,
 };
 
 
-
-macro_rules! parameters {
-	{$($name: ident $typ: ty);*;} => {
-		#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-		#[serde(untagged)]
-		pub enum Parameter {
-			$(
-				$name($typ),
-			)*
-		}
-		impl Parameter {
-			pub fn paramtype(&self) -> ParameterType {
-				match self {
-					$(
-						Self::$name(_) => ParameterType::$name,
-					)*
-				}
-			}
-		}
-
-		#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, EnumString, Display)]
-		#[serde(rename_all = "lowercase")]
-		#[strum(serialize_all = "lowercase")]
-		pub enum ParameterType {
-			$(
-				$name,
-			)*
-		}
-	}
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Parameter {
+	String(String),
+	Int(i64),
+	Float(f64),
+	Template(Template),
+	Bool(bool),
+	List(Vec<Parameter>)
 }
 
-parameters!{
-	String String;
-	Int i64;
-	Float f64;
-	Template Template;
-	Bool bool;
-	List Vec<Parameter>;
-}
 
 
 impl Parameter {
