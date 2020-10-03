@@ -1,10 +1,6 @@
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use specs::{
-	Component,
-	HashMapStorage
-};
 use strum_macros::{EnumString, Display};
 use crate::{
 	Sprite
@@ -27,7 +23,8 @@ pub enum Slot {
 pub enum Stat {
 	Strength,
 	Defence,
-	Mining
+	Mining,
+	Gathering
 }
 
 
@@ -40,11 +37,6 @@ pub struct Equippable {
 
 
 
-#[derive(Component, Debug, Clone)]
-#[storage(HashMapStorage)]
-pub struct Equipment {
-	pub slots: Vec<Slot>
-}
 
 #[cfg(test)]
 mod tests {

@@ -169,7 +169,7 @@
 		"radishes": {"sprite": "food", "name": "radish", "entity": "radish", "action": {"eat": 3}},
 		"eldritch_radish": {"sprite": "food", "name": "eldritch_radish", "action": {"eat": 20}},
 		"carrotseed": {"sprite": "seed", "action": {"build": ["plantedcarrotseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]}},
-		"carrot": {"sprite": "food", "action": {"eat": 5}},
+		"carrot": {"sprite": "carrot", "action": {"eat": 5}},
 		"cottonseed": {"sprite": "seed", "action": {"build": ["plantedcottonseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]}},
 		"cotton": {"sprite": "cotton"},
 		"cottonyarn": {"sprite": "cottonyarn"},

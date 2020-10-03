@@ -71,6 +71,7 @@ use crate::{
 		Building,
 		SpawnTrigger,
 		Replace,
+		SpawnCheck,
 	}
 };
 
@@ -80,12 +81,13 @@ pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
 		.with(Timeout, "timeout", &[])
 		.with(UpdateCooldowns, "cool_down", &[])
 		.with(Spawn, "spawn", &[])
+		.with(SpawnCheck, "spawncheck", &["spawn"])
 		.with(ControlInput, "controlinput", &["cool_down"])
 		.with(ControlAI, "controlai", &["cool_down"])
 		.with(Take, "take", &["controlinput", "controlai"])
 		.with(Use, "use", &["controlinput", "controlai"])
 		.with(Interact, "interact", &["controlinput", "controlai"])
-		.with(SpawnTrigger, "spawntrigger", &["spawn", "replace"])
+		.with(SpawnTrigger, "spawntrigger", &["spawncheck", "replace"])
 		.with(Move, "move", &["controlinput", "controlai"])
 		.with(Trapping, "trapping", &["move"])
 		.with(Fight, "fight", &["move"])
@@ -124,7 +126,7 @@ impl <'a, 'b>Room<'a, 'b> {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, Home, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, Equipment, TimeOffset, Flags, Ear, Build, Whitelist, Minable, LootHolder, OnSpawn, Substitute),
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, TimeOffset, Flags, Ear, Build, Whitelist, Minable, LootHolder, OnSpawn, Substitute, Stats, Requirements),
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time, RoomFlags)
 		);
 		

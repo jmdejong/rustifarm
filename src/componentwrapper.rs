@@ -15,7 +15,8 @@ use crate::{
 		AttackType,
 		Clan,
 		Flag,
-		Trigger
+		Trigger,
+		Stat
 	},
 	parameter::{Parameter},
 	fromtoparameter::FromToParameter,
@@ -170,14 +171,12 @@ components!(all:
 		}
 	};
 	Clan (name: String);
-	Home (home: Pos);
-	Faction (faction: String) {Faction::from_str(faction.as_str()).ok_or(aerr!("invalid faction name"))?};
+	Faction (faction: String) {Faction::from_str(faction.as_str()).map_err(|_|aerr!("invalid faction name '{}'", faction))?};
 	Interactable (typ: String, arg: Parameter) {
-		Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction {:?} {:?}", typ, arg))?
+		Interactable::parse_from_parameter(&typ, &arg).ok_or(aerr!("invalid interaction {} {:?}", typ, arg))?
 	};
 	Loot (loot: Vec<(Template, f64)>);
 	Timer (trigger: Trigger, delay: i64, spread: f64, target_time: Option<Timestamp>);
-	Equipment () {panic!("equipment from parameters not implemented")};
 	TimeOffset (dtime: i64);
 	Flags (flags: Vec<String>) {
 		Flags(
@@ -212,6 +211,8 @@ components!(all:
 				).collect::<std::result::Result<Vec<Trigger>, std::boxed::Box<errors::AError>>>()?
 		}
 	};
+	Stats (skills: HashMap<Stat, i64>);
+	Requirements (required_flags: HashSet<Flag>, blocking_flags: HashSet<Flag>);
 );
 
 

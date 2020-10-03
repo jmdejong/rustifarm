@@ -153,6 +153,20 @@
 					["blue cape", ["cape", "bluedye"], ["bluecape"]]
 				]]}]
 			]
+		},
+		"densegrass": {
+			"sprite": "densegrass",
+			"height": 0.5,
+			"components": [
+				["Interactable", {"typ": "mine", "arg": "gathering"}],
+				["Minable", {"total": 1, "trigger": "die"}],
+				["Loot", {"loot": [
+					[{"$template": "radishseed"}, 0.3],
+					[{"$template": "carrotseed"}, 0.1],
+					[{"$template": "cottonseed"}, 0.04]
+				]}],
+				["Requirements", {"required_flags": ["Floor", "Soil"], "blocking_flags": ["Occupied", "Blocking"]}]
+			]
 		}
 	},
 	"items": {

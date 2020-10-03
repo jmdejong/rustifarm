@@ -1,4 +1,5 @@
 
+use strum_macros::{EnumString, Display};
 use specs::{
 	Component,
 	HashMapStorage,
@@ -6,7 +7,8 @@ use specs::{
 	Entity,
 };
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display)]
+#[strum(serialize_all = "lowercase")]
 #[storage(HashMapStorage)]
 pub enum Faction {
 	Neutral,
@@ -18,17 +20,6 @@ pub enum Faction {
 use Faction::{Neutral, Good, Evil, None};
 
 impl Faction {
-	
-	pub fn from_str(name: &str) -> Option<Faction> {
-		match name.to_lowercase().as_str() {
-			"neutral" => Some(Neutral),
-			"good" => Some(Good),
-			"evil" => Some(Evil),
-			"none" => Some(None),
-			"" => Some(None),
-			_ => Option::None
-		}
-	}
 	
 	pub fn is_enemy(&self, other: Faction) -> bool {
 		match self {

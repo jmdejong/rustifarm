@@ -17,7 +17,6 @@ use crate::{
 		Position,
 		Spawner,
 		Clan,
-		Home,
 		TriggerBox,
 		Trigger,
 		TimeOffset
@@ -62,7 +61,6 @@ impl <'a> System<'a> for Spawn {
 						match new.encyclopedia.construct(&spawner.template) {
 							Ok(mut preent) => {
 								preent.push(ComponentWrapper::Clan(spawner.clan.clone()));
-								preent.push(ComponentWrapper::Home(Home{home: position.pos}));
 								let offset = Pos::new(
 									rng.gen::<i64>()%(spawner.radius*2+1)-spawner.radius,
 									rng.gen::<i64>()%(spawner.radius*2+1)-spawner.radius);

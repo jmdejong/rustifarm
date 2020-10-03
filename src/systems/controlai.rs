@@ -11,7 +11,7 @@ use specs::{
 };
 
 use crate::{
-	components::{Controller, ControlCooldown, Fighter, MonsterAI, Home, Health, Position, Faction},
+	components::{Controller, ControlCooldown, Fighter, MonsterAI, Health, Position, Faction},
 	controls::{Control, Direction::{self, North, South, East, West}},
 	Pos
 };
@@ -25,12 +25,11 @@ impl <'a> System<'a> for ControlAI {
 		ReadStorage<'a, ControlCooldown>,
 		ReadStorage<'a, MonsterAI>,
 		ReadStorage<'a, Fighter>,
-		ReadStorage<'a, Home>,
 		ReadStorage<'a, Health>,
 		ReadStorage<'a, Position>,
 		ReadStorage<'a, Faction>
 	);
-	fn run(&mut self, (entities, mut controllers, cooldowns, ais, fighters, homes, healths, positions, factions): Self::SystemData) {
+	fn run(&mut self, (entities, mut controllers, cooldowns, ais, fighters, healths, positions, factions): Self::SystemData) {
 	
 		for (entity, ai, position, ()) in (&entities, &ais, &positions, !&cooldowns).join() {
 			if let Some(fighter) = fighters.get(entity) {
@@ -60,9 +59,9 @@ impl <'a> System<'a> for ControlAI {
 				}
 			}
 			if rand::thread_rng().gen_range(0.0, 1.0) < ai.move_chance {
-				if let Some(home) = homes.get(entity) {
-					if rand::thread_rng().gen_range(0.0, 1.0) < ai.homesickness * (position.pos.distance_to(home.home) as f64) {
-						let direction = step_to(position.pos, home.home).unwrap();
+				if let Some(home) = ai.home {
+					if rand::thread_rng().gen_range(0.0, 1.0) < ai.homesickness * (position.pos.distance_to(home) as f64) {
+						let direction = step_to(position.pos, home).unwrap();
 						controllers.insert(entity, Controller{control: Control::Move(direction)}).unwrap();
 						return;
 					}

@@ -6,6 +6,7 @@ In asciifarm all the assemblages and items are stored in an encyclopedia.
 See https://github.com/jmdejong/rustifarm/blob/master/content/encyclopediae/default_encyclopedia.json for an example.
 
 Encyclopediae definitions can use the [JSON5](https://json5.org/) format.
+Any other [format supported by serde](https://serde.rs/#data-formats) can be supported on request.
 
 An encyclopedia file has a json object that can have the properties "assemblages", "items", "substitute", "item_substitute" and "assemblage_substitute".
 "assemblages" and "items" are required.

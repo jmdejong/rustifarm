@@ -1,5 +1,5 @@
 
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use rand::Rng;
 
 use specs::{
@@ -25,7 +25,8 @@ use crate::{
 		Visible,
 		Player,
 		Whitelist,
-		Minable
+		Minable,
+		Stats
 	},
 	controls::{Control},
 	resources::{Ground, Emigration, NewEntities},
@@ -52,10 +53,11 @@ impl <'a> System<'a> for Interact {
 		Write<'a, Emigration>,
 		WriteStorage<'a, Whitelist>,
 		WriteStorage<'a, Minable>,
+		ReadStorage<'a, Stats>,
 		Read<'a, NewEntities>
 	);
 	
-	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists, mut minables, new): Self::SystemData) {
+	fn run(&mut self, (entities, controllers, positions, ground, mut cooldowns, interactables, mut triggerbox, mut ears, mut inventories, visibles, players, mut emigration, mut whitelists, mut minables, stats, new): Self::SystemData) {
 		for (actor, controller, position) in (&entities, &controllers, &positions).join(){
 			let mut target = None;
 			let ear = ears.get_mut(actor);
@@ -121,9 +123,15 @@ impl <'a> System<'a> for Interact {
 						}
 					}
 					Interactable::Mine(skill) => {
-						if let (Some(inventory), Some(minable)) = (inventories.get(actor), minables.get_mut(ent)) {
-							let stats = inventory.equipment_bonuses();
-							if let Some(skill_value) = stats.get(skill) {
+						if let Some(minable) = minables.get_mut(ent) {
+							let mut skills = inventories.get(actor).map(Inventory::equipment_bonuses).unwrap_or_else(HashMap::new);
+							if let Some(skillset) = stats.get(actor) {
+								for (skill, val) in skillset.skills.iter() {
+									*skills.entry(*skill).or_insert(0) += val;
+								}
+							}
+							if let Some(skill_value) = skills.get(skill) {
+								println!("{:?} {:?}", skill, skill_value);
 								// todo: give player feedback
 								cooldown = 20;
 								minable.progress += rand::thread_rng().gen_range(0, skill_value+1);

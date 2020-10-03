@@ -7,7 +7,7 @@ use crate::{
 	Template,
 	components::{
 		Flag,
-		equipment::Equippable
+		Equippable
 	}
 };
 

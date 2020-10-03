@@ -23,6 +23,7 @@ mod clear;
 mod building;
 mod spawntrigger;
 mod replace;
+mod spawncheck;
 
 pub use self::{
 	controlinput::ControlInput,
@@ -49,4 +50,5 @@ pub use self::{
 	building::Building,
 	spawntrigger::SpawnTrigger,
 	replace::Replace,
+	spawncheck::SpawnCheck
 };

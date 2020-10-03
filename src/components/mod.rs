@@ -17,7 +17,7 @@ pub use messages::{
 };
 pub use faction::Faction;
 pub use interactable::{Interactable};
-pub use equipment::Equipment;
+pub use equipment::{Equippable, Stat, Slot};
 pub use inventory::Inventory;
 pub use serialise::Serialise;
 pub use flags::{
@@ -173,11 +173,6 @@ pub struct MonsterAI {
 	pub home: Option<Pos>
 }
 
-#[derive(Component, Debug, Clone, Default)]
-#[storage(HashMapStorage)]
-pub struct Home {
-	pub home: Pos
-}
 
 #[derive(Component, Debug, Clone)]
 #[storage(HashMapStorage)]
@@ -259,3 +254,13 @@ pub struct Substitute {
 	pub into: Template
 }
 
+#[derive(Component, Debug, Clone)]
+pub struct Stats {
+	pub skills: HashMap<Stat, i64>
+}
+
+#[derive(Component, Debug, Clone)]
+pub struct Requirements {
+	pub required_flags: HashSet<Flag>,
+	pub blocking_flags: HashSet<Flag>
+}

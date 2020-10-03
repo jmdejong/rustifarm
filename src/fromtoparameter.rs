@@ -10,7 +10,7 @@ use crate::{
 	Sprite,
 	ItemId,
 	RoomId,
-	components::{Trigger},
+	components::{Trigger, Stat, Faction, Flag},
 	Timestamp
 };
 
@@ -102,6 +102,9 @@ macro_rules! fromtostr {
 }
 
 fromtostr!(Trigger);
+fromtostr!(Stat);
+fromtostr!(Faction);
+fromtostr!(Flag);
 
 impl<T> FromToParameter for Vec<T>
 where T: FromToParameter {

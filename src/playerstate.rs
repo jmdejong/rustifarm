@@ -18,15 +18,17 @@ use crate::{
 		AttackType,
 		Autofight,
 		Faction,
-		Equipment,
-		equipment::Slot,
-		Ear
+		Slot,
+		Ear,
+		Stats,
+		Stat
 	},
 	Result,
 	aerr,
 	Sprite,
 	Encyclopedia,
 	Pos,
+	hashmap
 };
 
 #[allow(non_upper_case_globals)]
@@ -96,8 +98,8 @@ impl PlayerState {
 			ComponentWrapper::Movable(Movable{cooldown: 2}),
 			ComponentWrapper::Autofight(Autofight::default()),
 			ComponentWrapper::Faction(Faction::Good),
-			ComponentWrapper::Equipment(Equipment{slots: vec!(Slot::Hand, Slot::Body)}),
-			ComponentWrapper::Ear(Ear::default())
+			ComponentWrapper::Ear(Ear::default()),
+			ComponentWrapper::Stats(Stats{skills: hashmap!{Stat::Gathering => 10}})
 		])
 	}
 }
