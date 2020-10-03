@@ -1,13 +1,10 @@
 
 use std::collections::HashMap;
 
-use specs::Dispatcher;
-
 use crate::{
 	PlayerId,
 	RoomId,
-	room::Room,
-	room,
+	room::{Room, RoomType},
 	worldloader::WorldLoader,
 	persistence::{PersistentStorage, LoaderError},
 	playerstate::{PlayerState, RoomPos},
@@ -21,16 +18,15 @@ use crate::{
 	purgatory
 };
 
-pub struct World<'a, 'b> {
+pub struct World {
 	template_loader: WorldLoader,
 	persistence: Box<dyn PersistentStorage>,
 	default_room: RoomId,
 	players: HashMap<PlayerId, RoomId>,
-	rooms: HashMap<RoomId, Room<'a, 'b>>,
+	rooms: HashMap<RoomId, Room>,
 	room_age: HashMap<RoomId, Timestamp>,
 	encyclopedia: Encyclopedia,
-	pub time: Timestamp,
-	default_dispatcher: Dispatcher<'a, 'b>
+	pub time: Timestamp
 }
 
 #[derive(Debug)]
@@ -39,7 +35,7 @@ pub enum MigrationError {
 	RoomError(AnyError)
 }
 
-impl <'a, 'b>World<'a, 'b> {
+impl World {
 	
 	pub fn new(encyclopedia: Encyclopedia, template_loader: WorldLoader, persistence: Box<dyn PersistentStorage>, default_room: RoomId) -> Self {
 		let time = match persistence.load_world_meta() {
@@ -59,12 +55,11 @@ impl <'a, 'b>World<'a, 'b> {
 			encyclopedia: encyclopedia,
 			players: HashMap::new(),
 			rooms: HashMap::new(),
-			room_age: HashMap::new(),
-			default_dispatcher: room::default_dispatcher()
+			room_age: HashMap::new()
 		}
 	}
 	
-	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
+	fn get_room_mut(&mut self, id: &RoomId) -> Result<&mut Room> {
 		self.room_age.insert(id.clone(), self.time);
 		let result = self.get_room_mut_(id);
 		if let Err(err) = &result {
@@ -73,13 +68,13 @@ impl <'a, 'b>World<'a, 'b> {
 		result
 	}
 	
-	fn get_room_mut_(&mut self, id: &RoomId) -> Result<&mut Room<'a, 'b>> {
+	fn get_room_mut_(&mut self, id: &RoomId) -> Result<&mut Room> {
 		if !self.rooms.contains_key(id){
 			println!("loading room '{}'", id);
 			let mut room: Room = if id == &purgatory::purgatory_id() {
 					purgatory::create_purgatory(&self.encyclopedia)
 				} else {
-					let mut room = Room::new(id.clone(), self.encyclopedia.clone(), None);
+					let mut room = Room::new(id.clone(), self.encyclopedia.clone(), RoomType::Normal);
 					let template = self.template_loader.load_room(id.clone())?;
 					room.load_from_template(&template)?;
 					room
@@ -93,7 +88,7 @@ impl <'a, 'b>World<'a, 'b> {
 			}
 			let last_time = self.time - 1;
 			if room.get_time() < last_time {
-				room.update(last_time, &mut self.default_dispatcher);
+				room.update(last_time);
 			}
 			self.rooms.insert(id.clone(), room);
 		}
@@ -177,7 +172,7 @@ impl <'a, 'b>World<'a, 'b> {
 	pub fn update(&mut self) {
 		self.migrate();
 		for room in self.rooms.values_mut() {
-			room.update(self.time, &mut self.default_dispatcher);
+			room.update(self.time);
 		}
 		self.time.0 += 1;
 	}

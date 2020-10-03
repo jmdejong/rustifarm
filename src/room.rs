@@ -4,8 +4,6 @@ use std::collections::HashMap;
 use specs::{
 	World,
 	WorldExt,
-	DispatcherBuilder,
-	Dispatcher,
 	Join,
 	Entity,
 	RunNow
@@ -75,36 +73,18 @@ use crate::{
 	}
 };
 
-pub fn default_dispatcher<'a, 'b>() -> Dispatcher<'a, 'b> {
-	DispatcherBuilder::new()
-		.with(Replace, "replace", &[])
-		.with(Timeout, "timeout", &[])
-		.with(UpdateCooldowns, "cool_down", &[])
-		.with(Spawn, "spawn", &[])
-		.with(SpawnCheck, "spawncheck", &["spawn"])
-		.with(ControlInput, "controlinput", &["cool_down"])
-		.with(ControlAI, "controlai", &["cool_down"])
-		.with(Take, "take", &["controlinput", "controlai"])
-		.with(Use, "use", &["controlinput", "controlai"])
-		.with(Interact, "interact", &["controlinput", "controlai"])
-		.with(SpawnTrigger, "spawntrigger", &["spawncheck", "replace"])
-		.with(Move, "move", &["controlinput", "controlai"])
-		.with(Trapping, "trapping", &["move"])
-		.with(Fight, "fight", &["move"])
-		.with(Heal, "heal", &[])
-		.with(Attacking, "attacking", &["use", "trapping", "fight", "heal", "interact", "spawntrigger"])
-		.with(Die, "die", &["attacking"])
-		.with(DropLoot, "droploot", &["attacking"])
-		.with(Building, "building", &["attacking"])
-		.with(Migrate, "migrate", &["move", "attacking", "die"])
-		.build()
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RoomType {
+	Normal,
+	Purgatory
 }
 
-pub struct Room<'a, 'b> {
+
+pub struct Room {
 	world: World,
-	dispatcher: Option<Dispatcher<'a, 'b>>,
 	pub id: RoomId,
-	places: HashMap<String, Pos>
+	places: HashMap<String, Pos>,
+	room_type: RoomType
 }
 
 macro_rules! register_insert {
@@ -119,9 +99,9 @@ macro_rules! register_insert {
 }
 
 
-impl <'a, 'b>Room<'a, 'b> {
+impl Room {
 
-	pub fn new(id: RoomId, encyclopedia: Encyclopedia, dispatcher: Option<Dispatcher<'a, 'b>>) -> Room<'a, 'b> {
+	pub fn new(id: RoomId, encyclopedia: Encyclopedia, room_type: RoomType) -> Room {
 		let mut world = World::new();
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
@@ -132,9 +112,9 @@ impl <'a, 'b>Room<'a, 'b> {
 		
 		Room {
 			world,
-			dispatcher,
 			id,
-			places: HashMap::new()
+			places: HashMap::new(),
+			room_type
 		}
 	}
 	
@@ -165,12 +145,36 @@ impl <'a, 'b>Room<'a, 'b> {
 		self.world.fetch::<Output>().output.clone()
 	}
 	
-	pub fn update(&mut self, timestamp: Timestamp, default_dispatcher: &mut Dispatcher) {
+	pub fn update(&mut self, timestamp: Timestamp) {
 		self.world.fetch_mut::<Time>().time = timestamp;
-		if let Some(dispatcher) = &mut self.dispatcher {
-			dispatcher.dispatch(&self.world);
-		} else {
-			default_dispatcher.dispatch(&self.world);
+		match self.room_type {
+			RoomType::Normal => {
+				Replace.run_now(&self.world);
+				Timeout.run_now(&self.world);
+				UpdateCooldowns.run_now(&self.world);
+				Spawn.run_now(&self.world);
+				SpawnCheck.run_now(&self.world);
+				ControlInput.run_now(&self.world);
+				ControlAI.run_now(&self.world);
+				Take.run_now(&self.world);
+				Use.run_now(&self.world);
+				Interact.run_now(&self.world);
+				SpawnTrigger.run_now(&self.world);
+				Move.run_now(&self.world);
+				Trapping.run_now(&self.world);
+				Fight.run_now(&self.world);
+				Heal.run_now(&self.world);
+				Attacking.run_now(&self.world);
+				Die.run_now(&self.world);
+				DropLoot.run_now(&self.world);
+				Building.run_now(&self.world);
+				Migrate.run_now(&self.world);
+			}
+			RoomType::Purgatory => {
+				UpdateCooldowns.run_now(&self.world);
+				ControlInput.run_now(&self.world);
+				Move.run_now(&self.world);
+			}
 		}
 		Create.run_now(&self.world);
 		Remove.run_now(&self.world);
