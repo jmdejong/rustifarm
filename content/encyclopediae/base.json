@@ -34,7 +34,8 @@
 					]},
 					"height": 0.1,
 					"name": "grass"
-				}]
+				}],
+				["Description", {"description": "grassy grass"}]
 			],
 			"flags": ["Floor", "Soil"]
 		},
@@ -55,12 +56,18 @@
 		"ground": {
 			"sprite": "ground",
 			"height": 0.1,
-			"flags": ["Floor", "Soil"]
+			"flags": ["Floor", "Soil"],
+			"components": [
+				["Description", {"description": "Dirt ground"}]
+			]
 		},
 		"floor": {
 			"sprite": "floor",
 			"height": 0.1,
-			"flags": ["Floor"]
+			"flags": ["Floor"],
+			"components": [
+				["Description", {"description": "Stone floor"}]
+			]
 		},
 		"bridge": {
 			"sprite": "bridge",

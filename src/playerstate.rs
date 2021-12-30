@@ -21,7 +21,8 @@ use crate::{
 		Slot,
 		Ear,
 		Stats,
-		Stat
+		Stat,
+		Description
 	},
 	Result,
 	aerr,
@@ -99,7 +100,8 @@ impl PlayerState {
 			ComponentWrapper::Autofight(Autofight::default()),
 			ComponentWrapper::Faction(Faction::Good),
 			ComponentWrapper::Ear(Ear::default()),
-			ComponentWrapper::Stats(Stats{skills: hashmap!{Stat::Gathering => 10}})
+			ComponentWrapper::Stats(Stats{skills: hashmap!{Stat::Gathering => 10}}),
+			ComponentWrapper::Description(Description{description: format!("a player named {}", self.id.0)})
 		])
 	}
 }

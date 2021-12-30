@@ -40,6 +40,10 @@ pub enum Notification {
 	Options {
 		description: String,
 		options: Vec<(String, String)>
+	},
+	Describe{
+		name: String,
+		description: String
 	}
 }
 
@@ -59,7 +63,8 @@ impl Notification {
 			},
 			Kill{actor: _, target: _} => "kill",
 			Die{actor: _, target: _} => "die",
-			Options{description: _, options: _} => "options"
+			Options{description: _, options: _} => "options",
+			Describe{name: _, description: _} => "describe",
 		}).to_string()
 	}
 	
@@ -91,6 +96,10 @@ impl Notification {
 			Options{description, options} => {(
 				format!("{}. Options: {}", description, options.iter().map(|(command, desc)| format!("'{}': {};", command, desc)).collect::<Vec<String>>().join(" ")),
 				json!({"description": description.clone(), "options": options.clone()})
+			)},
+			Describe{name, description} => {(
+				format!("{} - {}", name, description),
+				json!({"description": description.clone(), "name": name.clone()})
 			)}
 		};
 		(self.type_name(), body, payload)

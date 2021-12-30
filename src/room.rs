@@ -70,6 +70,7 @@ use crate::{
 		SpawnTrigger,
 		Replace,
 		SpawnCheck,
+		Describe
 	}
 };
 
@@ -106,7 +107,7 @@ impl Room {
 		world.insert(NewEntities::new(encyclopedia));
 		register_insert!(
 			world,
-			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, TimeOffset, Flags, Ear, Build, Whitelist, Minable, LootHolder, OnSpawn, Substitute, Stats, Requirements),
+			(Position, Visible, Controller, Movable, New, Removed, Moved, Player, Inventory, Health, Serialise, RoomExit, Entered, TriggerBox, Trap, Fighter, Healing, ControlCooldown, Autofight, MonsterAI, AttackInbox, Item, Spawner, Clan, Faction, Interactable, Loot, Timer, TimeOffset, Flags, Ear, Build, Whitelist, Minable, LootHolder, OnSpawn, Substitute, Stats, Requirements, Description),
 			(Ground, Input, Output, Size, Spawn, Players, Emigration, Time, RoomFlags)
 		);
 		
@@ -156,6 +157,7 @@ impl Room {
 				SpawnCheck.run_now(&self.world);
 				ControlInput.run_now(&self.world);
 				ControlAI.run_now(&self.world);
+				Describe.run_now(&self.world);
 				Take.run_now(&self.world);
 				Use.run_now(&self.world);
 				Interact.run_now(&self.world);

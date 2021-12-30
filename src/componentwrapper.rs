@@ -46,7 +46,7 @@ macro_rules! components {
 				}
 			}
 			pub fn load_component(comptype: ComponentType, mut parameters: HashMap<&str, Parameter>) -> Result<Self> {
-				#[allow(unused_imports, unreachable_code)]
+				#[allow(unused_imports, unreachable_code, unused_braces)]
 				match comptype {
 					$(
 						ComponentType::$comp => Ok(Self::$comp({
@@ -213,6 +213,7 @@ components!(all:
 	};
 	Stats (skills: HashMap<Stat, i64>);
 	Requirements (required_flags: HashSet<Flag>, blocking_flags: HashSet<Flag>);
+	Description (description: String);
 );
 
 

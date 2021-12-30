@@ -8,9 +8,13 @@ use crate::{PlayerId, Pos};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all="lowercase")]
 pub enum Direction {
+	#[serde(alias="n")]
 	North,
+	#[serde(alias="s")]
 	South,
+	#[serde(alias="e")]
 	East,
+	#[serde(alias="w")]
 	West,
 	#[serde(alias="")]
 	None
@@ -38,6 +42,7 @@ pub enum Control {
 	Attack(Vec<Direction>),
 	AttackTarget(Entity),
 	Interact(Vec<Direction>, Option<String>),
+	Describe(Direction)
 }
 
 
@@ -84,6 +89,9 @@ impl Control {
 					} else {
 						None
 					}
+				)),
+				"describe" => Some(Control::Describe(
+					Direction::deserialize(val.get(1)?).ok()?
 				)),
 				_ => None
 			}

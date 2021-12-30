@@ -264,3 +264,8 @@ pub struct Requirements {
 	pub required_flags: HashSet<Flag>,
 	pub blocking_flags: HashSet<Flag>
 }
+
+#[derive(Component, Debug, Clone)]
+pub struct Description {
+	pub description: String
+}
