@@ -45,32 +45,32 @@ use crate::{
 	Result,
 	Timestamp,
 	systems::{
-		Move,
-		RegisterNew,
-		ControlInput,
-		View,
-		Remove,
-		Create,
-		Take,
-		Migrate,
-		Use,
-		Attacking,
-		Trapping,
-		Fight,
-		Heal,
-		UpdateCooldowns,
-		ControlAI,
-		Die,
-		Spawn,
-		Interact,
-		DropLoot,
-		Timeout,
-		Clear,
-		Building,
-		SpawnTrigger,
-		Replace,
-		SpawnCheck,
-		Describe
+		moving::Move,
+		registernew::RegisterNew,
+		controlinput::ControlInput,
+		view::View,
+		remove::Remove,
+		create::Create,
+		take::Take,
+		migrate::Migrate,
+		useitem::Use,
+		attacking::Attacking,
+		trapping::Trapping,
+		fight::Fight,
+		heal::Heal,
+		updatecooldowns::UpdateCooldowns,
+		controlai::ControlAI,
+		die::Die,
+		spawn::Spawn,
+		interact::Interact,
+		droploot::DropLoot,
+		timeout::Timeout,
+		clear::Clear,
+		building::Building,
+		spawntrigger::SpawnTrigger,
+		replace::Replace,
+		spawncheck::SpawnCheck,
+		describe::Describe
 	}
 };
 
@@ -157,7 +157,6 @@ impl Room {
 				SpawnCheck.run_now(&self.world);
 				ControlInput.run_now(&self.world);
 				ControlAI.run_now(&self.world);
-				Describe.run_now(&self.world);
 				Take.run_now(&self.world);
 				Use.run_now(&self.world);
 				Interact.run_now(&self.world);
@@ -182,6 +181,7 @@ impl Room {
 		Remove.run_now(&self.world);
 		self.world.maintain();
 		RegisterNew.run_now(&self.world);
+		Describe.run_now(&self.world);
 		View.run_now(&self.world);
 		Clear.run_now(&self.world);
 	}

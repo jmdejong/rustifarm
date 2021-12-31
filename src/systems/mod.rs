@@ -1,56 +1,28 @@
 
-mod controlinput;
-mod registernew;
-mod moving;
-mod view;
-mod remove;
-mod create;
-mod take;
-mod migrate;
-mod useitem;
-mod attacking;
-mod trapping;
-mod fight;
-mod heal;
-mod updatecooldowns;
-mod controlai;
-mod die;
-mod spawn;
-mod interact;
-mod droploot;
-mod timeout;
-mod clear;
-mod building;
-mod spawntrigger;
-mod replace;
-mod spawncheck;
-mod describe;
+pub mod controlinput;
+pub mod registernew;
+pub mod moving;
+pub mod view;
+pub mod remove;
+pub mod create;
+pub mod take;
+pub mod migrate;
+pub mod useitem;
+pub mod attacking;
+pub mod trapping;
+pub mod fight;
+pub mod heal;
+pub mod updatecooldowns;
+pub mod controlai;
+pub mod die;
+pub mod spawn;
+pub mod interact;
+pub mod droploot;
+pub mod timeout;
+pub mod clear;
+pub mod building;
+pub mod spawntrigger;
+pub mod replace;
+pub mod spawncheck;
+pub mod describe;
 
-pub use self::{
-	controlinput::ControlInput,
-	registernew::RegisterNew,
-	moving::Move,
-	view::View,
-	remove::Remove,
-	create::Create,
-	take::Take,
-	migrate::Migrate,
-	useitem::Use,
-	attacking::Attacking,
-	trapping::Trapping,
-	fight::Fight,
-	heal::Heal,
-	updatecooldowns::UpdateCooldowns,
-	controlai::ControlAI,
-	die::Die,
-	spawn::Spawn,
-	interact::Interact,
-	droploot::DropLoot,
-	timeout::Timeout,
-	clear::Clear,
-	building::Building,
-	spawntrigger::SpawnTrigger,
-	replace::Replace,
-	spawncheck::SpawnCheck,
-	describe::Describe
-};

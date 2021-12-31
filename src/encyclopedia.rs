@@ -12,9 +12,7 @@ use crate::{
 	item::Item,
 	item::ItemAction,
 	parameter::Parameter,
-	Sprite,
-	compmap,
-	componentwrapper::ComponentType
+	Sprite
 };
 
 #[derive(Default, Clone)]
@@ -61,15 +59,7 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 			let name = item.name.unwrap_or(id.clone());
 			let ent = item.entity.unwrap_or_else(||{
 				let enttyp = EntityType(id.clone());
-				assemblages.insert(enttyp.clone(), Assemblage {
-					arguments: HashMap::new(),
-					save: true,
-					extract: Vec::new(),
-					components: vec![
-						(ComponentType::Visible, compmap!{height: 0.3_f64, sprite: sprite.0, name: name.clone()}),
-						(ComponentType::Item, compmap!{item: id.clone()})
-					]
-				});
+				assemblages.insert(enttyp.clone(), Assemblage::new_item(id.clone(), sprite, name.clone()));
 				Template::from_entity_type(enttyp)
 			});
 			itemdefs.insert(ItemId(id), Item{
@@ -79,10 +69,9 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 			});
 		}
 		for (templatename, (baseent, args)) in templates {
-			let mut assemblage = assemblages.get(&baseent).ok_or(de::Error::custom(format!("template name '{:?}' does not point to not an assemblage", baseent)))?.clone();
-			for (key, val) in args {
-				assemblage.arguments.insert(key, Some(val));
-			}
+			let assemblage= assemblages.get(&baseent)
+				.ok_or(de::Error::custom(format!("template name '{:?}' does not point to not an assemblage", baseent)))?
+				.apply_arguments(args);
 			assemblages.insert(templatename, assemblage);
 		}
 		

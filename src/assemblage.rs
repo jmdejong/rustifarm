@@ -8,16 +8,18 @@ use crate::{
 	components::{Serialise, Clan},
 	Template,
 	Result as AnyResult,
-	aerr
+	aerr,
+	sprite::Sprite,
+	compmap
 };
 
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assemblage {
-	pub arguments: HashMap<String, Option<Parameter>>,
-	pub components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
-	pub save: bool,
-	pub extract: Vec<(String, ComponentType, String)>
+	arguments: HashMap<String, Option<Parameter>>,
+	components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
+	save: bool,
+	extract: Vec<(String, ComponentType, String)>
 }
 
 impl Assemblage {
@@ -66,6 +68,26 @@ impl Assemblage {
 			components.push(ComponentWrapper::Clan(Clan{name: clan.clone()}));
 		}
 		Ok(components)
+	}
+	
+	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
+		let mut assemblage = self.clone();
+		for (key, val) in arguments {
+			assemblage.arguments.insert(key, Some(val));
+		}
+		assemblage
+	}
+	
+	pub fn new_item(id: String, sprite: Sprite, name: String) -> Assemblage {
+		Assemblage {
+			arguments: HashMap::new(),
+			save: true,
+			extract: Vec::new(),
+			components: vec![
+				(ComponentType::Visible, compmap!{height: 0.3_f64, sprite: sprite.0, name: name}),
+				(ComponentType::Item, compmap!{item: id})
+			]
+		}
 	}
 }
 
