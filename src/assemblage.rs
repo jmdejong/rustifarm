@@ -15,14 +15,57 @@ use crate::{
 
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Assemblage {
+pub enum Assemblage {
+	Configured(ConfiguredAssemblage)
+}
+
+impl Assemblage {
+	
+	pub fn validate(&self) -> AnyResult<()> {
+		match self {
+			Self::Configured(assemblage) => assemblage.validate()
+		}
+	}
+	
+	
+	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
+		match self {
+			Self::Configured(assemblage) => assemblage.instantiate(template)
+		}
+	}
+	
+	
+	pub fn new_item(id: String, sprite: Sprite, name: String) -> Assemblage {
+		Assemblage::Configured(ConfiguredAssemblage {
+			arguments: HashMap::new(),
+			save: true,
+			extract: Vec::new(),
+			components: vec![
+				(ComponentType::Visible, compmap!{height: 0.3_f64, sprite: sprite.0, name: name}),
+				(ComponentType::Item, compmap!{item: id})
+			]
+		})
+	}
+	
+	
+	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
+		match self {
+			Self::Configured(assemblage) => Self::Configured(assemblage.apply_arguments(arguments))
+			
+		}
+	}
+}
+
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ConfiguredAssemblage {
 	arguments: HashMap<String, Option<Parameter>>,
 	components: Vec<(ComponentType, HashMap<String, ParameterExpression>)>,
 	save: bool,
 	extract: Vec<(String, ComponentType, String)>
 }
 
-impl Assemblage {
+impl ConfiguredAssemblage {
 	
 	pub fn validate(&self) -> AnyResult<()> {
 		
@@ -77,18 +120,14 @@ impl Assemblage {
 		}
 		assemblage
 	}
-	
-	pub fn new_item(id: String, sprite: Sprite, name: String) -> Assemblage {
-		Assemblage {
-			arguments: HashMap::new(),
-			save: true,
-			extract: Vec::new(),
-			components: vec![
-				(ComponentType::Visible, compmap!{height: 0.3_f64, sprite: sprite.0, name: name}),
-				(ComponentType::Item, compmap!{item: id})
-			]
-		}
-	}
+}
+
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ItemAssemblage {
+	id: String,
+	sprite: Sprite,
+	name: String
 }
 
 #[macro_export]
@@ -123,12 +162,12 @@ impl<'de> Deserialize<'de> for Assemblage {
 		if let Some(sub) = substitute {
 			components.push((ComponentType::Substitute, compmap!{into: sub}));
 		}
-		Ok(Assemblage {
+		Ok(Assemblage::Configured(ConfiguredAssemblage {
 			arguments,
 			components,
 			save,
 			extract: extract.into_iter().map(|(k, (t, v))| (k, t, v)).collect()
-		})
+		}))
 	}
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
