@@ -1,91 +1,5 @@
 {
 	"assemblages": {
-		"wall": {
-			"sprite": "wall",
-			"height": 2,
-			"flags": ["Blocking"]
-		},
-		"rock": {
-			"sprite": "rock",
-			"height": 10,
-			"flags": ["Blocking"]
-		},
-		"tree": {
-			"sprite": "tree",
-			"height": 3,
-			"flags": ["Blocking"]
-		},
-		"fence": {
-			"sprite": "fence",
-			"height": 1,
-			"flags": ["Blocking"]
-		},
-		"grass": {
-			"components": [
-				["Visible", {
-					"sprite": {"$random": [
-						"grass1",
-						"grass2",
-						"grass3",
-						"grass1",
-						"grass2",
-						"grass3",
-						"ground"
-					]},
-					"height": 0.1,
-					"name": "grass"
-				}],
-				["Description", {"description": "grassy grass"}]
-			],
-			"flags": ["Floor", "Soil"]
-		},
-		"greengrass": {
-			"components": [
-				["Visible", {
-					"sprite": {"$random": [
-						"grass1",
-						"grass2",
-						"grass3"
-					]},
-					"height": 0.1,
-					"name": "grass"
-				}]
-			],
-			"flags": ["Floor", "Soil"]
-		},
-		"ground": {
-			"sprite": "ground",
-			"height": 0.1,
-			"flags": ["Floor", "Soil"],
-			"components": [
-				["Description", {"description": "Dirt ground"}]
-			]
-		},
-		"floor": {
-			"sprite": "floor",
-			"height": 0.1,
-			"flags": ["Floor"],
-			"components": [
-				["Description", {"description": "Stone floor"}]
-			]
-		},
-		"bridge": {
-			"sprite": "bridge",
-			"height": 0.1,
-			"flags": ["Floor"]
-		},
-		"water": {
-			"sprite": "water",
-			"height": 0.0
-		},
-		"house": {"height": 3.0, "sprite": "house"},
-		"freeland": {},
-		"img": {
-			"arguments": {"sprite": null, "height": 1.0},
-			"components": [
-				["Visible", {"name": {"$arg": "sprite"}, "sprite": {"$arg": "sprite"}, "height": {"$arg": "height"}}]
-			]
-		},
 		"letter": {
 			"arguments": {"char": "string"},
 			"components": [["Visible", {
@@ -94,5 +8,29 @@
 				"height": 1.0
 			}]]
 		}
+	},
+	"templates": {
+		"wall": ["basic", {"sprite": "wall", "height": 2.0, "flags": ["Blocking"], "description": "stone wall"}],
+		"rock": ["basic", {"sprite": "rock", "height": 10.0, "flags": ["Blocking"]}],
+		"tree": ["basic", {"sprite": "tree", "height": 3.0, "flags": ["Blocking"]}],
+		"fence": ["basic", {"sprite": "fence", "height": 1.0, "flags": ["Blocking"], "description": "wooden fence"}],
+		"ground": ["basic", {"sprite": "ground", "height": 0.1, "flags": ["Floor", "Soil"]}],
+		"floor": ["basic", {"sprite": "floor", "height": 0.1, "flags": ["Floor"]}],
+		"bridge": ["basic", {"sprite": "bridge", "height": 0.1, "flags": ["Floor"]}],
+		"water": ["basic", {"sprite": "water"}],
+		"house": ["basic", {"sprite": "house", "height": 3.0}],
+		"greengrass": ["randomsprite", {
+			"name": "grass",
+			"sprites": ["grass1", "grass2", "grass3"],
+			"height": 0.1,
+			"flags": ["Floor", "Soil"]
+		}],
+		"grass": ["randomsprite", {
+			"name": "grass",
+			"sprites": ["grass1", "grass2", "grass3", "grass1", "grass2", "grass3", "ground"],
+			"height": 0.1,
+			"flags": ["Floor", "Soil"]
+		}],
+		"img": ["basic", {"height": 1.0}]
 	}
 }

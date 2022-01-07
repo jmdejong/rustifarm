@@ -2,7 +2,8 @@
 use std::collections::HashMap;
 use serde::{de, Deserialize, Serialize, Deserializer};
 use crate::{
-	assemblage::Assemblage,
+	assemblage::{Assemblage},
+	assemblages,
 	componentwrapper::PreEntity,
 	Template,
 	template::EntityType,
@@ -53,6 +54,9 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where D: Deserializer<'de> {
 		let EncyclopediaSave{mut assemblages, items, templates} = EncyclopediaSave::deserialize(deserializer)?;
+		for (id, assemblage) in assemblages::default_assemblages().into_iter() {
+			assemblages.insert(id, assemblage);
+		}
 		let mut itemdefs = HashMap::new();
 		for (id, item) in items.into_iter(){
 			let sprite = item.sprite.unwrap_or(Sprite(id.clone()));
@@ -81,14 +85,14 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 		})
 	}
 }
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ItemSave {
 	sprite: Option<Sprite>,
 	name: Option<String>,
 	entity: Option<Template>,
 	action: Option<ItemAction>
 }
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 struct EncyclopediaSave {
 	#[serde(default)]
 	assemblages: HashMap<EntityType, Assemblage>,

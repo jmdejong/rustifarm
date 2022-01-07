@@ -45,20 +45,6 @@ macro_rules! tofrom {
 			}
 		}
 	};
-	($typ: ident { $arg: ident :  $paramtyp: ident } ) => {
-		impl FromToParameter for $typ {
-			fn from_parameter(p: Parameter) -> Option<Self>{
-				if let Parameter::$paramtyp(i) = p {
-					Some($typ { $arg: i})
-				} else {
-					None
-				}
-			}
-			fn to_parameter(self) -> Parameter {
-				Parameter::$paramtyp(self.$arg)
-			}
-		}
-	};
 	($typ: ident ($paramtyp: ident ) ) => {
 		impl FromToParameter for $typ {
 			fn from_parameter(p: Parameter) -> Option<Self>{

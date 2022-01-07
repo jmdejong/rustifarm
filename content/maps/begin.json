@@ -83,7 +83,7 @@
 		"X~~~~~X                                                                                                                       "
 	],
 	"mapping": {
-		",": ["grass", "freeland"],
+		",": ["grass"],
 		"'": ["grass"],
 		"T": ["grass", "tree"],
 		"~": "water",

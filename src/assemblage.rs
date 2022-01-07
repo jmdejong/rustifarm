@@ -1,6 +1,8 @@
 
-use std::collections::HashMap;
+use std::collections::{HashMap};
 use serde::{de, Serialize, Deserialize, Deserializer};
+use std::fmt::Debug;
+use dyn_clonable::*;
 use crate::{
 	parameterexpression::{ParameterExpression, EvaluationError},
 	parameter::{Parameter},
@@ -14,26 +16,41 @@ use crate::{
 };
 
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum Assemblage {
-	Configured(ConfiguredAssemblage)
+	Configured(ConfiguredAssemblage),
+	Dynamic(Box<dyn DynamicAssemblage>)
 }
 
 impl Assemblage {
 	
 	pub fn validate(&self) -> AnyResult<()> {
 		match self {
-			Self::Configured(assemblage) => assemblage.validate()
+			Self::Configured(assemblage) => assemblage.validate(),
+			Self::Dynamic(assemblage) => assemblage.validate()
 		}
 	}
 	
 	
 	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
 		match self {
-			Self::Configured(assemblage) => assemblage.instantiate(template)
+			Self::Configured(assemblage) => assemblage.instantiate(template),
+			Self::Dynamic(assemblage) => assemblage.instantiate(template)
 		}
 	}
 	
+	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
+		match self.clone() {
+			Self::Configured(mut assemblage) => {
+				assemblage.apply_arguments(&arguments);
+				Self::Configured(assemblage)
+			}
+			Self::Dynamic(mut assemblage) => {
+				assemblage.apply_arguments(&arguments);
+				Self::Dynamic(assemblage)
+			}
+		}
+	}
 	
 	pub fn new_item(id: String, sprite: Sprite, name: String) -> Assemblage {
 		Assemblage::Configured(ConfiguredAssemblage {
@@ -46,15 +63,19 @@ impl Assemblage {
 			]
 		})
 	}
-	
-	
-	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
-		match self {
-			Self::Configured(assemblage) => Self::Configured(assemblage.apply_arguments(arguments))
-			
-		}
-	}
 }
+
+#[clonable]
+pub trait DynamicAssemblage: Debug + Clone + Send + Sync {
+	fn validate(&self) -> AnyResult<()> {
+		Ok(())
+	}
+	
+	fn apply_arguments(&mut self, arguments: &HashMap<String, Parameter>);
+	
+	fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>;
+}
+
 
 
 #[derive(Debug, PartialEq, Clone)]
@@ -65,9 +86,9 @@ pub struct ConfiguredAssemblage {
 	extract: Vec<(String, ComponentType, String)>
 }
 
-impl ConfiguredAssemblage {
+impl DynamicAssemblage for ConfiguredAssemblage {
 	
-	pub fn validate(&self) -> AnyResult<()> {
+	fn validate(&self) -> AnyResult<()> {
 		
 		for (comptype, parameters) in &self.components {
 			let mut is_complete = true;
@@ -88,7 +109,7 @@ impl ConfiguredAssemblage {
 	}
 	
 
-	pub fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
+	fn instantiate(&self, template: &Template) -> AnyResult<Vec<ComponentWrapper>>{
 		let mut arguments = self.arguments.clone();
 		for (key, param) in template.kwargs.clone() {
 			arguments.insert(key, Some(param));
@@ -113,12 +134,10 @@ impl ConfiguredAssemblage {
 		Ok(components)
 	}
 	
-	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
-		let mut assemblage = self.clone();
+	fn apply_arguments(&mut self, arguments: &HashMap<String, Parameter>){
 		for (key, val) in arguments {
-			assemblage.arguments.insert(key, Some(val));
+			self.arguments.insert(key.to_string(), Some(val.clone()));
 		}
-		assemblage
 	}
 }
 
