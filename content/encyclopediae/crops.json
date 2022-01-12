@@ -1,52 +1,4 @@
 {
-	"assemblages": {
-		"_radishplant": {
-			"sprite": "smallplant",
-			"name": "radishplant",
-			"height": 0.5,
-			"components": [
-				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": [
-					[{"$template": "radishseed"}, 0.92],
-					[{"$template": "radishseed"}, 0.20],
-					[{"$template": "radish"}, 0.8],
-					[{"$template": "radish"}, 0.4]
-				]}]
-			],
-			"flags": ["Occupied"]
-		},
-		"carrotplant": {
-			"sprite": "smallplant",
-			"name": "carrotplant",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": [
-					[{"$template": "carrotseed"}, 1.0],
-					[{"$template": "carrot"}, 1.0]
-				]}]
-			],
-			"flags": ["Occupied"]
-		},
-		"cottonplant": {
-			"sprite": "smallplant",
-			"name": "cottonplant",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "trigger", "arg": "die"}],
-				["Loot", {"loot": [
-					[{"$template": "cottonseed"}, 0.92],
-					[{"$template": "cottonseed"}, 0.20],
-					[{"$template": "cotton"}, 0.8],
-					[{"$template": "cotton"}, 0.4]
-				]}]
-			],
-			"flags": ["Occupied"]
-		},
-		"radishes": {
-			"substitute": "radish"
-		}
-	},
 	"items": {
 		"radishseed": {"sprite": "seed", "action": {"build": ["plantedradishseed", ["Floor", "Soil"], ["Occupied", "Blocking"]]}},
 		"radish": {"sprite": "food", "action": {"eat": 3}},
@@ -85,6 +37,26 @@
 				[{":template": "radish"}, 0.8],
 				[{":template": "radish"}, 0.4]
 			]
-		}]
+		}],
+		"carrotplant": ["harvestable", {
+			"name": "carrotplant",
+			"sprite": "smallplant",
+			"height": 0.8,
+			"loot": [
+				[{":template": "carrotseed"}, 1.0],
+				[{":template": "carrot"}, 1.0]
+			]
+		}],
+		"cottonplant": ["harvestable", {
+			"name": "cottonplant",
+			"sprite": "smallplant",
+			"height": 0.8,
+			"loot": [
+				[{":template": "cottonseed"}, 0.92],
+				[{":template": "cottonseed"}, 0.20],
+				[{":template": "cotton"}, 0.8],
+				[{":template": "cotton"}, 0.4]
+			]
+		}],
 	}
 }

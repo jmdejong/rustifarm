@@ -161,7 +161,7 @@ fn main(){
 				}
 			}
 		}
-		world.update();
+		world.update(config.tick_multiplier);
 		if world.time.0 % config.save_interval == 0 {
 			world.save();
 			world.unload_rooms(config.unload_age);

@@ -33,4 +33,7 @@ pub struct Config {
 	#[structopt(long, default_value="300", help="The time (in steps) between the last player leaving a room and the room getting unloaded. Unloading is only done when the rooms are saved, so it could actually take up to save_interval more steps")]
 	pub unload_age: i64,
 	
+	#[structopt(long, default_value="1", help="amount that the time increases each tick. Set this to make plants grow faster and to reduce cooldowns")]
+	pub tick_multiplier: i64,
+	
 }

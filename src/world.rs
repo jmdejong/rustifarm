@@ -169,12 +169,12 @@ impl World {
 	}
 	
 	
-	pub fn update(&mut self) {
+	pub fn update(&mut self, ticks: i64) {
 		self.migrate();
 		for room in self.rooms.values_mut() {
 			room.update(self.time);
 		}
-		self.time.0 += 1;
+		self.time.0 += ticks;
 	}
 	
 	fn migrate(&mut self) {
