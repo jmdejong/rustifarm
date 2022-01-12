@@ -56,7 +56,7 @@ macro_rules! components {
 									let param = parameters
 										.remove(stringify!($paramname))
 										.ok_or(aerr!("required parameter '{}'not found", stringify!($paramname)))?;
-									<$paramtype>::from_parameter(param.clone())
+									<$paramtype>::from_parameter(&param)
 										.ok_or(aerr!("parameter {} is invalid type: {:?} is not of type {}", stringify!($paramname), param, stringify!($paramtype)))?
 								};
 

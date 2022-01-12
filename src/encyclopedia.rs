@@ -73,8 +73,8 @@ impl<'de> Deserialize<'de> for Encyclopedia {
 			});
 		}
 		for (templatename, (baseent, args)) in templates {
-			let assemblage= assemblages.get(&baseent)
-				.ok_or(de::Error::custom(format!("template name '{:?}' does not point to not an assemblage", baseent)))?
+			let assemblage = assemblages.get(&baseent)
+				.ok_or(de::Error::custom(format!("template name '{:?}' does not point to an assemblage", baseent)))?
 				.apply_arguments(args);
 			assemblages.insert(templatename, assemblage);
 		}

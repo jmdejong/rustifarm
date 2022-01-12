@@ -50,6 +50,21 @@ macro_rules! hashmap {
 	}}
 }
 
+
+#[macro_export]
+macro_rules! hashset {
+	( $($value:expr),* ) => {{
+		#[allow(unused_mut)]
+		let mut h = std::collections::HashSet::new();
+		$(
+			h.insert($value);
+		)*
+		h
+	}}
+}
+
+
+
 #[cfg(test)]
 mod tests {
 	use std::collections::HashMap;

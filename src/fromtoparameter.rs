@@ -15,47 +15,47 @@ use crate::{
 };
 
 pub trait FromToParameter: Sized {
-	fn from_parameter(p: Parameter) -> Option<Self>;
+	fn from_parameter(p: &Parameter) -> Option<Self>;
 	fn to_parameter(self) -> Parameter;
 }
 
 
 
 impl FromToParameter for Parameter {
-	fn from_parameter(p: Parameter) -> Option<Self>{
-		Some(p)
+	fn from_parameter(p: &Parameter) -> Option<Self>{
+		Some(p.clone())
 	}
 	fn to_parameter(self) -> Parameter {
-		self
+		self.clone()
 	}
 }
 
 macro_rules! tofrom {
 	($typ: ty : $paramtyp: ident) => {
 		impl FromToParameter for $typ {
-			fn from_parameter(p: Parameter) -> Option<Self>{
+			fn from_parameter(p: &Parameter) -> Option<Self>{
 				if let Parameter::$paramtyp(i) = p {
-					Some(i)
+					Some(i.clone())
 				} else {
 					None
 				}
 			}
 			fn to_parameter(self) -> Parameter {
-				Parameter::$paramtyp(self)
+				Parameter::$paramtyp(self.clone())
 			}
 		}
 	};
 	($typ: ident ($paramtyp: ident ) ) => {
 		impl FromToParameter for $typ {
-			fn from_parameter(p: Parameter) -> Option<Self>{
+			fn from_parameter(p: &Parameter) -> Option<Self>{
 				if let Parameter::$paramtyp(i) = p {
-					Some($typ (i))
+					Some($typ (i.clone()))
 				} else {
 					None
 				}
 			}
 			fn to_parameter(self) -> Parameter {
-				Parameter::$paramtyp(self.0)
+				Parameter::$paramtyp(self.0.clone())
 			}
 		}
 	}
@@ -77,7 +77,7 @@ tofrom!(Timestamp(Int));
 macro_rules! fromtostr {
 	($t: ty) => {
 		impl FromToParameter for $t {
-			fn from_parameter(p: Parameter) -> Option<Self>{
+			fn from_parameter(p: &Parameter) -> Option<Self>{
 				<$t>::from_str(&String::from_parameter(p)?).ok()
 			}
 			fn to_parameter(self) -> Parameter {
@@ -94,7 +94,7 @@ fromtostr!(Flag);
 
 impl<T> FromToParameter for Vec<T>
 where T: FromToParameter {
-	fn from_parameter(p: Parameter) -> Option<Self>{
+	fn from_parameter(p: &Parameter) -> Option<Self>{
 		if let Parameter::List(items) = p{
 			let mut v = Self::new();
 			for item in items {
@@ -115,8 +115,10 @@ where T: FromToParameter {
 }
 
 impl<T> FromToParameter for HashSet<T>
-where T: FromToParameter + Eq + Hash {
-	fn from_parameter(p: Parameter) -> Option<Self>{
+where 
+	T: FromToParameter + Eq + Hash
+{
+	fn from_parameter(p: &Parameter) -> Option<Self>{
 		Some(<Vec<T>>::from_parameter(p)?.into_iter().collect())
 	}
 	fn to_parameter(self) -> Parameter {
@@ -129,7 +131,7 @@ where
 	T: FromToParameter + Eq + Hash,
 	U: FromToParameter,
 {
-	fn from_parameter(p: Parameter) -> Option<Self>{
+	fn from_parameter(p: &Parameter) -> Option<Self>{
 		Some(<Vec<(T, U)>>::from_parameter(p)?.into_iter().collect())
 	}
 	fn to_parameter(self) -> Parameter {
@@ -143,12 +145,12 @@ where
 	T: FromToParameter,
 	U: FromToParameter,
 {
-	fn from_parameter(p: Parameter) -> Option<Self> {
-		if let Parameter::List(mut items) = p {
+	fn from_parameter(p: &Parameter) -> Option<Self> {
+		if let Parameter::List(items) = p {
 			if items.len() == 2 {
 				return Some((
-					T::from_parameter(items.remove(0))?,
-					U::from_parameter(items.remove(0))?
+					T::from_parameter(&items[0])?,
+					U::from_parameter(&items[1])?
 				))
 			}
 		}
@@ -165,13 +167,13 @@ where
 	U: FromToParameter,
 	V: FromToParameter,
 {
-	fn from_parameter(p: Parameter) -> Option<Self> {
-		if let Parameter::List(mut items) = p {
+	fn from_parameter(p: &Parameter) -> Option<Self> {
+		if let Parameter::List(items) = p {
 			if items.len() == 3 {
 				return Some((
-					T::from_parameter(items.remove(0))?,
-					U::from_parameter(items.remove(0))?,
-					V::from_parameter(items.remove(0))?
+					T::from_parameter(&items[0])?,
+					U::from_parameter(&items[1])?,
+					V::from_parameter(&items[2])?
 				))
 			}
 		}
@@ -183,7 +185,7 @@ where
 }
 
 impl FromToParameter for Pos {
-	fn from_parameter(p: Parameter) -> Option<Self>{
+	fn from_parameter(p: &Parameter) -> Option<Self>{
 		let (x, y) = <(i64, i64)>::from_parameter(p)?;
 		Some(Self{x, y})
 	}
@@ -194,8 +196,8 @@ impl FromToParameter for Pos {
 
 impl<T> FromToParameter for Option<T>
 where T: FromToParameter {
-	fn from_parameter(p: Parameter) -> Option<Self>{
-		if p == Parameter::List(Vec::new()) {
+	fn from_parameter(p: &Parameter) -> Option<Self>{
+		if p == &Parameter::List(Vec::new()) {
 			Some(None)
 		} else {
 			Some(Some(T::from_parameter(p)?))

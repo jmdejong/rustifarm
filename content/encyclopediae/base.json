@@ -1,14 +1,4 @@
 {
-	"assemblages": {
-		"letter": {
-			"arguments": {"char": "string"},
-			"components": [["Visible", {
-				"name": {"$concat": ["letter_", {"$arg": "char"}]},
-				"sprite": {"$concat": ["emptyletter-", {"$arg": "char"}]},
-				"height": 1.0
-			}]]
-		}
-	},
 	"templates": {
 		"wall": ["basic", {"sprite": "wall", "height": 2.0, "flags": ["Blocking"], "description": "stone wall"}],
 		"rock": ["basic", {"sprite": "rock", "height": 10.0, "flags": ["Blocking"]}],
@@ -17,7 +7,7 @@
 		"ground": ["basic", {"sprite": "ground", "height": 0.1, "flags": ["Floor", "Soil"]}],
 		"floor": ["basic", {"sprite": "floor", "height": 0.1, "flags": ["Floor"]}],
 		"bridge": ["basic", {"sprite": "bridge", "height": 0.1, "flags": ["Floor"]}],
-		"water": ["basic", {"sprite": "water"}],
+		"water": ["basic", {"sprite": "water", "height": 0.0}],
 		"house": ["basic", {"sprite": "house", "height": 3.0}],
 		"greengrass": ["randomsprite", {
 			"name": "grass",

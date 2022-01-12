@@ -37,7 +37,7 @@ impl Interactable {
 			("say", Parameter::String(s)) => Say(s.clone()),
 			("reply", Parameter::String(s)) => Reply(s.clone()),
 			("exchange", p) => {
-				let (prefix, trades) = <(String, Vec<(String, Vec<ItemId>, Vec<ItemId>)>)>::from_parameter(p.clone())?;
+				let (prefix, trades) = <(String, Vec<(String, Vec<ItemId>, Vec<ItemId>)>)>::from_parameter(p)?;
 				let exchanges = trades.into_iter().map(|(k, cost, offer)| (k, Exchange{cost, offer})).collect();
 				Exchange(prefix, exchanges)
 			}
