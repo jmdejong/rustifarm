@@ -45,11 +45,14 @@ impl DynamicAssemblage for ItemAssemblage {
 			.and_then(ItemId::from_parameter)
 			.or(self.id.clone())
 			.ok_or(aerr!("no item id found when instantiating {:?}", template))?;
+		let description = arguments.get("description")
+			.and_then(String::from_parameter);
 		Ok(vec![
 			ComponentWrapper::Visible(Visible{
 				name,
 				sprite,
-				height: 0.3_f64
+				height: 0.3_f64,
+				description
 			}),
 			ComponentWrapper::Item(Item(id)),
 			ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: Vec::new() })

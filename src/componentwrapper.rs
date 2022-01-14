@@ -139,7 +139,7 @@ macro_rules! components {
 }
 
 components!(all: 
-	Visible (name: String, sprite: Sprite, height: f64);
+	Visible (name: String, sprite: Sprite, height: f64, description: Option<String>);
 	Movable (cooldown: i64);
 	Player (name: PlayerId) {Player::new(name)};
 	Item (item: ItemId) {Item(item)};
@@ -213,7 +213,6 @@ components!(all:
 	};
 	Stats (skills: HashMap<Stat, i64>);
 	Requirements (required_flags: HashSet<Flag>, blocking_flags: HashSet<Flag>);
-	Description (description: String);
 );
 
 

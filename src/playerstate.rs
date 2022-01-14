@@ -21,8 +21,7 @@ use crate::{
 		Slot,
 		Ear,
 		Stats,
-		Stat,
-		Description
+		Stat
 	},
 	Result,
 	aerr,
@@ -84,7 +83,12 @@ impl PlayerState {
 	
 	pub fn construct(&self, encyclopedia: &Encyclopedia) -> Result<PreEntity> {
 		Ok(vec![
-			ComponentWrapper::Visible(Visible{sprite: Sprite("player".to_string()), height: 1.75, name: self.id.0.clone()}),
+			ComponentWrapper::Visible(Visible{
+				sprite: Sprite("player".to_string()),
+				height: 1.75,
+				name: self.id.0.clone(),
+				description: Some(format!("a player named {}", self.id.0))
+			}),
 			ComponentWrapper::Player(Player::new(self.id.clone())),
 			ComponentWrapper::Inventory(Inventory{
 				items: self.inventory.iter().map( |(itemid, is_equipped)| {
@@ -100,8 +104,7 @@ impl PlayerState {
 			ComponentWrapper::Autofight(Autofight::default()),
 			ComponentWrapper::Faction(Faction::Good),
 			ComponentWrapper::Ear(Ear::default()),
-			ComponentWrapper::Stats(Stats{skills: hashmap!{Stat::Gathering => 10}}),
-			ComponentWrapper::Description(Description{description: format!("a player named {}", self.id.0)})
+			ComponentWrapper::Stats(Stats{skills: hashmap!{Stat::Gathering => 10}})
 		])
 	}
 }

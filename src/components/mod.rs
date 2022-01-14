@@ -68,7 +68,8 @@ impl Position {
 pub struct Visible {
 	pub sprite: Sprite,
 	pub height: f64,
-	pub name: String
+	pub name: String,
+	pub description: Option<String>
 }
 
 #[derive(Component, Debug)]
@@ -265,7 +266,3 @@ pub struct Requirements {
 	pub blocking_flags: HashSet<Flag>
 }
 
-#[derive(Component, Debug, Clone)]
-pub struct Description {
-	pub description: String
-}

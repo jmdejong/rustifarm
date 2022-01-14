@@ -2,7 +2,7 @@
 use std::collections::{HashSet, HashMap};
 
 use crate::{
-	components::{flags::Flag, Flags, Visible as VisibleComponent, Description, Serialise},
+	components::{flags::Flag, Flags, Visible as VisibleComponent, Serialise},
 	componentwrapper::ComponentWrapper,
 	assemblage::DynamicAssemblage,
 	parameter::Parameter,
@@ -29,17 +29,16 @@ impl DynamicAssemblage for Visible {
 		let height = arguments.get("height")
 			.and_then(f64::from_parameter)
 			.ok_or(aerr!("no height found when instantiating {:?}", template))?;
-		let mut components = vec![
+		let description = arguments.get("description")
+			.and_then(String::from_parameter);
+		Ok(vec![
 			ComponentWrapper::Visible(VisibleComponent{
 				name,
 				sprite,
-				height
+				height,
+				description
 			})
-		];
-		if let Some(description) = arguments.get("description").and_then(String::from_parameter) {
-			components.push(ComponentWrapper::Description(Description{description}));
-		}
-		Ok(components)
+		])
 	}
 }
 

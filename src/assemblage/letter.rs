@@ -22,11 +22,14 @@ impl DynamicAssemblage for Letter {
 		let character = &arguments.get("char")
 			.and_then(String::from_parameter)
 			.ok_or(aerr!("no character found when instantiating letter {:?}", template))?;
+		let description = arguments.get("description")
+			.and_then(String::from_parameter);
 		Ok(vec![
 			ComponentWrapper::Visible(Visible{
 				name: format!("letter '{}'", character),
 				sprite: Sprite(format!("emptyletter-{}", character)),
-				height: 1.0
+				height: 1.0,
+				description
 			})
 		])
 	}

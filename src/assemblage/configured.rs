@@ -103,10 +103,12 @@ impl<'de> Deserialize<'de> for ConfiguredAssemblage {
 			components.push((ComponentType::Flags, compmap!{flags: f}));
 		}
 		if let Some(spr) = sprite {
+			let description: Option<String> = None;
 			components.push((ComponentType::Visible, compmap!{
 				sprite: spr.clone(),
 				height: height.ok_or(de::Error::custom("height must be included in assemblage when sprite is included"))?,
-				name: name.unwrap_or(spr)
+				name: name.unwrap_or(spr),
+				description: description
 			}));
 		}
 		if let Some(sub) = substitute {

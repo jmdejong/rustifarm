@@ -3,7 +3,7 @@ use std::collections::{HashSet, HashMap};
 use rand::Rng;
 
 use crate::{
-	components::{flags::Flag, Flags, Visible, Description},
+	components::{flags::Flag, Flags, Visible},
 	componentwrapper::ComponentWrapper,
 	assemblage::DynamicAssemblage,
 	parameter::Parameter,
@@ -31,18 +31,18 @@ impl DynamicAssemblage for RandomSprite {
 		let height = arguments.get("height")
 			.and_then(f64::from_parameter)
 			.ok_or(aerr!("no height found when instantiating {:?}", template))?;
+		let description = arguments.get("description")
+			.and_then(String::from_parameter);
 		let mut components = vec![
 			ComponentWrapper::Visible(Visible{
 				name,
 				sprite,
-				height
+				height,
+				description
 			})
 		];
 		if let Some(flags) = arguments.get("flags").and_then(<HashSet<Flag>>::from_parameter) {
 			components.push(ComponentWrapper::Flags(Flags(flags)));
-		}
-		if let Some(description) = arguments.get("description").and_then(String::from_parameter) {
-			components.push(ComponentWrapper::Description(Description{description}));
 		}
 		Ok(components)
 	}
