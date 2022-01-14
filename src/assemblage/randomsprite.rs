@@ -19,7 +19,7 @@ pub struct RandomSprite;
 
 impl DynamicAssemblage for RandomSprite {
 	
-	fn instantiate(&self, template: &Template, arguments: HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
 		let name = arguments.get("name")
 			.and_then(String::from_parameter)
 			.ok_or(aerr!("no name found when instantiating {:?}", template))?;

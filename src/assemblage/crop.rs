@@ -22,15 +22,15 @@ use crate::{
 	Timestamp,
 	hashset,
 };
-use super::{basic_components, visible_components};
+use super::basic::{Visible, TemplateSave};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CropStage;
 
 impl DynamicAssemblage for CropStage {
 	
-	fn instantiate(&self, template: &Template, arguments: HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
-		let mut components = visible_components(template, &arguments)?;
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+		let mut components = Visible.instantiate(template, arguments)?;
 		let delay = arguments.get("delay")
 			.and_then(i64::from_parameter)
 			.ok_or(aerr!("no delay found when instantiating {:?}", template))?;
@@ -64,16 +64,20 @@ pub struct Harvestable;
 
 impl DynamicAssemblage for Harvestable {
 	
-	fn instantiate(&self, template: &Template, arguments: HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
 		
-		let mut components = basic_components(template, &arguments)?;
 		let loot = arguments.get("loot")
 			.and_then(<Vec<(Template, f64)>>::from_parameter)
 			.ok_or(aerr!("no loot found when instantiating {:?}", template))?;
-		components.push(ComponentWrapper::Loot(Loot{loot}));
-		components.push(ComponentWrapper::Interactable(Interactable::Trigger(Trigger::Die)));
-		components.push(ComponentWrapper::Flags(Flags(hashset!{Flag::Occupied})));
-		Ok(components)
+		Ok([
+			Visible.instantiate(template, arguments)?,
+			TemplateSave.instantiate(template, arguments)?,
+			vec![
+				ComponentWrapper::Loot(Loot{loot}),
+				ComponentWrapper::Interactable(Interactable::Trigger(Trigger::Die)),
+				ComponentWrapper::Flags(Flags(hashset!{Flag::Occupied}))
+			]
+		].concat())
 	}
 }
 

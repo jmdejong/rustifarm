@@ -46,10 +46,10 @@ impl DynamicAssemblage for ConfiguredAssemblage {
 	}
 	
 
-	fn instantiate(&self, template: &Template, arguments: HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>>{
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>>{
 		let mut args = self.arguments.clone();
 		for (key, param) in arguments {
-			args.insert(key, Some(param));
+			args.insert(key.to_string(), Some(param.clone()));
 		}
 		let mut components: Vec<ComponentWrapper> = Vec::new();
 		for (comptype, compparams) in &self.components {

@@ -14,7 +14,6 @@ mod controls;
 mod components;
 mod resources;
 mod systems;
-mod assemblages;
 mod worldmessages;
 mod pos;
 mod componentwrapper;

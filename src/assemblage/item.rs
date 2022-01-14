@@ -32,7 +32,7 @@ impl ItemAssemblage {
 }
 
 impl DynamicAssemblage for ItemAssemblage {
-	fn instantiate(&self, template: &Template, arguments: HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
 		let sprite = arguments.get("sprite")
 			.and_then(Sprite::from_parameter)
 			.or(self.sprite.clone())
