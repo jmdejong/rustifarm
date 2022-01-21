@@ -5,6 +5,7 @@ mod configured;
 mod item;
 mod crop;
 mod portal;
+mod particle;
 
 use std::collections::HashMap;
 use serde::{Deserialize, Deserializer};
@@ -30,6 +31,7 @@ pub use randomsprite::RandomSprite;
 pub use letter::Letter;
 pub use crop::{CropStage, Harvestable};
 pub use portal::{Portal, HomePortal};
+pub use particle::Particle;
 
 
 
@@ -54,7 +56,8 @@ pub enum AssemblageType {
 	ConfiguredAssemblage,
 	ItemAssemblage,
 	Portal,
-	HomePortal
+	HomePortal,
+	Particle
 }
 
 
@@ -117,6 +120,7 @@ pub fn default_assemblages() -> HashMap<EntityType, Assemblage> {
 		EntityType("cropstage".to_string()) => Assemblage::new(CropStage.into()),
 		EntityType("harvestable".to_string()) => Assemblage::new(Harvestable.into()),
 		EntityType("portal".to_string()) => Assemblage::new(Portal.into()),
-		EntityType("_homeportal".to_string()) => Assemblage::new(HomePortal.into())
+		EntityType("_homeportal".to_string()) => Assemblage::new(HomePortal.into()),
+		EntityType("particle".to_string()) => Assemblage::new(Particle.into())
 	}
 }

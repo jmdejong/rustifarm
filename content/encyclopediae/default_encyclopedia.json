@@ -24,12 +24,6 @@
 				["Health", {"health": {"$arg": "health"}, "maxhealth": 20}]
 			]
 		},
-		"wound": {
-			"sprite": "wound",
-			"height": 0.25,
-			"components": [["Timer", {"delay": 3, "spread": 0.0, "trigger": "remove", "target_time": []}]],
-			"save": false
-		},
 		"spawner": {
 			"arguments": {"template": null, "amount": 1, "delay": 0, "clan": "", "initial_spawn": true, "radius": 0},
 			"components": [
@@ -222,6 +216,7 @@
 		}
 	},
 	"templates": {
-		"homeportal": ["singleton", {"ent": {":template": "_homeportal"}}]
+		"homeportal": ["singleton", {"ent": {":template": "_homeportal"}}],
+		"wound": ["particle", {"sprite": "wound", "height": 0.25, "duration": 3}]
 	}
 }
