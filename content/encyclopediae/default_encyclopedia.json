@@ -93,44 +93,6 @@
 				["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
 			]
 		},
-		"spinningwheel": {
-			"sprite": "spinningwheel",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["spin ", [
-					["cotton yarn", ["cotton", "cotton"], ["cottonyarn"]]
-				]]}]
-			]
-		},
-		"loom": {
-			"sprite": "loom",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["weave ", [
-					["cotton cloth", ["cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn"], ["cottoncloth"]]
-				]]}]
-			]
-		},
-		"sewingtable": {
-			"sprite": "sewingtable",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["sew ", [
-					["cape", ["cottoncloth", "cottoncloth", "cottoncloth", "cottonyarn", "cottonyarn"], ["cape"]]
-				]]}]
-			]
-		},
-		"tub": {
-			"sprite": "tub",
-			"height": 1.0,
-			"components": [
-				["Interactable", {"typ": "exchange", "arg": ["dye ", [
-					["red cape", ["cape", "reddye"], ["redcape"]],
-					["green cape", ["cape", "greendye"], ["greencape"]],
-					["blue cape", ["cape", "bluedye"], ["bluecape"]]
-				]]}]
-			]
-		},
 		"densegrass": {
 			"sprite": "densegrass",
 			"height": 0.5,
@@ -217,6 +179,36 @@
 	},
 	"templates": {
 		"homeportal": ["singleton", {"ent": {":template": "_homeportal"}}],
-		"wound": ["particle", {"sprite": "wound", "height": 0.25, "duration": 3}]
+		"wound": ["particle", {"sprite": "wound", "height": 0.25, "duration": 3}],
+		"spinningwheel": ["craftingstation", {
+			"sprite": "spinningwheel",
+			"height": 1.0,
+			"exchanges": ["spin ", [
+				["cotton yarn", ["cotton", "cotton"], ["cottonyarn"]]
+			]]
+		}],
+		"loom": ["craftingstation", {
+			"sprite": "loom",
+			"height": 1.0,
+			"exchanges": ["weave ", [
+				["cotton cloth", ["cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn", "cottonyarn"], ["cottoncloth"]]
+			]]
+		}],
+		"sewingtable": ["craftingstation", {
+			"sprite": "sewingtable",
+			"height": 1.0,
+			"exchanges": ["sew ", [
+				["cape", ["cottoncloth", "cottoncloth", "cottoncloth", "cottonyarn", "cottonyarn"], ["cape"]]
+			]]
+		}],
+		"tub": ["craftingstation", {
+			"sprite": "tub",
+			"height": 1.0,
+			"exchanges": ["dye ", [
+				["red cape", ["cape", "reddye"], ["redcape"]],
+				["green cape", ["cape", "greendye"], ["greencape"]],
+				["blue cape", ["cape", "bluedye"], ["bluecape"]]
+			]]
+		}]
 	}
 }
