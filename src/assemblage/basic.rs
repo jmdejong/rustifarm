@@ -42,6 +42,18 @@ impl DynamicAssemblage for Visible {
 	}
 }
 
+
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct MaybeVisible;
+
+impl DynamicAssemblage for MaybeVisible {
+	
+	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+		 Ok(Visible.instantiate(template, arguments).unwrap_or(Vec::new()))
+	}
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct TemplateSave;
 

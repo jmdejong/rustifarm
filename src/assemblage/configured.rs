@@ -6,7 +6,7 @@ use crate::{
 	parameterexpression::{ParameterExpression, EvaluationError},
 	parameter::{Parameter},
 	componentwrapper::{ComponentWrapper, ComponentType},
-	components::{Serialise, Clan},
+	components::Serialise,
 	Template,
 	Result as AnyResult,
 	aerr,
@@ -64,9 +64,6 @@ impl DynamicAssemblage for ConfiguredAssemblage {
 		}
 		if template.should_save() && self.save {
 			components.push(ComponentWrapper::Serialise(Serialise{template: template.clone(), extract: self.extract.clone() }));
-		}
-		if let Some(clan) = &template.clan {
-			components.push(ComponentWrapper::Clan(Clan{name: clan.clone()}));
 		}
 		Ok(components)
 	}

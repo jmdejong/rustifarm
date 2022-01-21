@@ -4,6 +4,7 @@ mod letter;
 mod configured;
 mod item;
 mod crop;
+mod portal;
 
 use std::collections::HashMap;
 use serde::{Deserialize, Deserializer};
@@ -13,7 +14,8 @@ use crate::{
 	template::EntityType,
 	hashmap,
 	parameter::{Parameter},
-	componentwrapper::{ComponentWrapper},
+	componentwrapper::ComponentWrapper,
+	components::Clan,
 	Template,
 	Result as AnyResult,
 	sprite::Sprite,
@@ -27,6 +29,7 @@ pub use basic::BasicAssemblage;
 pub use randomsprite::RandomSprite;
 pub use letter::Letter;
 pub use crop::{CropStage, Harvestable};
+pub use portal::{Portal, HomePortal};
 
 
 
@@ -49,7 +52,9 @@ pub enum AssemblageType {
 	CropStage,
 	Harvestable,
 	ConfiguredAssemblage,
-	ItemAssemblage
+	ItemAssemblage,
+	Portal,
+	HomePortal
 }
 
 
@@ -80,7 +85,11 @@ impl Assemblage {
 		for (key, value) in template.kwargs.clone() {
 			arguments.insert(key, value);
 		}
-		self.assemblage.instantiate(template, &arguments)
+		let mut components = self.assemblage.instantiate(template, &arguments)?;
+		if let Some(clan) = &template.clan {
+			components.push(ComponentWrapper::Clan(Clan{name: clan.clone()}));
+		}
+		Ok(components)
 	}
 	
 	pub fn apply_arguments(&self, arguments: HashMap<String, Parameter>) -> Self {
@@ -106,6 +115,8 @@ pub fn default_assemblages() -> HashMap<EntityType, Assemblage> {
 		EntityType("randomsprite".to_string()) => Assemblage::new(RandomSprite.into()),
 		EntityType("letter".to_string()) => Assemblage::new(Letter.into()),
 		EntityType("cropstage".to_string()) => Assemblage::new(CropStage.into()),
-		EntityType("harvestable".to_string()) => Assemblage::new(Harvestable.into())
+		EntityType("harvestable".to_string()) => Assemblage::new(Harvestable.into()),
+		EntityType("portal".to_string()) => Assemblage::new(Portal.into()),
+		EntityType("_homeportal".to_string()) => Assemblage::new(HomePortal.into())
 	}
 }

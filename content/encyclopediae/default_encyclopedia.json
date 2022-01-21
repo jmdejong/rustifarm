@@ -1,22 +1,5 @@
 {
 	"assemblages": {
-		"portal": {
-			"arguments": {"destination": null, "destpos": ""},
-			"components": [
-				["RoomExit", {"destination": {"$arg": "destination"}, "dest_pos": {"$arg": "destpos"}}]
-			],
-			"flags": ["Floor"]
-		},
-		"_homeportal": {
-			"arguments": {"allowed": []},
-			"extract": {"allowed": ["Whitelist", "allowed"]},
-			"components": [
-				["RoomExit", {"destination": "_home+{player}", "dest_pos": ""}],
-				["Interactable", {"typ": "visit", "arg": "_home+{player}"}],
-				["Whitelist", {"allowed": {"$arg": "allowed"}}]
-			],
-			"flags": ["Floor"]
-		},
 		"builtwall": {
 			"arguments": {"health": 100},
 			"components": [
