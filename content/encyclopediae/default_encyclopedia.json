@@ -83,29 +83,6 @@
 			"components": [
 				["Interactable", {"typ": "say", "arg": "Good morning there, World"}]
 			]
-		},
-		"quarry": {
-			"sprite": "quarry",
-			"height": 2,
-			"components": [
-				["Interactable", {"typ": "mine", "arg": "mining"}],
-				["Minable", {"total": 20, "trigger": "loot"}],
-				["Loot", {"loot": [[{"$template": "stone"}, 1.0]]}]
-			]
-		},
-		"densegrass": {
-			"sprite": "densegrass",
-			"height": 0.5,
-			"components": [
-				["Interactable", {"typ": "mine", "arg": "gathering"}],
-				["Minable", {"total": 1, "trigger": "die"}],
-				["Loot", {"loot": [
-					[{"$template": "radishseed"}, 0.3],
-					[{"$template": "carrotseed"}, 0.1],
-					[{"$template": "cottonseed"}, 0.04]
-				]}],
-				["Requirements", {"required_flags": ["Floor", "Soil"], "blocking_flags": ["Occupied", "Blocking"]}]
-			]
 		}
 	},
 	"items": {
@@ -209,6 +186,21 @@
 				["green cape", ["cape", "greendye"], ["greencape"]],
 				["blue cape", ["cape", "bluedye"], ["bluecape"]]
 			]]
+		}],
+		"quarry": ["minable", {"sprite": "quarry", "height": 2.0, "effort": 20, "trigger": "loot", "stat": "mining", "loot": [[{":template": "stone"}, 1.0]]}],
+		"densegrass": ["minable", {
+			"sprite": "densegrass",
+			"height": 0.5,
+			"effort": 1,
+			"stat": "gathering",
+			"trigger": "die",
+			"loot": [
+				[{":template": "radishseed"}, 0.3],
+				[{":template": "carrotseed"}, 0.1],
+				[{":template": "cottonseed"}, 0.04]
+			],
+			"required_flags": ["Floor", "Soil"],
+			"blocking_flags": ["Occupied", "Blocking"]
 		}]
 	}
 }

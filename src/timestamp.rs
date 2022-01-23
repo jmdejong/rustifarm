@@ -1,7 +1,8 @@
 
 use std::ops::{Add, Sub};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Timestamp(pub i64);
 
 impl Add<i64> for Timestamp {

@@ -2,7 +2,12 @@
 use std::collections::{HashSet, HashMap};
 
 use crate::{
-	components::{flags::Flag, Flags, Visible as VisibleComponent, Serialise},
+	components::{
+		flags::Flag,
+		Flags,
+		Visible as VisibleComponent,
+		Serialise, Requirements
+	},
 	componentwrapper::ComponentWrapper,
 	assemblage::DynamicAssemblage,
 	parameter::Parameter,
@@ -57,7 +62,6 @@ impl DynamicAssemblage for MaybeVisible {
 #[derive(Debug, PartialEq, Clone)]
 pub struct TemplateSave;
 
-
 impl DynamicAssemblage for TemplateSave {
 	
 	fn instantiate(&self, template: &Template, _arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
@@ -69,19 +73,51 @@ impl DynamicAssemblage for TemplateSave {
 	}
 }
 
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CustomFlags;
+
+impl DynamicAssemblage for CustomFlags {
+	fn instantiate(&self, _template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+		Ok(if let Some(flags) = arguments.get("flags").and_then(<HashSet<Flag>>::from_parameter) {
+			vec![ComponentWrapper::Flags(Flags(flags))]
+		} else {
+			Vec::new()
+		})
+	}
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CustomRequirements;
+
+impl DynamicAssemblage for CustomRequirements {
+	fn instantiate(&self, _template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+		if let (Some(required_flags), Some(blocking_flags)) = (
+				arguments.get("required_flags").and_then(<HashSet<Flag>>::from_parameter),
+				arguments.get("blocking_flags").and_then(<HashSet<Flag>>::from_parameter)
+		){
+			Ok(vec![ComponentWrapper::Requirements(Requirements{
+				required_flags,
+				blocking_flags
+			})])
+		} else {
+			Ok(Vec::new())
+		}
+	}
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct BasicAssemblage;
 
 impl DynamicAssemblage for BasicAssemblage {
-	
+
 	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
-		let mut components = [
+		let components = [
 			Visible.instantiate(template, arguments)?,
-			TemplateSave.instantiate(template, arguments)?
-			].concat();
-		if let Some(flags) = arguments.get("flags").and_then(<HashSet<Flag>>::from_parameter) {
-			components.push(ComponentWrapper::Flags(Flags(flags)));
-		}
+			TemplateSave.instantiate(template, arguments)?,
+			CustomFlags.instantiate(template, arguments)?,
+			CustomRequirements.instantiate(template, arguments)?
+		].concat();
 		Ok(components)
 	}
 }

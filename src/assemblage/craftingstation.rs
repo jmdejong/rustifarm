@@ -15,7 +15,7 @@ use crate::{
 	item::ItemId,
 	exchange::Exchange
 };
-use super::basic::{Visible, TemplateSave};
+use super::basic::BasicAssemblage;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CraftingStation;
@@ -29,8 +29,7 @@ impl DynamicAssemblage for CraftingStation {
 			.ok_or(aerr!("no exchanges found when instantiating {:?}", template))?;
 		let exchanges = trades.into_iter().map(|(k, cost, offer)| (k, Exchange{cost, offer})).collect();
 		let components = [
-			Visible.instantiate(template, arguments)?,
-			TemplateSave.instantiate(template, arguments)?,
+			BasicAssemblage.instantiate(template, arguments)?,
 			vec![
 				ComponentWrapper::Interactable(Interactable::Exchange(prefix, exchanges))
 			]

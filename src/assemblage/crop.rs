@@ -1,5 +1,7 @@
 
 use std::collections::HashMap;
+use serde::{Deserialize};
+use serde_json::{json, from_value};
 
 use crate::{
 	components::{
@@ -15,14 +17,20 @@ use crate::{
 	componentwrapper::{ComponentWrapper, ComponentType},
 	assemblage::DynamicAssemblage,
 	parameter::Parameter,
-	fromtoparameter::FromToParameter,
 	template::Template,
 	Result as AnyResult,
-	aerr,
 	Timestamp,
 	hashset,
 };
 use super::basic::{Visible, TemplateSave};
+
+
+#[derive(Deserialize)]
+pub struct CropStageArgs {
+	pub delay: i64,
+	pub target_time: Option<Timestamp>,
+	pub next: Template
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CropStage;
@@ -30,23 +38,16 @@ pub struct CropStage;
 impl DynamicAssemblage for CropStage {
 	
 	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
+		let args: CropStageArgs = from_value(json!(arguments))?;
 		let mut components = Visible.instantiate(template, arguments)?;
-		let delay = arguments.get("delay")
-			.and_then(i64::from_parameter)
-			.ok_or(aerr!("no delay found when instantiating {:?}", template))?;
-		let target_time = arguments.get("target_time")
-			.and_then(Timestamp::from_parameter);
 		components.push(ComponentWrapper::Timer(Timer{
-			delay,
+			delay: args.delay,
 			spread: 0.5,
-			target_time,
+			target_time: args.target_time,
 			trigger: Trigger::Change
 		}));
 		components.push(ComponentWrapper::Flags(Flags(hashset!{Flag::Occupied})));
-		let next = arguments.get("next")
-			.and_then(Template::from_parameter)
-			.ok_or(aerr!("no next stage found when instantiating {:?}", template))?;
-		components.push(ComponentWrapper::Build(Build{obj: next}));
+		components.push(ComponentWrapper::Build(Build{obj: args.next}));
 		if template.should_save() {
 			components.push(ComponentWrapper::Serialise(Serialise{
 				template: template.clone(),
@@ -58,6 +59,10 @@ impl DynamicAssemblage for CropStage {
 }
 
 
+#[derive(Deserialize)]
+pub struct LootArg {
+	loot: Vec<(Template, f64)>
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Harvestable;
@@ -65,15 +70,12 @@ pub struct Harvestable;
 impl DynamicAssemblage for Harvestable {
 	
 	fn instantiate(&self, template: &Template, arguments: &HashMap<String, Parameter>) -> AnyResult<Vec<ComponentWrapper>> {
-		
-		let loot = arguments.get("loot")
-			.and_then(<Vec<(Template, f64)>>::from_parameter)
-			.ok_or(aerr!("no loot found when instantiating {:?}", template))?;
+		let arg: LootArg = from_value(json!(arguments))?;
 		Ok([
 			Visible.instantiate(template, arguments)?,
 			TemplateSave.instantiate(template, arguments)?,
 			vec![
-				ComponentWrapper::Loot(Loot{loot}),
+				ComponentWrapper::Loot(Loot{loot: arg.loot}),
 				ComponentWrapper::Interactable(Interactable::Trigger(Trigger::Die)),
 				ComponentWrapper::Flags(Flags(hashset!{Flag::Occupied}))
 			]
